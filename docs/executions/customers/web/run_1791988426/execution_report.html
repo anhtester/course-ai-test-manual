@@ -1,0 +1,69 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Execution Report — Customers run_1791988426</title>
+<style>body{font:15px/1.5 system-ui,sans-serif;max-width:1100px;margin:24px auto;padding:0 16px;color:#0f172a;background:#fff}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #cbd5e1;padding:6px 10px;text-align:left;vertical-align:top}th{background:#f1f5f9}code{background:#f1f5f9;padding:1px 4px;border-radius:3px}blockquote{border-left:4px solid #f59e0b;background:#fffbeb;margin:12px 0;padding:8px 14px}.p{color:#16a34a;font-weight:600}.f{color:#dc2626;font-weight:600}@media(prefers-color-scheme:dark){body{background:#0f172a;color:#e2e8f0}th{background:#1e293b}td,th{border-color:#334155}code{background:#1e293b}blockquote{background:#2a2410}}</style></head><body>
+<h1>Execution Report — Customers · Bộ TC (Part 01 — Vòng 1 Smoke)</h1>
+<table>
+<tr><th>Thông tin</th><th>Nội dung</th></tr>
+<tr><td>Run ID</td><td><code>run_1791988426</code></td></tr>
+<tr><td>Nền tảng</td><td><code>web</code></td></tr>
+<tr><td>Loại nguồn</td><td><code>Bộ TC</code></td></tr>
+<tr><td>Nguồn TC</td><td><a href="../../../../testcases/customers/web/parts/part_01_web_smoke.md"><code>docs/testcases/customers/web/parts/part_01_web_smoke.md</code></a></td></tr>
+<tr><td>Phạm vi</td><td>10 TC đầu chưa chạy: <code>CRM_CUST_TC_001</code> → <code>CRM_CUST_TC_010</code> (kế hoạch chạy 10 TC/ngày). Loại 0 TC <code>@Deprecated</code>. Login: 51/51 TC đã có kết quả ở các lần chạy trước → không còn TC chưa chạy; Customers: 0/129 TC đã chạy trước đó</td></tr>
+<tr><td>Môi trường</td><td><code>https://crm.anhtester.com</code> — Perfex CRM demo (dùng chung)</td></tr>
+<tr><td>Build / Version</td><td>Không có thông tin</td></tr>
+<tr><td>Tài khoản</td><td>Admin (<code>EMAIL_ADMIN</code> trong biến môi trường — không ghi mật khẩu)</td></tr>
+<tr><td>Người thực hiện</td><td>Agent chạy theo lịch (scheduled routine)</td></tr>
+<tr><td>Bắt đầu → Kết thúc</td><td>14-10-2026 14:33 → 14:34 (giờ máy chủ UTC)</td></tr>
+<tr><td>Môi trường dùng chung?</td><td>Có — auto-skip TC phá huỷ đang BẬT (10 TC này không có TC phá huỷ)</td></tr>
+</table>
+<blockquote>⚠️ <b>Ngoại lệ so với Browser Rules:</b> Playwright MCP không khởi động được trong môi trường cloud (thiếu Google Chrome: <code>Chromium distribution &#x27;chrome&#x27; is not found</code>), và container không có màn hình để chạy headed. Lần chạy này dùng <b>Chromium headless của Playwright, viewport <code>1600×750</code></b>, thao tác theo đúng từng bước TC bằng script, đối chiếu Expected qua DOM + màu/vị trí thực tế; các điểm nghi ngờ được xác nhận lại bằng ảnh chụp. Không có <code>browser_snapshot</code> của MCP. Đề nghị chạy lại các TC giao diện (TC_002, 003, 005–007) trên headed khi có máy.</blockquote>
+<h2>1. Tổng kết</h2>
+<table>
+<tr><th>Trạng thái</th><th>Số lượng</th><th>Tỷ lệ</th></tr>
+<tr><td><span class="p">✅ PASS</span></td><td>9</td><td>90.0%</td></tr>
+<tr><td><span class="f">❌ FAIL</span></td><td>1</td><td>10.0%</td></tr>
+<tr><td>⚠️ BLOCKED</td><td>0</td><td>0%</td></tr>
+<tr><td>⏭️ SKIPPED</td><td>0</td><td>0%</td></tr>
+<tr><td><b>Tổng</b></td><td><b>10</b></td><td>100%</td></tr>
+</table>
+<blockquote><b>Pass rate (không tính SKIPPED):</b> 9/10 = 90.0%. Tiến độ Customers: 10/129 TC đã chạy.</blockquote>
+<h2>2. Kết quả từng TC</h2>
+<table>
+<tr><th>TC ID</th><th>Test Scenario</th><th>Kết quả</th><th>Bước fail</th><th>Ghi chú</th></tr>
+<tr><td>CRM_CUST_TC_001</td><td>Mở màn hình danh sách khách hàng bằng mọi lối vào</td><td><span class="p">✅ PASS</span></td><td>—</td><td>Cả 2 biến thể <code>a</code> <code>b</code>; 🔧 HTTP 200 + class <code>clients</code> đạt</td></tr>
+<tr><td>CRM_CUST_TC_002</td><td>Thanh công cụ và khối Customers Summary</td><td><span class="p">✅ PASS</span></td><td>—</td><td>5 mục bảng kiểm đạt; <code>Total</code> = <code>Active</code> + <code>Inactive</code> (2774 = 2765 + 9)</td></tr>
+<tr><td>CRM_CUST_TC_003</td><td>Bảng danh sách đúng cấu trúc cột và trạng thái mặc định</td><td><span class="p">✅ PASS</span></td><td>—</td><td>6 mục đạt; ô <code>1</code> tô xanh xác nhận bằng ảnh</td></tr>
+<tr><td>CRM_CUST_TC_004</td><td>Dữ liệu hiển thị đúng định dạng, rê chuột hiện thao tác nhanh</td><td><span class="p">✅ PASS</span></td><td>—</td><td>Tiền đề tự dựng: <code>Auto_CUST_TC004_1791988426</code> (Phone <code>0901234567</code>) thay cho dữ liệu mẫu trong TC; đã xoá</td></tr>
+<tr><td>CRM_CUST_TC_005</td><td>Biểu mẫu thêm khách hàng đủ thành phần</td><td><span class="p">✅ PASS</span></td><td>—</td><td>🔧 <code>autofocus=&quot;1&quot;</code>, <code>POST</code> đạt</td></tr>
+<tr><td>CRM_CUST_TC_006</td><td>Các ô chọn ở trạng thái mặc định</td><td><span class="f">❌ FAIL</span></td><td>🔧 Ghi chú kỹ thuật</td><td>Chỉ phần 🔧 lệch — xem chi tiết #1. 6 mục bảng kiểm chính đều đạt</td></tr>
+<tr><td>CRM_CUST_TC_007</td><td>Tab Billing &amp; Shipping hiển thị đủ hai khối địa chỉ</td><td><span class="p">✅ PASS</span></td><td>—</td><td>Chú giải Shipping đúng nguyên văn</td></tr>
+<tr><td>CRM_CUST_TC_008</td><td>Mở biểu mẫu thêm khách hàng bằng mọi lối vào</td><td><span class="p">✅ PASS</span></td><td>—</td><td>Cả 2 biến thể <code>a</code> <code>b</code></td></tr>
+<tr><td>CRM_CUST_TC_009</td><td>Tạo khách hàng chỉ với Company</td><td><span class="p">✅ PASS</span></td><td>—</td><td>Tạo thành công, mở hồ sơ <code>#{id} &lt;tên&gt;</code>, đã xoá, tìm lại <code>No matching records found</code></td></tr>
+<tr><td>CRM_CUST_TC_010</td><td>Tạo khách hàng đầy đủ rồi mở lại đối chiếu</td><td><span class="p">✅ PASS</span></td><td>—</td><td>12 ô Customer Details + 10 ô billing/shipping đúng từng ký tự; nhóm đã chọn <code>123</code></td></tr>
+</table>
+<h2>3. Chi tiết TC FAIL</h2>
+<h3>FAIL #1 — CRM_CUST_TC_006 · Các ô chọn trên biểu mẫu thêm mới ở đúng trạng thái mặc định</h3>
+<table>
+<tr><th></th><th></th></tr>
+<tr><td>REQ ID</td><td>REQ-CUST-28, REQ-CUST-30, REQ-CUST-31, REQ-CUST-32, REQ-CUST-84</td></tr>
+<tr><td>Priority</td><td>Medium</td></tr>
+<tr><td>Bước fail</td><td>Phần 🔧 Ghi chú kỹ thuật (bảng kiểm 1–6 đều đạt)</td></tr>
+<tr><td><b>Expected</b></td><td>Số <code>&lt;option&gt;</code>: <code>groups_in[]</code> <b>305</b> · <code>default_currency</code> 3 · <code>default_language</code> 27 · <code>country</code> 251; <code>Vietnam</code> = <code>243</code></td></tr>
+<tr><td><b>Actual</b></td><td><code>groups_in[]</code> = <b>311</b>; các số còn lại và <code>Vietnam</code> = <code>243</code> khớp</td></tr>
+<tr><td>Nhận định</td><td>Số nhóm khách hàng là <b>dữ liệu dùng chung, người khác thêm được</b> (chênh +6 so với lúc viết TC) — nhiều khả năng <b>TC hard-code số thay đổi được</b>, không phải lỗi hệ thống. <b>Không báo bug</b>; đối chiếu lại TC</td></tr>
+<tr><td>Evidence</td><td><img src="evidence/CRM_CUST_TC_006_fail.png" style="max-width:100%"></td></tr>
+<tr><td>Tái hiện được?</td><td>Có — lần chạy thử trước đó cũng ra 311</td></tr>
+</table>
+<h2>4. TC BLOCKED</h2>
+<p>Không có.</p>
+<h2>5. Dữ liệu đã tạo &amp; dọn dẹp</h2>
+<table>
+<tr><th>Dữ liệu</th><th>Nơi tạo</th><th>Đã xoá?</th></tr>
+<tr><td>Auto_CUST_TC004_1791988426</td><td><code>/admin/clients/client</code></td><td>✅</td></tr>
+<tr><td>Auto_CUST_TC009_1791988426</td><td><code>/admin/clients/client</code></td><td>✅</td></tr>
+<tr><td>Auto_CUST_TC010_1791988426</td><td><code>/admin/clients/client</code></td><td>✅</td></tr>
+</table>
+<blockquote>Đối chiếu số liệu hệ thống: <code>Total/Active/Inactive Customers</code> trước 2774/2765/9 → sau 2774/2765/9 ✅. Lần chạy thử đầu (cùng ngày, trước run này) tạo và xoá 3 bản ghi tương tự <code>Auto_CUST_TC00x/010_1791988273</code>; số liệu cuối khớp nên coi như đã dọn.</blockquote>
+<h2>6. Đề xuất bước tiếp theo</h2>
+<p>• FAIL #1 → <b>không</b> <code>/create-bug-report</code>; dùng <code>/review-testcases</code> mode FIX để bỏ/nới con số 305 ở phần 🔧 của TC_006.</p>
+<p>• Ngày kế tiếp: chạy <code>CRM_CUST_TC_011</code> → <code>CRM_CUST_TC_020</code> (còn 119 TC Customers chưa chạy).</p>
+<p>• Cần sửa Playwright MCP trong môi trường cloud (cài Chrome hoặc trỏ <code>executablePath</code> Chromium) để chạy headed/snapshot đúng quy định.</p></body></html>
