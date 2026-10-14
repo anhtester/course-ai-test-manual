@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bug Report Viewer — Anh Tester</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23dc2626'/%3E%3Cpath d='M16 9v8M16 21v1.2' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --brand:#4DBD44; --brand-600:#3EA036; --brand-700:#2F7A29; --brand-50:#F0F9EF; --brand-100:#DCF0DA;
+  --crit:#dc2626; --major:#ea580c; --minor:#d97706; --trivial:#64748b;
+  --bg:#f6f7f9; --card:#fff; --line:#e4e7ec; --text:#111827; --muted:#6b7280;
+}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text)}
+button{font:inherit;cursor:pointer}
+h1,h2,h3{margin:0}
+code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:.92em;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+
+/* layout */
+header{background:#fff;border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
+.logo{width:30px;height:30px;border-radius:7px;background:var(--crit);display:grid;place-items:center;flex:none}
+.logo svg{width:19px;height:19px}
+.title{font-size:16px;font-weight:700}
+.subtitle{font-size:12px;color:var(--muted)}
+.spacer{flex:1}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 13px;font-weight:600;color:var(--text)}
+.btn:hover{background:#f9fafb}
+.btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-600)}
+.btn-sm{padding:4px 9px;font-size:12px;font-weight:500}
+
+main{display:flex;align-items:flex-start;gap:16px;padding:16px 20px;max-width:1800px;margin:0 auto}
+aside{width:250px;flex:none;position:sticky;top:72px;min-width:0}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0;overflow:hidden}
+.panel + .panel{margin-top:12px}
+.panel h3{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px}
+section.content{flex:1;min-width:0}
+
+/* drop zone */
+#drop{border:2px dashed var(--brand);border-radius:12px;background:var(--brand-50);padding:44px 20px;text-align:center;color:var(--brand-700);cursor:pointer}
+#drop.over{background:var(--brand-100)}
+#drop b{display:block;font-size:16px;margin-bottom:6px}
+#drop small{color:var(--muted);display:block;margin-top:10px;line-height:1.7}
+
+/* file list */
+.file{display:flex;align-items:center;gap:6px;padding:6px 7px;border-radius:7px;cursor:default;font-size:13px}
+.file:hover{background:#f3f4f6}
+.file .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file .rm{border:0;background:none;color:var(--muted);padding:0 3px;font-size:14px;line-height:1}
+.file .rm:hover{color:var(--crit)}
+.tag{font-size:10px;padding:1px 5px;border-radius:4px;background:#eef2ff;color:#4338ca;flex:none}
+.tag.idx{background:#f1f5f9;color:#475569}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.stat .n{font-size:23px;font-weight:700;line-height:1.2}
+.stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.stat.open .n{color:var(--crit)} .stat.closed .n{color:var(--brand-700)}
+.stat.pending .n{color:var(--minor)} .stat.crit .n{color:var(--crit)}
+
+/* alerts */
+.alert{border-radius:10px;padding:11px 14px;margin-bottom:10px;font-size:13px;border:1px solid}
+.alert b{display:block;margin-bottom:2px}
+.alert.danger{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.alert.warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.alert.info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+.alert ul{margin:5px 0 0;padding-left:19px}
+
+/* toolbar */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+input[type=search],select{border:1px solid var(--line);border-radius:8px;padding:7px 11px;font:inherit;background:#fff;color:var(--text)}
+input[type=search]{flex:1;min-width:200px}
+input[type=search]:focus,select:focus{outline:2px solid var(--brand-100);border-color:var(--brand)}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.chip.on{background:var(--brand-50);border-color:var(--brand);color:var(--brand-700)}
+.chiprow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chiprow .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-right:2px}
+
+/* table */
+.tablewrap{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#fafbfc;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);cursor:pointer;white-space:nowrap;position:sticky;top:0}
+th:hover{color:var(--text)}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#fafbfc}
+tbody tr.sel{background:var(--brand-50)}
+td.id{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;white-space:nowrap}
+.st{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.st.OPEN{background:#fee2e2;color:#991b1b} .st.CLOSED{background:#dcfce7;color:#166534}
+.st.PARTIAL{background:#ede9fe;color:#5b21b6} .st.CANNOT_VERIFY{background:#fef3c7;color:#92400e}
+.st.PENDING{background:#fef3c7;color:#92400e} .st.NEEDS_REVIEW{background:#ffedd5;color:#9a3412}
+.sv{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.sv.CRITICAL{background:#fee2e2;color:#991b1b} .sv.MAJOR{background:#ffedd5;color:#9a3412}
+.sv.MINOR{background:#fef3c7;color:#92400e} .sv.TRIVIAL{background:#f1f5f9;color:#475569}
+.pr{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11.5px;font-weight:700;background:#eef2ff;color:#4338ca;white-space:nowrap}
+.summary-flag{font-size:10.5px;color:var(--muted);font-style:italic}
+.empty{padding:34px;text-align:center;color:var(--muted)}
+
+/* detail */
+#detail{position:fixed;right:0;top:0;bottom:0;width:min(620px,94vw);background:#fff;border-left:1px solid var(--line);box-shadow:-8px 0 26px rgba(0,0,0,.09);padding:18px 20px;overflow:auto;z-index:40;display:none}
+#detail.open{display:block}
+#detail h2{font-size:15px;margin-bottom:3px}
+#detail .close{position:absolute;right:14px;top:14px;border:0;background:none;font-size:21px;color:var(--muted);line-height:1}
+.kv{margin-top:14px}
+.kv div{display:grid;grid-template-columns:150px 1fr;gap:10px;padding:7px 0;border-bottom:1px solid #f1f2f4;font-size:13px}
+.kv .k{color:var(--muted);font-weight:600;overflow-wrap:anywhere}
+.kv .v{white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;min-width:0}
+.retestwrap{margin-top:16px}
+.retestwrap h4{font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:7px}
+.retestwrap table{font-size:12px}
+.retestwrap th,.retestwrap td{padding:7px 8px}
+
+#meta{font-size:12.5px;min-width:0}
+#meta .row{padding:5px 0;border-bottom:1px solid #f1f2f4}
+#meta .row:last-child{border-bottom:0}
+#meta .mk{display:block;color:var(--muted);font-size:11px;line-height:1.35;margin-bottom:1px}
+#meta .mv{display:block;line-height:1.45;overflow-wrap:anywhere;word-break:break-word;hyphens:auto}
+
+/* lightbox xem ảnh evidence ngay giữa màn hình */
+.ev-chip{display:inline-flex;align-items:center;gap:5px;max-width:100%;margin:2px 5px 2px 0;padding:3px 8px;
+  border:1px solid var(--line);border-radius:7px;background:#fff;font-size:12px;cursor:pointer;
+  overflow-wrap:anywhere;text-align:left;line-height:1.35;font-family:inherit;color:var(--brand-700)}
+.ev-chip:hover{background:var(--brand-50);border-color:var(--brand)}
+.ev-chip.miss{cursor:not-allowed;color:var(--muted);border-style:dashed}
+.ev-chip.miss:hover{background:#fff;border-color:var(--line)}
+.ev-hint{display:block;margin-top:6px;font-size:11.5px;color:var(--muted);line-height:1.5}
+#lightbox{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
+  background:rgba(16,19,24,.84);padding:28px}
+#lightbox.open{display:flex}
+#lightbox figure{max-width:min(1400px,94vw);max-height:92vh;display:flex;flex-direction:column;gap:10px;margin:0}
+#lightbox img{max-width:100%;max-height:84vh;object-fit:contain;border-radius:8px;background:#fff;
+  box-shadow:0 18px 50px rgba(0,0,0,.4)}
+#lightbox figcaption{color:#e8eaed;font-size:12.5px;text-align:center;overflow-wrap:anywhere}
+#lbClose{position:absolute;right:20px;top:16px;border:0;background:rgba(255,255,255,.14);color:#fff;
+  width:34px;height:34px;border-radius:50%;font-size:21px;line-height:1;cursor:pointer}
+#lbClose:hover{background:rgba(255,255,255,.26)}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="7.5" fill="none" stroke="#fff" stroke-width="2.6"/><path d="M16 12v4.4M16 20.4v.1" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></div>
+  <div>
+    <div class="title">Bug Report Viewer</div>
+    <div class="subtitle">Xem &amp; lọc bug report — <code>BUG_&lt;module&gt;_*.md</code> · danh mục <code>docs/bugs/README.md</code></div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="btnCsv">↓ CSV</button>
+  <button class="btn" id="btnXlsx">↓ Excel</button>
+  <button class="btn" id="btnAdd">+ Import file .md</button>
+  <button class="btn btn-primary" id="btnAddFolder">+ Import thư mục</button>
+  <button class="btn" id="btnReset" style="display:none">Xoá tất cả</button>
+  <input type="file" id="file" accept=".md,.markdown,.png,.jpg,.jpeg,.gif,.webp,.svg" multiple hidden>
+  <input type="file" id="folder" webkitdirectory mozdirectory directory multiple hidden>
+</header>
+
+<main>
+  <aside>
+    <div class="panel">
+      <h3>Báo cáo đã nạp</h3>
+      <div id="files"></div>
+    </div>
+    <div class="panel" id="metaPanel" style="display:none">
+      <h3>Thông tin hệ thống</h3>
+      <div id="meta" style="font-size:12.5px"></div>
+    </div>
+  </aside>
+
+  <section class="content">
+    <div id="drop">
+      <b>Kéo thả file/thư mục bug vào đây</b>
+      Hoặc bấm <strong>+ Import thư mục</strong> / <strong>+ Import file .md</strong> ở góc trên — 2 nút đó vẫn còn sau khi đã nạp dữ liệu, bấm thêm được bất cứ lúc nào
+      <small>
+        Nhận <code>docs/bugs/&lt;module&gt;/BUG_*.md</code> — mỗi file là 1 bug, và/hoặc <code>docs/bugs/README.md</code> (danh mục, cho cái nhìn tổng quan khi chưa nạp từng file chi tiết)<br>
+        Nạp nhiều file cùng lúc để gộp từ nhiều module.<br>
+        Bug không có thư mục ảnh riêng — ảnh nằm ở <code>docs/executions/&lt;module&gt;/run_*/evidence/</code> của lần chạy sinh ra bug đó. Nạp thêm thư mục đó (khớp ảnh theo tên file, không theo đường dẫn, nên nạp từ đâu cũng được) để xem được luôn ảnh evidence — bấm vào ảnh trong ô chi tiết là hiện ngay giữa màn hình.<br>
+        <b>Kéo thả</b> thì chọn được nhiều thư mục cùng lúc (Ctrl+chọn trong Explorer rồi kéo cả cụm vào); <b>bấm + Import thư mục</b> thì hộp thoại hệ điều hành chỉ cho chọn <b>1 thư mục mỗi lần</b> — cần cả <code>docs/bugs/</code> lẫn <code>docs/executions/</code> thì bấm nút đó 2 lần, dữ liệu cộng dồn chứ không ghi đè.<br>
+        Toàn bộ xử lý chạy trong trình duyệt — không gửi dữ liệu đi đâu.
+      </small>
+    </div>
+
+    <div id="app" style="display:none">
+      <div id="alerts"></div>
+      <div class="stats" id="stats"></div>
+
+      <div class="toolbar">
+        <input type="search" id="q" placeholder="Tìm theo mã bug, tiêu đề, TC/REQ, Steps, Expected/Actual, ghi chú…">
+        <select id="fModule"><option value="">Mọi module</option></select>
+      </div>
+      <div class="toolbar">
+        <span class="chiprow"><span class="lbl">Trạng thái</span><span id="chipsSt"></span></span>
+        <span class="chiprow"><span class="lbl">Severity</span><span id="chipsSv"></span></span>
+        <span class="chiprow"><span class="lbl">Priority</span><span id="chipsPr"></span></span>
+      </div>
+
+      <div class="tablewrap">
+        <table id="tbl">
+          <thead><tr>
+            <th data-s="id">Mã bug</th><th data-s="title">Tiêu đề</th><th data-s="module">Module</th>
+            <th data-s="severity">Severity</th><th data-s="priority">Priority</th><th data-s="status">Trạng thái</th>
+            <th data-s="tc">TC liên quan</th><th data-s="dateFound">Ngày phát hiện</th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="empty" id="noRows" style="display:none">Không có bug nào khớp bộ lọc.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="detail">
+  <button class="close" id="btnClose">×</button>
+  <h2 id="dTitle"></h2>
+  <div class="subtitle" id="dSub"></div>
+  <div class="kv" id="dKv"></div>
+  <div class="retestwrap" id="dRetestWrap" style="display:none">
+    <h4>Lịch sử retest</h4>
+    <div class="tablewrap"><table><thead><tr><th>Ngày</th><th>Build</th><th>Kết quả</th><th>Retest report</th><th>Ghi chú</th></tr></thead>
+    <tbody id="dRetest"></tbody></table></div>
+  </div>
+</div>
+
+<div id="lightbox">
+  <button id="lbClose" title="Đóng (Esc)">×</button>
+  <figure>
+    <img id="lbImg" alt="">
+    <figcaption id="lbCap"></figcaption>
+  </figure>
+</div>
+
+<footer>Anh Tester · claude-testing-skills — dữ liệu lưu trong localStorage của trình duyệt này</footer>
+
+<script>
+/* ============================ PARSER (generic, dùng chung nhiều loại bảng) ============================ */
+const STATUS_MAP = [
+  [/CANNOT[_ ]?VERIFY|KHÔNG VERIFY|KHONG VERIFY/i, 'CANNOT_VERIFY'],
+  [/NOT[_ ]?FIXED|CHƯA FIX|CHUA FIX/i, 'NOT_FIXED'],
+  [/PARTIAL|MỘT PHẦN/i, 'PARTIAL'],
+  [/FIXED|ĐÃ FIX/i, 'FIXED'],
+];
+function normStatus(raw){
+  const t = String(raw||'').replace(/[^\p{L}\p{N}_ ]/gu,' ').trim();
+  for (const [re,v] of STATUS_MAP) if (re.test(t)) return v;
+  return '';
+}
+const clean = s => String(s||'').replace(/\\\|/g,'|').replace(/<br\s*\/?>/gi,'\n').trim();
+const PLACEHOLDER = /^(?:[—–\-]+|n\/a|na)$/i;
+function stripMd(s){
+  const v = clean(s).replace(/!?\[([^\]]*)\]\(([^)]*)\)/g,(m,a,b)=>a||b).replace(/[`*]/g,'').trim();
+  return PLACEHOLDER.test(v) ? '' : v;
+}
+const splitRow = r => r.trim().replace(/^\|/,'').replace(/\|$/,'').split(/(?<!\\)\|/).map(clean);
+
+function parseTables(lines){
+  const out=[]; let i=0, heading='';
+  while(i<lines.length){
+    const L=lines[i];
+    const h=L.match(/^(#{2,4})\s+(.*)$/);
+    if(h){ heading=h[2].trim(); i++; continue; }
+    if(/^\s*\|/.test(L)){
+      const blk=[]; while(i<lines.length && /^\s*\|/.test(lines[i])) blk.push(lines[i++]);
+      if(blk.length>=2 && /^[\s|:-]+$/.test(blk[1])){
+        const header=splitRow(blk[0]);
+        const rows=blk.slice(2).filter(r=>!/^[\s|:-]+$/.test(r)).map(splitRow).filter(r=>r.some(c=>c!==''));
+        out.push({heading,header,rows});
+      }
+      continue;
+    }
+    i++;
+  }
+  return out;
+}
+const colIdx=(header,re)=>header.findIndex(h=>re.test(h));
+
+/* ============================ PARSER (đặc thù bug report) ==============================
+   Một file BUG_*.md KHÔNG dùng bảng cho "Thông tin chung" / "Ghi chú thêm" — dùng bullet
+   "- **Key:** value" hoặc đoạn văn "**Key:** value". Chỉ "Lịch sử retest" là bảng pipe thật. */
+const SEV_MAP=[[/critical|nghiêm trọng/i,'CRITICAL'],[/major/i,'MAJOR'],[/minor/i,'MINOR'],[/trivial/i,'TRIVIAL']];
+const SEV_LABEL={CRITICAL:'🔴 Critical',MAJOR:'🟠 Major',MINOR:'🟡 Minor',TRIVIAL:'🟢 Trivial'};
+const ST_LABEL={OPEN:'🔴 Đang mở',PARTIAL:'🟡 Một phần (PARTIAL)',CANNOT_VERIFY:'⚠️ Không verify được',
+  CLOSED:'🟢 Đã đóng',PENDING:'🟡 Chờ retest',NEEDS_REVIEW:'⚠️ Cần rà lại'};
+const ALL_ST=['OPEN','PARTIAL','CANNOT_VERIFY','PENDING','NEEDS_REVIEW','CLOSED'];
+const ALL_SV=['CRITICAL','MAJOR','MINOR','TRIVIAL'];
+const ALL_PR=['P1','P2','P3'];
+
+function splitSections(text){
+  const lines=text.split(/\r?\n/);
+  const sec={}; let cur='_pre'; sec[cur]=[];
+  for(const line of lines){
+    const m=line.match(/^##\s+(.*)$/);
+    if(m){ cur=m[1].trim(); sec[cur]=sec[cur]||[]; continue; }
+    sec[cur].push(line);
+  }
+  return sec;
+}
+// Nhận cả "- **Key:** value" (bullet) lẫn "**Key:** value" (đoạn văn, không bullet)
+function extractBoldKV(lines){
+  const o={};
+  for(const raw of lines){
+    const line=raw.replace(/^-\s+/,'').trim();
+    const m=line.match(/^\*\*([^*]+?):\*\*\s*(.*)$/);
+    if(m){ const k=m[1].trim(), v=m[2].trim(); if(v || !(k in o)) o[k]=v; }
+  }
+  return o;
+}
+function findKey(o,res){ for(const re of res) for(const k of Object.keys(o)) if(re.test(k)) return o[k]; return ''; }
+const isBugFile = text => /\*\*ID:\*\*\s*BUG_/.test(text);
+
+function parseBugFile(text, fileName){
+  const titleLine=(text.match(/^#\s*\[BUG\]\s*(.*)$/m)||[,''])[1].trim() || (text.match(/^#\s+(.*)$/m)||[,''])[1].trim();
+  const sec=splitSections(text);
+  const infoKV=extractBoldKV(sec['Thông tin chung']||[]);
+  const noteKV=extractBoldKV(sec['Ghi chú thêm']||[]);
+
+  const id=(infoKV['ID']||fileName.replace(/\.md$/,'')).trim();
+  const module=(id.match(/^BUG_([^_]+)_/i)||[,'unknown'])[1].toLowerCase();
+  const sevRaw=infoKV['Severity']||'';
+  const severity=(SEV_MAP.find(([re])=>re.test(sevRaw))||[,''])[1];
+  const prioRaw=infoKV['Priority']||'';
+  const priority=(prioRaw.match(/P[1-3]/i)||[''])[0].toUpperCase();
+  const execRuns=Object.keys(infoKV).filter(k=>/execution run/i.test(k)).map(k=>`${k}: ${infoKV[k]}`).join('\n');
+
+  // Lịch sử retest — bảng pipe thật dưới heading đó (dòng đầu = mới nhất, theo quy ước dự án)
+  const rtabs=parseTables(sec['Lịch sử retest']||[]);
+  const rtab=rtabs.find(t=>colIdx(t.header,/ngày/i)>=0 && colIdx(t.header,/kết quả/i)>=0);
+  const retest=[];
+  if(rtab){
+    const iD=colIdx(rtab.header,/ngày/i), iB=colIdx(rtab.header,/build/i),
+          iR=colIdx(rtab.header,/kết quả/i), iRep=colIdx(rtab.header,/retest report/i),
+          iN=colIdx(rtab.header,/ghi chú/i);
+    for(const r of rtab.rows){
+      const result=stripMd(r[iR]); if(!result) continue;
+      retest.push({date:stripMd(r[iD]), build:stripMd(r[iB]), result, resultCode:normStatus(result),
+        report:r[iRep]||'', note:stripMd(r[iN])});
+    }
+  }
+  let status='OPEN';
+  if(retest.length){
+    const latest=retest[0].resultCode;
+    status = latest==='FIXED' ? 'CLOSED' : latest==='PARTIAL' ? 'PARTIAL' : latest==='CANNOT_VERIFY' ? 'CANNOT_VERIFY' : 'OPEN';
+  }
+
+  return {
+    kind:'bug', fileName, id, module, title:titleLine,
+    severityRaw:sevRaw, severity, priorityRaw:prioRaw, priority,
+    env:infoKV['Môi trường']||'', build:infoKV['Build / Version']||infoKV['Build']||'',
+    tc:stripMd(infoKV['Test case liên quan']||''), req:stripMd(infoKV['REQ ID liên quan']||infoKV['Requirement']||''),
+    testData:infoKV['Test data đã dùng']||'', dateFound:infoKV['Ngày phát hiện']||'', executionRun:execRuns,
+    steps:(sec['Steps to Reproduce']||[]).join('\n').trim(),
+    expected:(sec['Expected Result']||[]).join('\n').trim(),
+    actual:(sec['Actual Result']||[]).join('\n').trim(),
+    evidenceRaw:(sec['Evidence']||[]).join('\n').trim(),
+    freq:noteKV['Tần suất tái hiện']||'',
+    workaround:findKey(noteKV,[/^workaround/i])||'',
+    rootCause:findKey(noteKV,[/root cause/i])||'',
+    proposedFix:findKey(noteKV,[/đề xuất fix/i])||'',
+    verifyAfterFix:findKey(noteKV,[/cách verify sau khi fix/i])||'',
+    notesOther:Object.entries(noteKV).filter(([k])=>!/tần suất|workaround|root cause|đề xuất fix|verify sau khi fix/i.test(k))
+      .map(([k,v])=>`${k}: ${v}`).join('\n'),
+    retest, retestCount:retest.length, status, statusRaw:''
+  };
+}
+
+// docs/bugs/README.md — danh mục tổng quan, dùng khi chưa nạp từng file bug chi tiết
+function parseBugIndex(text, fileName){
+  const tables=parseTables(text.split(/\r?\n/));
+  const t=tables.find(t=>colIdx(t.header,/mã bug/i)>=0 && colIdx(t.header,/trạng thái/i)>=0);
+  const out=[];
+  if(t){
+    const iId=colIdx(t.header,/mã bug/i), iMod=colIdx(t.header,/module/i), iTitle=colIdx(t.header,/tiêu đề/i),
+          iSev=colIdx(t.header,/severity/i), iPrio=colIdx(t.header,/priority/i), iSt=colIdx(t.header,/trạng thái/i),
+          iTc=colIdx(t.header,/tc liên quan/i), iDate=colIdx(t.header,/ngày phát hiện/i);
+    for(const r of t.rows){
+      const rawId=r[iId]||''; const m=rawId.match(/\[([^\]]+)\]/);
+      const id=(m?m[1]:stripMd(rawId)).trim(); if(!id) continue;
+      const statusRaw=stripMd(r[iSt]||'');
+      let status='OPEN';
+      if(/đóng/i.test(statusRaw)) status='CLOSED';
+      else if(/chờ retest|đã fix/i.test(statusRaw)) status='PENDING';
+      else if(/rà lại/i.test(statusRaw)) status='NEEDS_REVIEW';
+      const sevRaw=stripMd(r[iSev]||''); const severity=(SEV_MAP.find(([re])=>re.test(sevRaw))||[,''])[1];
+      const prioRaw=stripMd(r[iPrio]||''); const priority=(prioRaw.match(/P[1-3]/i)||[''])[0].toUpperCase();
+      out.push({kind:'summary', fileName, id, module:(id.match(/^BUG_([^_]+)_/i)||[,stripMd(r[iMod]||'unknown')])[1].toLowerCase(),
+        title:stripMd(r[iTitle]||''), severityRaw:sevRaw, severity, priorityRaw:prioRaw, priority,
+        env:'', build:'', tc:stripMd(r[iTc]||''), req:'', testData:'', dateFound:stripMd(r[iDate]||''), executionRun:'',
+        steps:'', expected:'', actual:'', evidenceRaw:'', freq:'', workaround:'', rootCause:'', proposedFix:'',
+        verifyAfterFix:'', notesOther:'', retest:[], retestCount:0, status, statusRaw});
+    }
+  }
+  // bảng header 2 cột (Mục | Giá trị) đầu file — thông tin hệ thống
+  const meta={};
+  for(const tb of tables){ if(tb.header.length===2 && !tb.heading){ for(const r of tb.rows) if(r[0]) meta[r[0]]=stripMd(r[1]); } }
+  return {rows:out, meta};
+}
+
+/* ============================ STATE ============================ */
+let DOCS=[];
+const offStatus=new Set(), offSev=new Set(), offPrio=new Set();
+const $=s=>document.querySelector(s);
+let sortKey='dateFound', sortDir=-1;
+let indexMeta={};
+
+function save(){ try{ localStorage.setItem('bugsViewer', JSON.stringify(DOCS)); }catch(e){} }
+function load(){ try{ const r=localStorage.getItem('bugsViewer'); if(r) DOCS=JSON.parse(r); }catch(e){} }
+
+/* ---- Ảnh evidence — xem README của execution-viewer để biết lý do phải kéo thả thủ công ---- */
+const IMG_RE=/\.(png|jpe?g|gif|webp|svg)$/i;
+const IMAGES=new Map();
+const baseName=p=>String(p).split(/[\\/]/).pop().trim();
+function addImages(files){
+  let n=0;
+  for(const f of files){
+    if(!IMG_RE.test(f.name)) continue;
+    const k=f.name.toLowerCase();
+    if(IMAGES.has(k)) URL.revokeObjectURL(IMAGES.get(k));
+    IMAGES.set(k, URL.createObjectURL(f)); n++;
+  }
+  return n;
+}
+function readEntry(entry, out){
+  return new Promise(res=>{
+    if(entry.isFile) return entry.file(f=>{ out.push(f); res(); }, res);
+    if(entry.isDirectory){
+      const rd=entry.createReader(); const all=[];
+      const step=()=>rd.readEntries(batch=>{
+        if(!batch.length) return Promise.all(all.map(e=>readEntry(e,out))).then(res);
+        all.push(...batch); step();
+      }, res);
+      return step();
+    }
+    res();
+  });
+}
+async function filesFromDrop(dt){
+  const items=[...(dt.items||[])].filter(i=>i.kind==='file');
+  const entries=items.map(i=>i.webkitGetAsEntry?.()).filter(Boolean);
+  if(!entries.length) return [...(dt.files||[])];
+  const out=[]; await Promise.all(entries.map(e=>readEntry(e,out)));
+  return out.length?out:[...(dt.files||[])];
+}
+function addFiles(fileList){
+  const arr=[...fileList];
+  const nImg=addImages(arr);
+  const jobs=arr.filter(f=>/\.(md|markdown)$/i.test(f.name)).map(f=>
+    f.text().then(t=>{
+      DOCS=DOCS.filter(x=>x.fileName!==f.name);
+      if(isBugFile(t)) DOCS.push(parseBugFile(t,f.name));
+      else if(/mã bug|danh mục bug/i.test(t)){
+        const {rows,meta}=parseBugIndex(t,f.name);
+        DOCS.push(...rows);
+        if(Object.keys(meta).length) indexMeta=meta;
+      }
+    }));
+  Promise.all(jobs).then(()=>{ save(); render();
+    if(nImg && !jobs.length) toast(`Đã nạp ${nImg} ảnh evidence`); });
+}
+function toast(msg){
+  const el=document.createElement('div');
+  el.textContent=msg;
+  el.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#101318;color:#fff;'+
+    'padding:9px 16px;border-radius:8px;font-size:13px;z-index:70;box-shadow:0 8px 24px rgba(0,0,0,.3)';
+  document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
+}
+/* Nhận hai dạng, với luật khác nhau (giữ đồng bộ với execution-viewer):
+     1. Link Markdown `![](x.png)` / `[](x.png)` — luôn thành chip. Chưa nạp ảnh thì hiện chip
+        "chưa nạp" kèm hướng dẫn, vì tác giả đã khai rõ đây là evidence.
+     2. Đường dẫn trần `evidence/TC_004_x.png` — CHỈ thành chip khi ảnh đã được nạp.
+   Điều kiện "đã nạp" ở dạng 2 giữ nguyên mục đích ban đầu: tên file nhắc tới trong văn xuôi
+   (ảnh cũ đã mất, chỉ ghi lại để tham khảo) không sinh chip "chưa nạp" gây hiểu nhầm. */
+function evidenceHTML(raw){
+  const txt=String(raw||''); const found=[];
+  const rest=txt.replace(/!?\[[^\]]*\]\(([^)]+)\)/gi,
+    (m,a)=>{ const p=(a||'').trim(); if(p && IMG_RE.test(p)) found.push(p); return ' '; });
+  for(const tok of rest.split(/[\s,;|]+/)){
+    const t=tok.trim().replace(/^[('"<]+|[)'">.,;]+$/g,'');
+    if(t && IMG_RE.test(t) && IMAGES.has(baseName(t).toLowerCase())) found.push(t);
+  }
+  if(!found.length) return `<span class="v">${esc(txt)||'—'}</span>`;
+  const uniq=[...new Set(found)];
+  const chips=uniq.map(p=>{
+    const bn=baseName(p), has=IMAGES.has(bn.toLowerCase());
+    return has
+      ? `<button type="button" class="ev-chip" data-img="${esc(bn)}" title="Bấm để xem ảnh">🖼 ${esc(bn)}</button>`
+      : `<span class="ev-chip miss" title="Chưa nạp ảnh này vào viewer">🖼 ${esc(bn)}</span>`;
+  }).join('');
+  const missing=uniq.filter(p=>!IMAGES.has(baseName(p).toLowerCase())).length;
+  const hint=missing
+    ? `<span class="ev-hint">Bug không có thư mục ảnh riêng — ảnh nằm ở <code>docs/executions/&lt;module&gt;/run_*/evidence/</code> của (các) lần chạy được link tới ở trên. Kéo thả thư mục <code>evidence/</code> đó (hoặc chính các file ảnh, khớp theo tên file nên kéo nhiều thư mục cùng lúc vẫn được) vào trang để xem được ${missing} ảnh còn thiếu.</span>`
+    : '';
+  return `<span class="v">${chips}${hint}</span>`;
+}
+function openLightbox(bn){
+  const url=IMAGES.get(String(bn).toLowerCase()); if(!url) return;
+  $('#lbImg').src=url; $('#lbCap').textContent=bn;
+  $('#lightbox').classList.add('open');
+}
+function closeLightbox(){ $('#lightbox').classList.remove('open'); $('#lbImg').removeAttribute('src'); }
+
+/* ============================ DERIVED ============================ */
+// Gộp trùng theo ID: ưu tiên bản chi tiết (kind:'bug') hơn bản tóm tắt từ danh mục (kind:'summary')
+function allBugs(){
+  const byId={};
+  for(const d of DOCS){
+    if(!byId[d.id] || (byId[d.id].kind==='summary' && d.kind==='bug')) byId[d.id]=d;
+  }
+  return Object.values(byId);
+}
+function filtered(){
+  const q=$('#q').value.trim().toLowerCase();
+  const mod=$('#fModule').value;
+  return allBugs().filter(b=>{
+    if(offStatus.has(b.status)) return false;
+    if(b.severity && offSev.has(b.severity)) return false;
+    if(b.priority && offPrio.has(b.priority)) return false;
+    if(mod && b.module!==mod) return false;
+    if(!q) return true;
+    return [b.id,b.title,b.module,b.tc,b.req,b.steps,b.expected,b.actual,b.freq,b.workaround,b.rootCause,
+      b.proposedFix,b.notesOther,b.build,b.env]
+      .some(v=>String(v||'').toLowerCase().includes(q));
+  }).sort(rowCmp(sortKey, sortDir));
+}
+
+/* Sort: cột có thứ bậc phải so theo BẢNG BẬC, không so theo chữ cái — sort theo chữ cái cho ra
+   "Không verify được, Đã đóng, Cần rà lại, Đang mở..." là thứ tự vô nghĩa với người đọc.
+   Trước đây severity/priority tình cờ đúng vì alphabet trùng thứ bậc (CRITICAL<MAJOR<MINOR<TRIVIAL);
+   thêm một mức mới như BLOCKER là vỡ ngay, nên khai bảng bậc tường minh. */
+const SEV_RANK={CRITICAL:0,MAJOR:1,MINOR:2,TRIVIAL:3};
+const PRIO_RANK={P1:0,P2:1,P3:2};
+const STATUS_RANK=ALL_ST.reduce((o,s,i)=>(o[s]=i,o),{}); // còn việc phải làm → xong
+const RANKS={severity:SEV_RANK, priority:PRIO_RANK, status:STATUS_RANK};
+
+// Tài liệu viết ngày DD-MM-YYYY / DD/MM/YYYY; tài liệu cũ còn YYYY-MM-DD. So chuỗi sẽ xếp sai
+// ("02-08-2026" đứng trước "20-07-2026") nên quy về số YYYYMMDD. Không đọc được → null, rơi về so chuỗi.
+const DATE_KEYS=new Set(['dateFound']);
+function dateNum(s){
+  let m=String(s).match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+  if(m) return +m[3]*10000 + +m[2]*100 + +m[1];
+  m=String(s).match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  return m ? +m[1]*10000 + +m[2]*100 + +m[3] : null;
+}
+
+function rowCmp(key, dir){
+  const rank=RANKS[key];
+  return (x,y)=>{
+    const a=String(x[key]??'').trim(), b=String(y[key]??'').trim();
+    // Ô rỗng luôn xuống cuối, bất kể chiều sort — bug thiếu dữ liệu không được chen lên đầu bảng
+    if(!a!==!b) return a?-1:1;
+    const da=DATE_KEYS.has(key)?dateNum(a):null, db=DATE_KEYS.has(key)?dateNum(b):null;
+    const main = rank
+      ? (rank[a]??99)-(rank[b]??99)
+      : (da!==null && db!==null) ? da-db
+      : a.localeCompare(b,'vi',{numeric:true,sensitivity:'base'});
+    // dir CHỈ áp lên phép so sánh chính. Áp cả lên tie-break thì các dòng cùng giá trị sẽ
+    // đảo ngược theo hướng sort, trông như sort sai.
+    return dir*main || String(x.id||'').localeCompare(String(y.id||''),'vi',{numeric:true});
+  };
+}
+
+/* ============================ RENDER ============================ */
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function render(){
+  const has=DOCS.length>0;
+  $('#drop').style.display=has?'none':'block';
+  $('#app').style.display=has?'block':'none';
+  $('#btnReset').style.display=has?'':'none';
+  if(!has){ $('#files').innerHTML='<div style="color:var(--muted);font-size:12.5px">Chưa có file nào</div>'; $('#metaPanel').style.display='none'; return; }
+
+  // sidebar — mỗi file nguồn 1 dòng (không phải mỗi bug, vì bug đã gộp/dedupe ở allBugs())
+  const files=[...new Set(DOCS.map(d=>d.fileName))];
+  $('#files').innerHTML=files.map(f=>{
+    const items=DOCS.filter(d=>d.fileName===f);
+    const isIdx=items.some(d=>d.kind==='summary');
+    return `<div class="file"><span class="tag ${isIdx?'idx':''}">${isIdx?'DANH MỤC':'BUG'}</span>
+      <span class="nm" title="${esc(f)}">${esc(isIdx?f:(items[0].id))}</span>
+      <button class="rm" data-rm="${esc(f)}" title="Gỡ file">×</button></div>`;
+  }).join('');
+
+  if(Object.keys(indexMeta).length){
+    $('#metaPanel').style.display='block';
+    $('#meta').innerHTML=Object.entries(indexMeta).slice(0,8)
+      .map(([k,v])=>`<div class="row"><span class="mk">${esc(k)}</span><span class="mv">${esc(v)}</span></div>`).join('');
+  } else $('#metaPanel').style.display='none';
+
+  const base=allBugs();
+  const mods=[...new Set(base.map(b=>b.module))].sort();
+  const cur=$('#fModule').value;
+  $('#fModule').innerHTML='<option value="">Mọi module</option>'+mods.map(m=>`<option ${cur===m?'selected':''}>${esc(m)}</option>`).join('');
+
+  // stats
+  const open=base.filter(b=>b.status==='OPEN').length;
+  const closed=base.filter(b=>b.status==='CLOSED').length;
+  const pending=base.filter(b=>['PARTIAL','PENDING','CANNOT_VERIFY','NEEDS_REVIEW'].includes(b.status)).length;
+  const critOpen=base.filter(b=>b.severity==='CRITICAL'&&b.status!=='CLOSED');
+  $('#stats').innerHTML=[
+    ['','Tổng bug',base.length],['open','🔴 Đang mở',open],['pending','🟡 Chưa xong hẳn',pending],
+    ['closed','🟢 Đã đóng',closed],['crit','🔴 Critical đang mở',critOpen.length]
+  ].map(([cl,l,n])=>`<div class="stat ${cl}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+
+  // alerts
+  const al=[];
+  if(critOpen.length) al.push(['danger',`${critOpen.length} bug Critical đang mở — ưu tiên xử lý trước`,
+    critOpen.map(b=>`<b>${esc(b.id)}</b>`).join(' · ')]);
+  const recurNotFixed=base.filter(b=>b.retest.filter(r=>r.resultCode==='NOT_FIXED').length>=2);
+  if(recurNotFixed.length) al.push(['warn',`${recurNotFixed.length} bug retest ${'❌'} NOT_FIXED từ 2 lần trở lên — fix chưa triệt để`,
+    recurNotFixed.map(b=>`<b>${esc(b.id)}</b> (${b.retest.filter(r=>r.resultCode==='NOT_FIXED').length} lần)`).join(' · ')]);
+  const missingRef=base.filter(b=>b.kind==='bug' && (!b.build || !b.req));
+  if(missingRef.length) al.push(['warn',`${missingRef.length} bug thiếu Build/Version hoặc REQ ID — retest sau khó đối chiếu phạm vi`,
+    missingRef.map(b=>`<b>${esc(b.id)}</b>`).join(' · ')]);
+  const summaryOnly=base.filter(b=>b.kind==='summary');
+  if(summaryOnly.length) al.push(['info',`${summaryOnly.length} bug mới chỉ có tóm tắt từ danh mục — chưa đủ chi tiết`,
+    'Kéo thả thêm file <code>BUG_*.md</code> tương ứng để xem đầy đủ Steps/Expected/Actual/Evidence/Lịch sử retest.']);
+  $('#alerts').innerHTML=al.map(([k,t,d])=>`<div class="alert ${k}"><b>${t}</b>${d||''}</div>`).join('');
+
+  // chips
+  $('#chipsSt').innerHTML=ALL_ST.map(s=>`<button class="chip ${offStatus.has(s)?'':'on'}" data-st="${s}">${ST_LABEL[s]}</button>`).join(' ');
+  $('#chipsSv').innerHTML=ALL_SV.map(s=>`<button class="chip ${offSev.has(s)?'':'on'}" data-sv="${s}">${SEV_LABEL[s]}</button>`).join(' ');
+  $('#chipsPr').innerHTML=ALL_PR.map(p=>`<button class="chip ${offPrio.has(p)?'':'on'}" data-pr="${p}">${p}</button>`).join(' ');
+
+  // rows
+  const rows=filtered();
+  $('#rows').innerHTML=rows.map((b,i)=>`<tr data-i="${i}">
+    <td class="id">${esc(b.id)}</td>
+    <td>${esc(b.title||'—')}${b.kind==='summary'?'<div class="summary-flag">chỉ có tóm tắt — chưa nạp file chi tiết</div>':''}</td>
+    <td>${esc(b.module)}</td>
+    <td>${b.severity?`<span class="sv ${b.severity}">${SEV_LABEL[b.severity]}</span>`:'—'}</td>
+    <td>${b.priority?`<span class="pr">${b.priority}</span>`:'—'}</td>
+    <td><span class="st ${b.status}">${ST_LABEL[b.status]||b.status}</span></td>
+    <td>${esc(b.tc||'—')}</td>
+    <td>${esc(b.dateFound||'—')}</td></tr>`).join('');
+  $('#noRows').style.display=rows.length?'none':'block';
+  window.__rows=rows;
+}
+
+function openDetail(b){
+  $('#dTitle').textContent=b.id;
+  $('#dSub').textContent=b.title||'';
+  const fields=[
+    ['Trạng thái','statusLabel'],['Module','module'],['Severity','severityRaw'],['Priority','priorityRaw'],
+    ['Môi trường','env'],['Build / Version','build'],['Test case liên quan','tc'],['REQ ID liên quan','req'],
+    ['Test data đã dùng','testData'],['Ngày phát hiện','dateFound'],['Execution run','executionRun'],
+    ['Steps to Reproduce','steps'],['Expected Result','expected'],['Actual Result','actual'],
+    ['Evidence','evidenceRaw'],['Tần suất tái hiện','freq'],['Workaround','workaround'],
+    ['Nghi ngờ root cause','rootCause'],['Đề xuất fix','proposedFix'],['Cách verify sau fix','verifyAfterFix'],
+    ['Ghi chú khác','notesOther'],['File nguồn','fileName']
+  ];
+  const o={...b, statusLabel: ST_LABEL[b.status]||b.status};
+  $('#dKv').innerHTML=fields.filter(([,k])=>o[k]).map(([l,k])=>
+    `<div><span class="k">${l}</span>${k==='evidenceRaw'?evidenceHTML(o[k]):`<span class="v">${esc(o[k])}</span>`}</div>`
+  ).join('')||'<div style="color:var(--muted)">Chỉ có tóm tắt từ danh mục — kéo thả file bug gốc để xem đầy đủ.</div>';
+
+  if(b.retest && b.retest.length){
+    $('#dRetestWrap').style.display='block';
+    $('#dRetest').innerHTML=b.retest.map(r=>`<tr>
+      <td>${esc(r.date||'—')}</td><td>${esc(r.build||'—')}</td>
+      <td>${r.resultCode?`<span class="st ${r.resultCode==='FIXED'?'CLOSED':r.resultCode==='NOT_FIXED'?'OPEN':r.resultCode}">${esc(r.result)}</span>`:esc(r.result)}</td>
+      <td>${esc(stripMd(r.report)||'—')}</td><td>${esc(r.note||'—')}</td></tr>`).join('');
+  } else { $('#dRetestWrap').style.display='none'; }
+
+  $('#detail').classList.add('open');
+}
+
+/* ============================ EXPORT ============================ */
+function ts(){ const p=n=>String(n).padStart(2,'0'); const d=new Date();
+  return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`; }
+function downloadBlob(name, blob){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+function exportPlan(){
+  const head=['Mã bug','Tiêu đề','Module','Severity','Priority','Trạng thái','TC liên quan','REQ ID','Ngày phát hiện','Build','Số lần retest','File nguồn'];
+  const rows=filtered().map(b=>[b.id,b.title,b.module,b.severityRaw,b.priorityRaw,b.status,b.tc,b.req,b.dateFound,b.build,String(b.retestCount||0),b.fileName]);
+  const widths=[28,44,14,12,10,16,20,16,14,22,10,32];
+  return {base:'bug_report', sheets:[{name:'Tổng hợp', statusCol:5, widths, head, rows}]};
+}
+function toCsv(){
+  const p=exportPlan(), s=p.sheets[0], q=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+  const body=[s.head,...s.rows].map(r=>r.map(q).join(',')).join('\r\n');
+  downloadBlob(`${p.base}_${ts()}.csv`, new Blob(['﻿'+body],{type:'text/csv;charset=utf-8'}));
+}
+
+/* ---- XLSX: dựng thủ công bằng zip + Office Open XML (xem execution-viewer/README.md để biết lý do không dùng SheetJS) */
+const CRC_TABLE=(()=>{const t=new Uint32Array(256);
+  for(let i=0;i<256;i++){let c=i;for(let k=0;k<8;k++)c=c&1?0xedb88320^(c>>>1):c>>>1;t[i]=c>>>0}return t})();
+function crc32(b){let c=0xffffffff;for(let i=0;i<b.length;i++)c=CRC_TABLE[(c^b[i])&0xff]^(c>>>8);return (c^0xffffffff)>>>0}
+function zipStore(files){
+  const enc=new TextEncoder();
+  const e=files.map(f=>{const data=enc.encode(f.content);return {data,crc:crc32(data)}});
+  const nm=files.map(f=>enc.encode(f.name));
+  const localSize=e.reduce((s,x,i)=>s+30+nm[i].length+x.data.length,0);
+  const centralSize=e.reduce((s,_,i)=>s+46+nm[i].length,0);
+  const buf=new ArrayBuffer(localSize+centralSize+22), v=new DataView(buf), out=new Uint8Array(buf);
+  let off=0; const offs=[];
+  e.forEach((x,i)=>{ offs.push(off);
+    v.setUint32(off,0x04034b50,true); v.setUint16(off+4,20,true); v.setUint16(off+6,0x0800,true);
+    v.setUint16(off+8,0,true); v.setUint16(off+10,0,true); v.setUint16(off+12,0x2821,true);
+    v.setUint32(off+14,x.crc,true); v.setUint32(off+18,x.data.length,true); v.setUint32(off+22,x.data.length,true);
+    v.setUint16(off+26,nm[i].length,true); v.setUint16(off+28,0,true); off+=30;
+    out.set(nm[i],off); off+=nm[i].length; out.set(x.data,off); off+=x.data.length; });
+  const cStart=off;
+  e.forEach((x,i)=>{
+    v.setUint32(off,0x02014b50,true); v.setUint16(off+4,20,true); v.setUint16(off+6,20,true);
+    v.setUint16(off+8,0x0800,true); v.setUint16(off+10,0,true); v.setUint16(off+12,0,true);
+    v.setUint16(off+14,0x2821,true); v.setUint32(off+16,x.crc,true);
+    v.setUint32(off+20,x.data.length,true); v.setUint32(off+24,x.data.length,true);
+    v.setUint16(off+28,nm[i].length,true); v.setUint16(off+30,0,true); v.setUint16(off+32,0,true);
+    v.setUint16(off+34,0,true); v.setUint16(off+36,0,true); v.setUint32(off+38,0,true);
+    v.setUint32(off+42,offs[i],true); off+=46; out.set(nm[i],off); off+=nm[i].length; });
+  v.setUint32(off,0x06054b50,true); v.setUint16(off+8,e.length,true); v.setUint16(off+10,e.length,true);
+  v.setUint32(off+12,centralSize,true); v.setUint32(off+16,cStart,true);
+  return new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function xmlEsc(s){ let o=''; for(const ch of String(s??'')){ const c=ch.codePointAt(0);
+    if(c===9||c===10||c===13||c>=32) o+=ch; }
+  return o.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function colLetter(i){ let n=i+1,s=''; while(n>0){ const r=(n-1)%26; s=String.fromCharCode(65+r)+s; n=Math.floor((n-1)/26);} return s; }
+
+const XLSX_STATUS={OPEN:4,CLOSED:3,PARTIAL:7,CANNOT_VERIFY:5,PENDING:5,NEEDS_REVIEW:5};
+const STYLES_XML=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="7"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF166534"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF991B1B"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF92400E"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF475569"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF5B21B6"/><name val="Calibri"/></font></fonts><fills count="8"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2F7A29"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDCFCE7"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFEE2E2"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFEF3C7"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF1F5F9"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFEDE9FE"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="8"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="3" fillId="4" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="4" fillId="5" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="5" fillId="6" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="6" fillId="7" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+
+function sheetXml(sh){
+  const all=[sh.head,...sh.rows], last=colLetter(sh.head.length-1);
+  const body=all.map((cells,r)=>{
+    const n=r+1;
+    const td=cells.map((val,c)=>{
+      const v=String(val??'');
+      let s = r===0 ? 1 : 2;
+      if(r>0 && c===sh.statusCol && XLSX_STATUS[v]!==undefined) s=XLSX_STATUS[v];
+      return v==='' ? `<c r="${colLetter(c)}${n}" s="${s}"/>`
+        : `<c r="${colLetter(c)}${n}" s="${s}" t="inlineStr"><is><t xml:space="preserve">${xmlEsc(v)}</t></is></c>`;
+    }).join('');
+    return `<row r="${n}"${r===0?' ht="22" customHeight="1"':''}>${td}</row>`;
+  }).join('');
+  const cols=(sh.widths||sh.head.map(()=>24)).map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/><cols>${cols}</cols><sheetData>${body}</sheetData><autoFilter ref="A1:${last}${all.length}"/></worksheet>`;
+}
+function sheetName(raw, taken){
+  let n=String(raw||'Sheet').replace(/[:\\/?*[\]]/g,'-').trim()||'Sheet';
+  if(n.length>31) n=n.slice(0,30).trim()+'…';
+  let c=n, i=2; while(taken.has(c.toLowerCase())){ const sfx=` (${i++})`; c=n.slice(0,31-sfx.length)+sfx; }
+  taken.add(c.toLowerCase()); return c;
+}
+function toXlsx(){
+  const p=exportPlan(), taken=new Set();
+  const sheets=p.sheets.map(s=>({...s, name:sheetName(s.name,taken)}));
+  const ov=sheets.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('');
+  const files=[
+    {name:'[Content_Types].xml',content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${ov}</Types>`},
+    {name:'_rels/.rels',content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`},
+    {name:'xl/workbook.xml',content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets.map((s,i)=>`<sheet name="${xmlEsc(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`},
+    {name:'xl/_rels/workbook.xml.rels',content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`},
+    {name:'xl/styles.xml',content:STYLES_XML},
+    ...sheets.map((s,i)=>({name:`xl/worksheets/sheet${i+1}.xml`,content:sheetXml(s)}))
+  ];
+  downloadBlob(`${p.base}_${ts()}.xlsx`, zipStore(files));
+}
+
+/* ============================ EVENTS ============================ */
+$('#btnReset').onclick=()=>{
+  DOCS=[]; indexMeta={}; offStatus.clear(); offSev.clear(); offPrio.clear();
+  for(const url of IMAGES.values()) URL.revokeObjectURL(url);
+  IMAGES.clear();
+  $('#q').value=''; sortKey='dateFound'; sortDir=-1;
+  try{ localStorage.removeItem('bugsViewer'); }catch(e){}
+  $('#detail').classList.remove('open');
+  render();
+};
+$('#btnAdd').onclick=()=>$('#file').click();
+$('#btnAddFolder').onclick=()=>$('#folder').click();
+$('#file').onchange=e=>{ addFiles(e.target.files); e.target.value=''; };
+$('#folder').onchange=e=>{ addFiles(e.target.files); e.target.value=''; };
+$('#drop').onclick=()=>$('#folder').click();
+$('#btnCsv').onclick=toCsv; $('#btnXlsx').onclick=toXlsx;
+$('#btnClose').onclick=()=>$('#detail').classList.remove('open');
+$('#q').oninput=render; $('#fModule').onchange=render;
+
+const dz=$('#drop');
+['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over')}));
+document.addEventListener('drop',async e=>{
+  if(!e.dataTransfer) return;
+  const files=await filesFromDrop(e.dataTransfer);
+  if(files.length) addFiles(files);
+});
+
+$('#files').onclick=e=>{
+  const rm=e.target.closest('[data-rm]');
+  if(rm){ const k=rm.dataset.rm; DOCS=DOCS.filter(d=>d.fileName!==k); save(); render(); }
+};
+$('#chipsSt').onclick=e=>{ const b=e.target.closest('[data-st]'); if(!b) return;
+  const s=b.dataset.st; offStatus.has(s)?offStatus.delete(s):offStatus.add(s); render(); };
+$('#chipsSv').onclick=e=>{ const b=e.target.closest('[data-sv]'); if(!b) return;
+  const s=b.dataset.sv; offSev.has(s)?offSev.delete(s):offSev.add(s); render(); };
+$('#chipsPr').onclick=e=>{ const b=e.target.closest('[data-pr]'); if(!b) return;
+  const s=b.dataset.pr; offPrio.has(s)?offPrio.delete(s):offPrio.add(s); render(); };
+document.querySelector('#tbl thead').onclick=e=>{ const th=e.target.closest('[data-s]'); if(!th) return;
+  const k=th.dataset.s; if(sortKey===k) sortDir*=-1; else { sortKey=k; sortDir=1; } render(); };
+$('#rows').onclick=e=>{ const tr=e.target.closest('[data-i]'); if(!tr) return;
+  openDetail(window.__rows[+tr.dataset.i]); };
+$('#lbClose').onclick=closeLightbox;
+$('#lightbox').addEventListener('click',e=>{ if(e.target.id==='lightbox') closeLightbox(); });
+$('#dKv').addEventListener('click',e=>{
+  const b=e.target.closest('[data-img]'); if(b) openLightbox(b.dataset.img);
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); });
+
+load(); render();
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+/generate-automation-framework
+
+# CONTEXT
+Tôi cần xây dựng Web UI Automation Framework từ đầu.
+- Công nghệ: Selenium WebDriver v4 + TestNG
+
+# HỆ THỐNG
+- URL: [URL hệ thống]
+- Tài khoản test: [EMAIL] / [PASSWORD]
+
+# TÙY CHỌN

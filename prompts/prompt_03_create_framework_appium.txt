@@ -1,0 +1,21 @@
+/generate-automation-framework
+
+# CONTEXT
+Tôi cần xây dựng Mobile Automation Framework từ đầu.
+- Công nghệ: Appium + Java + TestNG
+
+# ỨNG DỤNG
+- Platform: [Android / iOS / Cả hai]
+- Loại app: [Native / Flutter / Hybrid có WebView]
+- File app: [Đường dẫn .apk / .ipa]
+- App package / Bundle ID: [com.example.app]
+- Thiết bị test: [Tên emulator/simulator hoặc real device — liệt kê ĐỦ nếu chạy song song]
+- Tài khoản test: [EMAIL] / [PASSWORD]
+
+# NẾU LÀ APP FLUTTER
+- Đã bọc Semantics(label:) cho widget cần test chưa: [Rồi / Chưa / Không rõ]
+- Build mode có sẵn: [release / debug / profile]
+
+# TÙY CHỌN
+- Appium server: [http://127.0.0.1:4723 / URL khác]
+- iOS real device — đã ký WDA chưa: [Rồi / Chưa / Chỉ chạy simulator]

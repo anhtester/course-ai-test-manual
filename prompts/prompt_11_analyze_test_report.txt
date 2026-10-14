@@ -1,0 +1,29 @@
+/analyze-test-report
+
+# NHÁNH (bắt buộc chọn 1 — chọn nhầm là phân loại failure sai toàn bộ)
+[Xoá dòng không dùng:]
+- AUTOMATION — report Playwright / Allure / JUnit / TestNG
+- MANUAL — execution_report.md / retest_report.md do /execute-test-cases, /retest-fixed-bugs sinh ra
+
+# CONTEXT
+- Loại suite / đợt chạy: [Smoke / Regression / Full]
+- Môi trường chạy: [Local / CI/CD pipeline / Staging]
+
+# ===== NẾU CHỌN AUTOMATION =====
+[Cung cấp 1 trong 3 cách:]
+- Cách 1 — Report path: [reports/allure-results/ | reports/html/ | reports/surefire/ | test-output/testng-results.xml]
+- Cách 2 — Agent tự tìm: [path/to/project]
+- Cách 3 — Chạy suite mới rồi phân tích: [VD: npx playwright test --reporter=json]
+
+# ===== NẾU CHỌN MANUAL =====
+- Module: [VD: Khách hàng]
+- Report path: [để trống = agent tự glob docs/executions/<module>/<nền-tảng>/run_*/ và retest_*/]
+- Nguồn TC gốc: [VD: docs/testcases/customers/TEST_CASES_CUSTOMERS_SUMMARY.md — cần để phân biệt "bug ứng dụng" với "TC viết sai"]
+
+# TÙY CHỌN
+- So sánh trend — các lần chạy trước: [path, hoặc "agent tự tìm", hoặc "Không có"]
+
+# GHI CHÚ
+- Workflow này chỉ phân tích và báo cáo, KHÔNG tự sửa test/code/TC
+- Nhánh MANUAL: agent đọc mục BLOCKED TRƯỚC mục FAIL — BLOCKED > 20% thì không kết luận chất lượng
+- Cần gộp nhiều module thành báo cáo gửi PM/khách → dùng /generate-test-summary-report thay vì workflow này

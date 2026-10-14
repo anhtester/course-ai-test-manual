@@ -1,0 +1,20 @@
+/generate-automation-from-testcases
+
+# CONTEXT
+- Stack: Playwright Test + TypeScript
+
+# HỆ THỐNG
+- URL: [URL hệ thống]
+- Tài khoản test: [Dùng fixture sẵn có / hoặc EMAIL + PASSWORD]
+
+# PROJECT (chọn 1 trong 2)
+- A. Đã có sẵn source code — Project path: [path/to/project]
+- B. Chưa có project — agent tự scaffold theo /generate-automation-framework
+
+# TEST CASES
+[DÁN TEST CASES VÀO ĐÂY — dưới dạng bảng hoặc danh sách steps]
+
+Ví dụ:
+| TC ID | Title | Steps | Expected Result | Priority |
+|---|---|---|---|---|
+| TC01 | Login thành công | 1. Mở trang login 2. Nhập email 3. Nhập password 4. Click Login | Dashboard hiển thị | P1 |

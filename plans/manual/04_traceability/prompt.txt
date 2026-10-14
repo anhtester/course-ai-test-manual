@@ -1,0 +1,115 @@
+# ============================================================
+# BƯỚC 4: ĐẢM BẢO ĐỘ BAO PHỦ (Traceability & Gap Analysis)
+# ============================================================
+# Đây là prompt độc lập — copy & paste vào bất kỳ AI nào
+# Nội dung đồng bộ với skill `skills-rbt-manual-testing` — Mode FULL RBT, Bước 4
+# ============================================================
+# CÁCH DÙNG:
+# 1. Gửi prompt này SAU KHI đã review kết quả phân rã ở Bước 3
+# 2. Review danh sách scenarios, bảng 4 vòng VÀ mức rủi ro AI chấm
+# 3. Sửa mức rủi ro / bổ sung scenarios nếu thấy chưa đúng
+# 4. Xác nhận hoàn tất → sang Bước 5
+# ============================================================
+
+---START---
+
+Từ kết quả phân rã Module ở Bước 3, hãy xây dựng **Ma trận Truy xuất Yêu cầu (Traceability Matrix)** để đảm bảo độ bao phủ toàn diện (Coverage).
+
+## Nhiệm vụ:
+
+### 1. Traceability Mapping
+
+Map từng Module/Sub-module hoặc Rule logic với một **mã Yêu cầu định danh**:
+- Tài liệu đã có mã REQ → **dùng nguyên mã**, không đánh lại
+- Chưa có mã → format `REQ-<MODULE>-01`, `REQ-<MODULE>-02`... (VD `REQ-CUST-01`)
+- Mỗi yêu cầu phải có mô tả ngắn gọn và **nền tảng áp dụng** (khi có nhiều nền tảng)
+
+Trình bày dạng bảng:
+| REQ ID | Module | Nền tảng | Mô tả Yêu cầu |
+|--------|--------|----------|----------------|
+
+### 2. Gap Analysis (Kiểm tra thiếu sót)
+
+Kiểm tra chéo (Cross-check) xem có bất kỳ thông tin nào trong tài liệu gốc bị **thiếu** trong danh sách phân rã:
+- Chức năng chưa được map
+- Điều kiện đầu vào chưa được liệt kê
+- Quy tắc nghiệp vụ (Business Rule) bị bỏ sót
+- Thành phần nhìn thấy trong ảnh giao diện nhưng tài liệu không nhắc tới
+
+**Nếu phát hiện thiếu sót, báo cáo cụ thể.**
+
+### 3. High-Level Test Scenarios
+
+Liệt kê các kịch bản kiểm thử ở **cấp độ High-Level** cho từng Module.
+
+Mỗi kịch bản chỉ cần **1 câu mô tả cốt lõi ngắn gọn**, và **PHẢI xếp theo 4 vòng kiểm thử**:
+
+```
+VÒNG 1 – SMOKE            → UI cơ bản · Open form · Display · Input valid · Save · Verify data
+VÒNG 2 – FUNCTIONAL       → UI Behavior · Required · Validation · EP · BVA · Business Rule ·
+                            Decision Table · State Transition · Dependency · Use Case ·
+                            Save/Edit/Delete · Error Guessing
+VÒNG 3 – TECHNICAL        → Permission · Security · API · Database · Integration · Logging/Audit
+VÒNG 4 – NON-FUNCTIONAL   → Compatibility · Responsive · Accessibility · Performance ·
+                            Regression · E2E
+```
+
+Trình bày dạng:
+| Vòng | Nhánh | REQ ID | Module | Scenario ID | Mô tả Scenario |
+|---|---|--------|--------|-------------|-----------------|
+
+### 4. Chấm mức rủi ro từng Module — bạn TỰ CHẤM, ghi căn cứ
+
+| Mức | Điều kiện |
+|---|---|
+| **Cao** (`High`) | Chỉ cần **MỘT** dấu hiệu: đụng tiền / số liệu tài chính · đụng xác thực / phân quyền · đụng dữ liệu cá nhân khách hàng · có thao tác **không hồi lại được** (xoá cứng, gửi mail ra ngoài, chốt sổ) · là **cổng vào** module khác |
+| **Thấp** (`Low`) | Phải đủ **CẢ BỐN**: chỉ hiển thị, không ghi dữ liệu · không có field nhập (hoặc chỉ ô tìm kiếm) · hỏng thì không ai mất dữ liệu và không chặn việc gì · sửa lại được trong vài phút |
+| **Trung bình** (`Medium`) | Phần còn lại |
+
+**Lưỡng lự thì chấm mức CAO HƠN** — chấm nhầm Cao chỉ tốn vài TC, chấm nhầm Thấp là lọt lỗi ra production.
+
+Mức rủi ro quyết định **độ sâu** của Bước 5:
+
+| | **Đầy đủ** (Cao) | **Tiêu chuẩn** (Trung bình) | **Tối giản** (Thấp) |
+|---|---|---|---|
+| V1 Smoke | Đủ 6 nhánh | Đủ 6 nhánh | **Đủ 6 nhánh — KHÔNG rút** |
+| V2 Functional | Đủ mọi nhánh có điều kiện kích hoạt | Đủ mọi nhánh có điều kiện kích hoạt | Chỉ `Required` · `Validation` của field có ràng buộc thật |
+| V3 Technical | Đủ 6 nhánh | `Permission` + `Security`; còn lại theo năng lực QA | `Permission` (nếu ≥2 role) |
+| V4 Non-functional | Đủ 6 nhánh | `Responsive` + `Accessibility` | Toàn bộ cố ý bỏ |
+| Số TC điển hình (GỘP, module cỡ Login) | 40–60 | 20–30 | 8–12 |
+
+**Bốn thứ KHÔNG BAO GIỜ rút**, bất kể rủi ro thấp đến đâu: toàn bộ V1 · `Required` + `Validation` khi có field nhập · `Permission` khi ≥2 vai trò · `Security` khi chạm dữ liệu của người dùng khác.
+
+Trình bày:
+| Module | Mức rủi ro | Căn cứ | Độ sâu | Số TC ước tính | Nâng lên khi… |
+|---|---|---|---|---|---|
+
+Cột **"Nâng lên khi…"** bắt buộc với module chấm Thấp/Trung bình — điều kiện khiến quyết định rút gọn hôm nay tự hết hạn (VD "thêm bất kỳ field nhập nào").
+
+### 5. Chấm sơ bộ TỪNG nhánh 4 vòng — 4 trạng thái
+
+| Ký hiệu | Nghĩa | Bắt buộc ghi kèm |
+|---|---|---|
+| `✅` | Sẽ sinh TC | Số scenario |
+| `➖` | **Không áp dụng** — hệ thống không có thứ đó để kiểm | Lý do kỹ thuật |
+| `⏭️` | **Cố ý bỏ** — có thứ đó, kiểm được, nhưng quyết định không kiểm vì rủi ro thấp | **Lý do + ai quyết định + điều kiện rà lại** |
+| `🔴` | Thiếu | Phải bổ sung scenario trước khi sang Bước 5 |
+
+| Vòng | Nhánh | Trạng thái | Ghi chú |
+|---|---|---|---|
+| 1 | UI cơ bản | ✅ | 3 màn hình |
+| 3 | Database | ➖ | QA không có quyền truy cập DB — đội Dev xác minh |
+| 4 | Compatibility | ⏭️ | Trang tĩnh rủi ro Thấp — chỉ kiểm Chrome. Quyết định: QA lead, <ngày>. Rà lại khi hệ thống cam kết hỗ trợ trình duyệt mới |
+
+- Nhánh V3 `API` · `Database` · `Integration` · `Logging/Audit` chấm theo **Năng lực kiểm thử của QA** đã khai ở Bước 1 — không hỏi lại
+- ⚠️ **`➖` và `⏭️` KHÔNG được dùng lẫn.** `➖` là sự thật kỹ thuật; `⏭️` là quyết định chấp nhận rủi ro có người chịu trách nhiệm. Ghi `➖` cho thứ thật ra là `⏭️` là **giấu quyết định**
+- ⚠️ **Ba nhánh không bao giờ được `➖` hay `⏭️`:** `UI cơ bản` (V1) · `Validation` (V2, khi có field nhập) · `Permission` (V3, khi hệ thống có ≥2 role)
+- 🚫 **KHÔNG** thêm kịch bản chỉ để lấp ô — kịch bản rác làm loãng bộ TC thật
+
+---
+
+⏸️ **SAU KHI HOÀN THÀNH**, hãy dừng lại để tôi review **danh sách scenarios, bảng chấm 4 vòng và bảng mức rủi ro**.
+
+> 💡 Đây là chỗ chặn rẻ nhất: nhìn hai bảng là biết bộ TC sắp sinh có bỏ sót cả một lớp không (hay mất nhất: lớp giao diện ở Vòng 1) và có quá nông / quá dày không, **trước khi** tốn công sinh chi tiết ở Bước 5.
+
+Tôi sẽ sửa mức rủi ro, bổ sung scenarios hoặc xác nhận để sang Bước 5. Bước 5 sẽ áp đúng mức rủi ro tôi đã duyệt.

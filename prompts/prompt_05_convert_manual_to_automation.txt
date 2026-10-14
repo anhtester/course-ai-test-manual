@@ -1,0 +1,24 @@
+/generate-automation-from-testcases
+
+# HỆ THỐNG
+- URL: [URL ứng dụng]
+- Tài khoản test: [Dùng fixture/config sẵn có / hoặc EMAIL + PASSWORD]
+- Môi trường: [Dev / Staging / Production]
+
+# PROJECT (chọn 1 trong 2)
+- A. Đã có sẵn source code — Project path: [path/to/project]
+- B. Chưa có project — agent tự scaffold theo /generate-automation-framework
+
+# TEST CASES
+[Một trong 3 cách cung cấp test cases:]
+
+## Cách 1: Dán trực tiếp
+| TC ID | Title | Steps | Expected Result | Priority |
+|---|---|---|---|---|
+| TC01 | Login thành công | 1. Mở trang login 2. Nhập email hợp lệ 3. Nhập password hợp lệ 4. Click Login | Chuyển đến Dashboard | P1 |
+
+## Cách 2: File path
+File test cases: [path/to/testcases.md]
+
+## Cách 3: URL (Google Sheets, Confluence)
+URL test cases: [https://docs.google.com/spreadsheets/...]

@@ -1,0 +1,27 @@
+/analyze-requirement-document
+
+# CONTEXT
+- Module đích (nơi lưu tài liệu phân tích): [VD: project — để trống thì agent sẽ hỏi, KHÔNG tự đoán]
+- Ticket ID: [VD: TICKET-123]
+
+# TÀI LIỆU ĐẦU VÀO
+[Liệt kê đường dẫn file — agent tự chọn cách đọc theo định dạng (.docx/.xlsx/.pdf ủy quyền skill tương ứng)]
+- Tài liệu chính: [VD: docs/requirements/_discovery/sources/TICKET-123.docx]
+- File bảng đính kèm (danh sách field / message lỗi / ma trận phân quyền): [VD: .../fields_TICKET-123.xlsx — để trống nếu không có]
+- Mockup / screenshot: [VD: .../mockup_01.png, .../mockup_02.png — để trống nếu không có]
+- Ticket phụ thuộc: [VD: TICKET-098 → .../TICKET-098.docx — để trống nếu không có]
+
+[Hoặc dán thẳng nội dung ticket vào đây nếu không có file:]
+```
+[DÁN NỘI DUNG TICKET / USER STORY — kèm cả phần comments nếu có]
+```
+
+# TÙY CHỌN
+- Module đã có tài liệu requirements chưa: [Có → đường dẫn docs/requirements/<module>/REQUIREMENTS_<TÊN_MODULE>_SUMMARY.md / Chưa]
+- Trọng tâm phân tích: [VD: "Tập trung phân quyền theo role" / "Soi kỹ ma trận trạng thái" / để trống = phân tích toàn diện]
+
+# GHI CHÚ
+- Command này CHỈ sinh tài liệu phân tích `analysis_<TICKET-ID>.md`, KHÔNG sinh test cases
+- Nguồn sự thật là hệ thống đang chạy (không có tài liệu) → dùng /generate-requirements-from-website
+- Module ĐÃ có requirements và ticket này sửa/bổ sung yêu cầu cũ → dùng /update-requirements-from-ticket (chế độ delta, giữ nguyên REQ ID)
+- URL Jira/Confluence: agent KHÔNG tự fetch — cần lấy từ Jira thì chạy /fetch-jira-requirements trước

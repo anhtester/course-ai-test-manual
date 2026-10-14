@@ -1,0 +1,21 @@
+/generate-requirements-from-api
+
+# NGUỒN ĐẶC TẢ API (chọn một hoặc nhiều)
+- URL trang tài liệu: [VD: https://api.example.com/swagger · /scalar · /redoc — để trống nếu dùng file]
+- File spec: [VD: openapi.json / openapi.yaml / postman_collection.json — để trống nếu không có]
+- Tài liệu API dạng văn bản: [VD: API_Spec_v3.docx / .pdf — để trống nếu không có]
+
+# CONTEXT
+- Module cần sinh REQ: [VD: CUST — để trống thì agent đề xuất theo thứ tự trong danh mục]
+- Môi trường gọi thử: [VD: Staging — hoặc "không gọi được, chỉ đọc spec"]
+- Môi trường dùng chung với người khác không: [Có / Không]
+- Tài khoản để lấy token: [EMAIL] / [PASSWORD] — agent lưu vào .env, không ghi vào docs/
+
+# TÙY CHỌN
+- Trang tài liệu có nhiều spec (dropdown): [Chọn spec nào / toàn bộ]
+- Trọng tâm: [VD: "Soi kỹ auth và phân quyền" / để trống = toàn diện]
+
+# GHI CHÚ
+- API của hệ thống đã có web/app → REQ ghi vào thư mục api/ của CÙNG module, chung prefix và dải REQ (không mở module hay prefix riêng cho API)
+- Chưa chạy /discover-system cho mặt API → agent làm tầng khám phá trước (có checkpoint chốt prefix)
+- Command này KHÔNG sinh test cases — xong thì chạy /generate-testcases-api, rồi /generate-automation-api

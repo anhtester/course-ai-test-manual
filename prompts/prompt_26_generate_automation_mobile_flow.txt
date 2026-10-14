@@ -1,0 +1,29 @@
+/generate-automation-mobile
+
+# ỨNG DỤNG
+- Platform: [Android / iOS / Cả hai]
+- Loại app: [Native / Flutter / Hybrid có WebView / Không rõ — để agent tự nhận diện]
+- File app: [Đường dẫn .apk / .ipa] HOẶC app đã cài sẵn trên device
+- App package / Bundle ID: [com.example.app]
+- Thiết bị: [Tên emulator/simulator/real device — bỏ trống để agent liệt kê]
+- Tài khoản test: [EMAIL] / [PASSWORD]
+
+# ĐẦU VÀO (điền MỘT trong hai — agent tự chọn mode)
+## Đã có test case → mode TC
+- File TC mobile: [VD: docs/testcases/orders/mobile/test_cases_orders_mobile.md]
+
+## Chưa có test case → mode FLOW
+[Mô tả từng bước, ví dụ:]
+1. Mở app → màn hình Đăng nhập
+2. Nhập email + mật khẩu → bấm Đăng nhập
+3. Vào tab Đơn hàng → bấm Tạo đơn mới
+4. Điền thông tin → Lưu → kiểm tra đơn xuất hiện trong danh sách
+
+# NẾU LÀ APP FLUTTER
+- Đã bọc Semantics(label:) cho widget cần test chưa: [Rồi / Chưa / Không rõ]
+- Build mode có sẵn: [release / debug / profile]
+
+# MÔI TRƯỜNG
+- Appium server để CHẠY bộ test (mvn test): [http://127.0.0.1:4723 / URL khác] — phải đang chạy khi chạy test
+- Server/cloud riêng cho KHẢO SÁT (nếu có): [để trống = Appium MCP chạy nhúng — mặc định]
+- Môi trường dùng chung với người khác không: [Có / Không]

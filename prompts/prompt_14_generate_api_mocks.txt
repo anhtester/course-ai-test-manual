@@ -1,0 +1,32 @@
+/generate-api-mocks
+
+# CONTEXT
+- Project path: [path/to/project]
+- Lý do mock: [Backend chưa sẵn sàng / Test edge cases khó tái hiện / Third-party API / Giảm flaky]
+
+# API CẦN MOCK
+| # | Endpoint (URL pattern) | Method | Mô tả |
+|---|------------------------|--------|-------|
+| 1 | [/api/products]        | [GET]  | [Danh sách sản phẩm] |
+| 2 | [...]                  | [...]  | [...] |
+
+# NGUỒN RESPONSE MẪU (chọn 1)
+- Swagger/OpenAPI spec: [URL hoặc file path]
+- App đang chạy: [URL — agent thao tác UI và capture response thật]
+- Response mẫu có sẵn:
+```json
+[DÁN RESPONSE JSON THẬT VÀO ĐÂY]
+```
+
+# EDGE CASES CẦN COVER
+[Mặc định: success + empty + 500 + 401. Bổ sung nếu cần:]
+- [ ] Timeout / response chậm (verify loading state)
+- [ ] Network fail / abort (verify error handling)
+- [ ] Danh sách lớn 1000+ items (verify pagination/performance)
+- [ ] Khác: [...]
+
+# UI BEHAVIOR CẦN VERIFY (cho mỗi edge case)
+- Empty: [VD: hiển thị "Chưa có sản phẩm" + nút Tạo mới]
+- 500: [VD: toast lỗi "Đã xảy ra lỗi, thử lại sau"]
+- 401: [VD: redirect về /login]
+- [...]

@@ -1,0 +1,27 @@
+/generate-checklist-test
+
+# CONTEXT
+- Module/Tính năng cần rà: [Tên module — VD: Customers, Login, Invoice]
+- Loại checklist: [Smoke / Post-hotfix / Regression (module) / Release-readiness]
+- Môi trường: [VD: Staging - build 2.4.1]
+
+# NGUỒN INPUT
+[Chọn 1 trong 2 — ưu tiên Cách 1 nếu đã có bộ TC]
+
+## Cách 1: TC-based (rút gọn từ bộ TC sẵn có)
+- File TC: [VD: docs/testcases/customers/TEST_CASES_CUSTOMERS_SUMMARY.md]
+
+## Cách 2: REQ-based (chưa có TC)
+- Requirements: [File path, hoặc dán nội dung requirements/user stories vào đây, hoặc URL module để agent inspect]
+
+# VÙNG ẢNH HƯỞNG (BẮT BUỘC khi loại = Post-hotfix)
+[Mô tả thay đổi của bản vá: sửa gì, file/chức năng nào, ticket số mấy]
+
+# TÙY CHỌN
+- Role cần rà: [VD: Admin, Sale — để trống = tất cả role trong requirements]
+- Giới hạn thời gian chạy tay: [VD: 15 phút — để trống = dùng ngưỡng mặc định theo loại checklist]
+- Trọng tâm: [VD: "Tập trung phân quyền" / "Ưu tiên luồng thanh toán" / để trống = rà toàn diện theo rủi ro]
+
+# GHI CHÚ
+- Command này sinh checklist tick tay (CHECKLIST mode) — mục ngắn 1 dòng, KHÔNG có steps chi tiết
+- Cần TC chi tiết có steps + test data đầy đủ → dùng /generate-testcases-from-requirements (QUICK) hoặc /generate-testcases-manual-rbt (FULL RBT)

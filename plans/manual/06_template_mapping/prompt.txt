@@ -1,0 +1,159 @@
+# ============================================================
+# BƯỚC 6: CHUẨN HÓA FORMAT & QUALITY GATE (Template Mapping)
+# ============================================================
+# Đây là prompt độc lập — copy & paste vào bất kỳ AI nào
+# Nội dung đồng bộ với skill `skills-rbt-manual-testing` — Mode FULL RBT, Bước 6
+# ============================================================
+# CÁCH DÙNG:
+# 1. Gửi prompt này SAU KHI đã review Test Cases ở Bước 5
+# 2. Tùy chỉnh quy tắc TC ID nếu cần
+# 3. Copy bảng output → lưu thành file .md, hoặc paste vào Excel/Jira/TestRail
+# ============================================================
+
+---START---
+
+Đây là bước cuối cùng. Hãy **chuẩn hóa format** toàn bộ các Test Cases đã sinh ở Bước 5 vào bảng Markdown chuẩn, chạy **Quality Gate 11 tiêu chí**, rồi xuất kèm các bảng đối soát.
+
+## 1. Dòng đầu tài liệu — mức rủi ro · độ sâu
+
+Ngay dưới tiêu đề, mỗi module một dòng để người đọc biết bộ này **cố tình** dừng ở đâu:
+
+```
+| **Mức rủi ro · độ sâu** | `Thấp` → **Tối giản** — V1 đủ 6 nhánh, V2 chỉ nhánh có ràng buộc, V3/V4 phần lớn ⏭️.<br>Căn cứ: chỉ hiển thị · không ghi dữ liệu · không có field nhập.<br>**Nâng lên Tiêu chuẩn khi:** thêm bất kỳ field nhập nào |
+```
+
+## 2. Bảng chuẩn cần có các cột sau
+
+| TC ID | REQ ID | Module | Risk Level | Test Scenario | Pre-Condition | Test Steps | Test Data | Expected Result | Priority | Automation | Auto Type | Tags |
+
+⚠️ **Giữ nguyên tên cột tiếng Anh** — công cụ xem/xuất Excel (`scripts/testcases-viewer`) map cột theo tên; dịch tên cột hay thêm chữ (VD `TC ID liên quan`) là mất cột. Nội dung ô viết tiếng Việt.
+
+### TC ID
+- Format thống nhất: `[DỰ_ÁN]_[MODULE]_TC_[SỐ]` — VD `CRM_CUST_TC_001`, `CRM_CUST_TC_002`...
+- Tăng dần liên tục, không nhảy số. Bộ TC đã có → **nối tiếp** dải, không chèn giữa, không đánh lại
+
+[Tùy chỉnh: Nếu bạn muốn quy tắc ID khác, thay thế format ở trên.]
+
+### REQ ID
+- **BẮT BUỘC mỗi dòng** — TC không trỏ về REQ nào là TC mồ côi
+- 1 TC cover nhiều REQ → phân cách bằng dấu phẩy
+
+### Risk Level
+- `High` / `Medium` / `Low` — ứng với mức Cao / Trung bình / Thấp đã duyệt ở Bước 4
+
+### Test Steps & Expected Result
+- **Đánh số 1. 2. 3. — mỗi bước 1 hành động**; Expected **đánh số khớp 1-1** với step tương ứng
+- Dùng `<br>` để xuống dòng trong cell Markdown:
+  ```
+  1. Mở trang Login<br>2. Nhập email: test@mail.com<br>3. Nhập password: Test@123<br>4. Click nút "Đăng nhập"
+  ```
+- Độ hạt GỘP: Bảng biến thể (Kiểu A) nằm ở `Test Data`, Bảng kiểm (Kiểu B) nằm ở `Expected Result` — mỗi dòng một mã, phân cách `<br>`. Số cột **không đổi**
+
+### Automation — `Yes` / `Partial` / `No`, ô ghi ĐÚNG MỘT TỪ
+Chấm 3 trục, lấy mức **thấp nhất**:
+1. **Kỹ thuật** — tính năng có tự động được không. Mặc định `Partial`: OTP/SMS · email · CAPTCHA · đăng nhập Google/SSO · thanh toán · biểu đồ (số liệu) · bản đồ · QR · so ảnh · thời gian thật ("sau 30 phút"). Mặc định `No`: canvas · hộp thoại in · eKYC · cảm nhận ("đẹp", "cân đối", "dễ dùng") · kiểm tải
+2. **Sẵn sàng** — máy chấm được Expected không, tự dựng được tiền đề không, chạy lại cho cùng kết quả không
+3. **Đáng làm** — TC chỉ chạy một lần (VD kiểm migration) → `No`
+
+KHÔNG gắn `Yes` hàng loạt. Điều kiện của `Partial`, lý do của `No` ghi vào bảng **Đối soát cột Automation** (mục 4), không nhét vào ô. Vướng tạm thời (câu hỏi chưa chốt, `@NeedsVerify`) → ghi `⏸️ Hoãn` ở bảng đối soát, **không** hạ giá trị cột.
+
+### Auto Type
+- `UI` / `API` / `Unit` / `N/A`
+
+### Tags
+- `@Smoke` · `@Regression` · `@CriticalPath` · `@Security` · `@Boundary` · `@TechCheck` · `@NeedsVerify` · tag nền tảng `@Web`/`@Android`/`@iOS`/`@API` (khi có ≥2 nền tảng)
+
+### Quy tắc TUYỆT ĐỐI
+- ❌ **KHÔNG ĐƯỢC** bỏ sót hoặc rút gọn bất kỳ Test Case nào đã sinh ở Bước 5
+- ❌ **KHÔNG ĐƯỢC** tự ý gộp hoặc tách TC — độ hạt đã chốt ở Bước 1
+- ✅ Bảng quá dài → chia **Part 1, Part 2...** tại ranh giới nhóm chức năng, dừng chờ tôi gõ "Tiếp tục"
+
+## 3. Quality Gate — rà 11 tiêu chí TRƯỚC khi xuất
+
+- [ ] **0. Độ hạt nhất quán** — toàn bộ theo một độ hạt; GỘP thì mọi biến thể có mã riêng, không TC nào quá 6 biến thể, không vi phạm bảng CẤM gộp
+- [ ] **1. Unique TC ID** — không trùng, đúng format
+- [ ] **2. Step ↔ Expected khớp 1-1**, mỗi step 1 hành động
+- [ ] **3. Test data cụ thể 100%** — không còn "hợp lệ", "dữ liệu đúng"
+- [ ] **4. Field Validation đủ từng mục** của bảng loại field (Mật khẩu 7 mục, Email 9 mục…) — mục không áp dụng có lý do
+- [ ] **5. Automation metadata** — mọi TC có `Automation` · `Auto Type` · `Tags`; có bảng Đối soát cột Automation
+- [ ] **6. Requirement coverage** — mọi REQ có ≥1 TC; REQ High Risk đủ Positive + Negative + Boundary. **Chiều ngược:** TC gánh ≥2 REQ mà ≥2 REQ trong đó **chỉ** có mỗi TC này → phải tách (TC mới cấp số nối tiếp dải)
+- [ ] **7. Evidence** — mọi TC thuộc 4 nhóm (bố cục/thứ tự · nhãn nguyên văn · giá trị mặc định · định dạng hiển thị) truy được về một ảnh cụ thể, không thì gắn `@NeedsVerify`
+- [ ] **8. Ngôn ngữ kiểm chứng** — phần TC chính không còn `document.`, `querySelector`, `checkValidity`, `className`, selector CSS/XPath, mã HTTP, tên header (trừ TC gọi API). Phần kỹ thuật nằm dưới `🔧 Ghi chú kỹ thuật (cần DevTools):` + tag `@TechCheck`. Che dòng 🔧 đi, mọi TC vẫn chấm được
+- [ ] **9. Đặc tính chất lượng ISO/IEC 25010:2023** — chấm đủ 9/9, ô `➖` ghi **ai chịu trách nhiệm**
+- [ ] **10. Đối soát 4 vòng** — mọi nhánh được chấm bằng 4 trạng thái; `➖` và `⏭️` không dùng lẫn; 3 nhánh cấm `➖`/`⏭️`; GỘP ghi cả số biến thể
+
+Tiêu chí nào có 🔴 → **bổ sung TC trước khi xuất**, không xuất kèm dòng 🔴 (riêng tiêu chí 7: vẫn xuất được, nhưng nêu rõ ở tóm tắt và đề xuất chụp bổ sung).
+
+## 4. Các bảng xuất kèm — theo đúng thứ tự, sau bảng TC
+
+### 4.1 Bảng Đối Soát Coverage
+```
+| REQ ID | Mô tả ngắn | Số TC | TC IDs | Đủ Positive/Negative/Boundary? | Ghi chú |
+|---|---|---|---|---|---|
+| REQ-LOGIN-01 | Đăng nhập email | 5 | TC_001..TC_005 | ✅ | |
+```
+Có nhiều nền tảng → REQ khai áp nền tảng nào thì phải có TC ở **mỗi** nền tảng đó.
+
+### 4.2 Bảng Đối Soát Evidence
+```
+| Ảnh evidence | Màn hình / trạng thái | TC dựa vào | Đầy đủ? |
+|---|---|---|---|
+| form_tao_moi_mac_dinh.png | Form tạo — mặc định | TC_041→050 | ✅ |
+| form_tao_moi_1920.png | Form tạo — mặc định | TC_092→095 | 🔴 CẮT CỤT tại "Description" |
+| (không có) | Dropdown Customer đang mở | TC_060→063 | 🔴 THIẾU — TC gắn @NeedsVerify |
+```
+Kèm mục **Vùng chưa có evidence** nếu có dòng 🔴.
+
+### 4.3 Bảng Đối soát loại kiểm thử (4 vòng)
+```
+| Vòng | Nhánh | Trạng thái | TC ID / Lý do |
+|---|---|---|---|
+| 1 | UI cơ bản | ✅ | TC_001–TC_003 (3 TC · 11 biến thể) |
+| 2 | Validation | ✅ | TC_013–TC_028 (16 TC · 61 biến thể · đủ 7/7 mục bảng Mật khẩu) |
+| 3 | Database | ➖ | QA không có quyền truy cập DB — đội Dev xác minh |
+| 4 | Compatibility | ⏭️ | Chỉ kiểm Chrome — rủi ro Thấp. Quyết định: QA lead, <ngày>. Rà lại khi cam kết hỗ trợ trình duyệt mới |
+```
+- `✅` dẫn TC ID · `➖` lý do kỹ thuật · `⏭️` lý do + **ai quyết** + **điều kiện rà lại** · `🔴` phải bổ sung trước khi xuất
+- 🚫 KHÔNG sinh TC chỉ để lấp ô
+
+### 4.4 Rà soát đặc tính chất lượng (ISO/IEC 25010:2023)
+```
+| Đặc tính | Trạng thái | TC ID / Lý do |
+|---|---|---|
+| Functional Suitability | ✅ Có TC | TC_001–TC_048 |
+| Performance Efficiency | ➖ Ngoài phạm vi | Không có công cụ tải — đội Hạ tầng, đợt sau |
+| Compatibility | ✅ / ➖ | ... |
+| Interaction Capability | ✅ / ➖ | thông báo lỗi dễ hiểu, điều hướng bàn phím, trạng thái rỗng |
+| Reliability | ✅ / 🔴 | session hết hạn giữa chừng, mất mạng khi gửi |
+| Security | ✅ | phân quyền, truy cập URL trực tiếp |
+| Maintainability | ➖ Không áp dụng | Đặc tính của mã nguồn, không kiểm bằng manual TC |
+| Flexibility | ✅ / ➖ | responsive, đổi ngôn ngữ / múi giờ |
+| Safety | ➖ / ✅ | chỉ áp dụng khi lỗi gây thiệt hại thật (y tế, tài chính, thiết bị) |
+```
+Ghi **tên đặc tính**, không ghi số điều khoản; câu đúng là *"rà soát theo mô hình chất lượng ISO/IEC 25010:2023"*, không phải *"tuân thủ"*.
+
+### 4.5 Đối soát cột Automation
+```
+| Nền tảng | Yes | Partial | No | ⏸️ Hoãn |
+|---|---|---|---|---|
+
+Điều kiện cần chuẩn bị:
+| # | Điều kiện | Ai cấp | Trạng thái | TC phụ thuộc |
+|---|---|---|---|---|
+| 1 | OTP cố định trên môi trường test | Dev backend | ⏳ Chưa có | TC_012, TC_013 |
+
+TC Partial · No · Hoãn:
+| TC ID | Automation | Trục chặn | Điều kiện · phần kiểm tay · lý do |
+|---|---|---|---|
+```
+TC `Yes` không vướng gì thì **không** liệt kê.
+
+---
+
+## Output
+
+Xuất dưới dạng **file `.md`** (hoặc Artifact) theo thứ tự: dòng mức rủi ro · độ sâu → mục Assumptions → bảng TC → 4.1 → 4.2 → 4.3 → 4.4 → 4.5. Cuối cùng tóm tắt trong vài dòng: tổng `<N> TC · <M> biến thể` · kết quả 11 tiêu chí Quality Gate · các điểm cần tôi review (xung đột tài liệu ↔ ảnh, vùng chưa có ảnh, nhánh `⏭️`).
+
+Để tôi có thể:
+- Lưu file vào `docs/testcases/<module>/<nền-tảng>/test_cases_<module>_<nền-tảng>.md` và mở bằng `scripts/testcases-viewer/bundle.html`, xuất Excel
+- Copy trực tiếp bảng vào Excel/Google Sheets, hoặc import vào Jira/TestRail/Xray

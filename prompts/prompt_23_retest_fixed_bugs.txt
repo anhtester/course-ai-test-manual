@@ -1,0 +1,34 @@
+/retest-fixed-bugs
+
+# CONTEXT
+- Module: [Tên module chứa bug]
+- URL môi trường: [VD: https://crm.anhtester.com]
+- Build / Version ĐANG TEST: [VD: 2.4.3 — BẮT BUỘC, phải khác build lúc log bug]
+- Môi trường dùng chung? [Có / Không] — Có thì agent tự SKIP các TC thao tác phá huỷ
+
+# BUG CẦN RETEST (chọn 1 cách)
+[Xoá dòng không dùng:]
+- File bug report: [VD: docs/bugs/customers/web/BUG_customers_1785612000_TC011.md]
+- Nhiều bug: [VD: docs/bugs/customers/web/BUG_customers_1785612000_TC011.md, docs/bugs/customers/web/BUG_customers_1785620000_TC019.md]
+- Jira key: [VD: CRM-482]
+
+# MODE (bắt buộc chọn 1)
+[Xoá dòng không dùng:]
+- FULL — verify bug + chạy regression quanh vùng fix (mặc định cho bug Critical/Major)
+- RETEST — chỉ verify đúng bug đó (chỉ dùng cho bug Minor/Trivial, fix cô lập)
+
+# TÀI KHOẢN ĐĂNG NHẬP
+- Username: [VD: admin@example.com]
+- Password: [VD: 123456]
+- Role: [VD: Administrator]
+
+# TÙY CHỌN
+- Nguồn TC để chọn regression: [VD: docs/testcases/customers/TEST_CASES_CUSTOMERS_SUMMARY.md — để trống thì agent tự tìm theo module]
+- Trần số TC regression: [VD: 15 — để trống dùng mặc định 15]
+- Sinh bug report ngay cho regression mới phát hiện? [Có / Không — mặc định Không]
+
+# GHI CHÚ
+- Agent chạy ĐÚNG Steps to Reproduce trong bug gốc, không rút gọn, lặp tối thiểu 2 lần
+- Kết quả chấm 1 trong 4: FIXED / NOT_FIXED / PARTIAL / CANNOT_VERIFY
+- TC regression FAIL = bug MỚI, tách riêng, không gộp vào bug cũ
+- Agent chỉ THÊM mục "Lịch sử retest" vào bug gốc, KHÔNG sửa nội dung gốc

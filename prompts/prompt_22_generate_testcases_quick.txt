@@ -1,0 +1,26 @@
+/generate-testcases-from-requirements
+
+# CONTEXT
+- Module: [Tên module cần test — VD: Customers]
+- URL (nếu có): [URL hệ thống]
+
+# REQUIREMENT
+[Chọn 1 trong 2]
+- File requirements: [VD: docs/requirements/customers/REQUIREMENTS_CUSTOMERS_SUMMARY.md]
+- Hoặc dán nội dung requirement / user stories vào đây:
+```
+[DÁN NỘI DUNG REQUIREMENT]
+```
+
+# TÙY CHỌN
+- Độ hạt test case: [GỘP (mặc định — biến thể cùng trường gom vào 1 TC có Bảng biến thể) / TÁCH (mỗi biến thể 1 TC — khi cần 1 dòng/TC trên Jira, TestRail, Xray)]
+- Prefix TC ID: [VD: CRM_CUST — để trống nếu muốn agent tự đặt]
+- Giới hạn phạm vi: [VD: "Chỉ màn hình Danh sách + Thêm mới" / để trống = toàn module]
+
+# GHI CHÚ
+- Command này chạy QUICK mode — 1 lượt duy nhất, KHÔNG dừng hỏi giữa chừng
+- Requirements mơ hồ / scope >3 module / logic chồng chéo → agent tự đề xuất chuyển sang /generate-testcases-manual-rbt (FULL RBT 6 bước)
+- Chỉ cần checklist tick tay, không cần steps chi tiết → dùng /generate-checklist-test
+- Module đã có bộ TC → agent chỉ sinh BỔ SUNG cho REQ chưa có TC (TC ID nối tiếp dải); REQ đã có TC mà vừa đổi → dùng /update-testcases-from-impact
+- Output là file Markdown trong docs/testcases/ — cần Excel thì mở scripts/testcases-viewer/bundle.html rồi xuất
+- Agent BẮT BUỘC mở hết ảnh trong `docs/requirements/<module>/<nền-tảng>/evidence/` trước khi viết TC đầu tiên

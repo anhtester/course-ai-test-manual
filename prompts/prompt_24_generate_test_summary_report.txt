@@ -1,0 +1,30 @@
+/generate-test-summary-report
+
+# CONTEXT
+- Mốc báo cáo: [VD: Release v2.4 / Sprint 12 / UAT đợt 2]
+- Build / Version: [VD: 2.4.3]
+- Môi trường: [VD: Staging]
+- Người nhận báo cáo: [PM nội bộ / Khách hàng] — quyết định mức chi tiết kỹ thuật
+
+# PHẠM VI RELEASE
+- Module trong đợt này: [VD: Khách hàng, Đăng nhập, Dự án]
+- Module ngoài phạm vi: [VD: Kế toán — không đổi ở release này]
+
+# TIÊU CHÍ EXIT
+[Xoá dòng không dùng:]
+- Dùng bộ mặc định của skill (agent sẽ ghi rõ là mặc định, cần PM xác nhận)
+- Dự án có bộ riêng: [dán tiêu chí vào đây]
+
+# NGUỒN DỮ LIỆU
+- Execution report: [để trống = agent tự glob docs/executions/*/run_*/]
+- Retest report: [để trống = agent tự glob docs/executions/*/retest_*/]
+- Bug: [để trống = agent đọc docs/bugs/ — hoặc ghi "lấy từ Jira" nếu đội dùng Jira]
+- RTM: [VD: docs/traceability/traceability_matrix.md — để trống nếu chưa có]
+- Report automation: [VD: reports/allure-results — để trống nếu đợt này không chạy automation]
+
+# GHI CHÚ
+- Báo cáo viết cho người KHÔNG đọc code
+- Vùng chưa kiểm thử phải đứng TRƯỚC mọi tỷ lệ
+- Khuyến nghị GO vẫn phải kèm rủi ro tồn đọng
+- Quyết định release thuộc PM/PO — agent chỉ khuyến nghị kèm căn cứ
+- File này có thể gửi ra ngoài: KHÔNG chứa URL nội bộ, tài khoản, dữ liệu khách hàng thật

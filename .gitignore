@@ -1,2 +1,115 @@
+# =====================================================================
+#  .gitignore — course-ai-test-manual
+#  Nguyên tắc: commit KHUNG (.claude/, plans/, prompts/, scripts/, docs/)
+#  — KHÔNG commit bí mật, output chạy test, file tạm theo máy/phiên.
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# 🔒 Bí mật & phiên đăng nhập — TUYỆT ĐỐI không commit
+# ---------------------------------------------------------------------
 .env
+.env.*
+!.env.example
+# Session/cookie đăng nhập đã lưu để chạy test
+.auth/
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*.mobileprovision
+
+# ---------------------------------------------------------------------
+# Claude Code — cấu hình riêng từng máy / phiên
+# ---------------------------------------------------------------------
+# Permission tích luỹ theo máy, chứa đường dẫn tuyệt đối
+.claude/settings.local.json
+# Snapshot / console log / screenshot của Playwright MCP
+.playwright-mcp/
+# Ghi chú tiến độ của từng phiên làm việc
+task.md
+
+# ---------------------------------------------------------------------
+# Output chạy test — gom hết trong reports/ (reporting_rules.md § 6)
+# ---------------------------------------------------------------------
+reports/
+.allure/
+# Thư mục mặc định của tool nếu lỡ chưa trỏ về reports/
+allure-results/
+allure-report/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+target/
+test-output/
 screenshot.png
+/*.png
+*.log
+
+# ---------------------------------------------------------------------
+# Node / Playwright TS
+# ---------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# ---------------------------------------------------------------------
+# Java / Maven / Gradle (Selenium, Appium, REST Assured)
+# ---------------------------------------------------------------------
+*.class
+.gradle/
+out/
+bin/
+.mvn/wrapper/maven-wrapper.jar
+
+# ---------------------------------------------------------------------
+# Python (scripts/user-guide, pytest)
+# ---------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+
+# ---------------------------------------------------------------------
+# IDE / Editor
+# ---------------------------------------------------------------------
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*~
+
+# ---------------------------------------------------------------------
+# Hệ điều hành
+# ---------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ---------------------------------------------------------------------
+# File tạm của Office khi đang mở .docx/.xlsx
+# ---------------------------------------------------------------------
+~$*
+
+# ---------------------------------------------------------------------
+# ⚠️ TUỲ CHỌN — ảnh/video chụp hệ thống thật
+# Bỏ dấu # nếu push lên repo CÔNG KHAI và ảnh có dữ liệu thật
+# (tên khách hàng, email, số tiền). Xem CLAUDE.md mục "Chuyển sang dự án mới".
+# ---------------------------------------------------------------------
+# docs/executions/**/evidence/
+# docs/user-guides/**/images/
+# docs/user-guides/**/video/

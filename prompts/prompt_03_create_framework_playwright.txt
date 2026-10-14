@@ -1,0 +1,11 @@
+/generate-automation-framework
+
+# CONTEXT
+Tôi cần xây dựng Web UI Automation Framework từ đầu.
+- Công nghệ: Playwright TypeScript
+
+# HỆ THỐNG
+- URL: [URL hệ thống]
+- Tài khoản test: [EMAIL] / [PASSWORD]
+
+# TÙY CHỌN

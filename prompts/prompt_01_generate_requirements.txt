@@ -1,0 +1,6 @@
+/generate-requirements-from-website
+
+# CONTEXT
+- Website URL: [URL_TRANG_WEB]
+- Module Name: [TEN_MODULE]
+- Thông tin đăng nhập: [EMAIL] và [PASSWORD]

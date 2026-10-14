@@ -1,0 +1,18 @@
+/generate-testcases-api
+
+# NGUỒN ĐẶC TẢ API (một trong hai — agent tự nhận loại)
+- URL trang tài liệu hoặc URL spec: [VD: https://api.example.com/swagger · /scalar · /redoc · /v3/api-docs]
+- File spec: [VD: openapi.json / openapi.yaml / postman_collection.json]
+
+# CONTEXT
+- Môi trường gọi thử: [VD: Staging — hoặc "không gọi được, chỉ đọc spec"]
+- Môi trường dùng chung với người khác không: [Có / Không]
+- Tài khoản test để lấy token: [EMAIL] / [PASSWORD] — agent lưu vào .env, không ghi vào docs/
+
+# TÙY CHỌN
+- Phạm vi endpoints: [Toàn bộ spec / Chỉ các nhóm: ...]
+- Trang tài liệu có nhiều spec (dropdown): [Chọn spec nào / toàn bộ]
+
+# GHI CHÚ
+- Chỉ có file .docx/.pdf mô tả API, không có OpenAPI → chạy /generate-requirements-from-api trước (prompt_29), rồi mới sinh TC
+- Command này KHÔNG sinh code — có TC rồi chạy /generate-automation-api (prompt_31)

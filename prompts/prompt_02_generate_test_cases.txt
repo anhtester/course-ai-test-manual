@@ -1,0 +1,18 @@
+/generate-testcases-manual-rbt
+
+# CONTEXT
+- Module: [Tên module cần test]
+- URL (nếu có): [URL hệ thống]
+
+# REQUIREMENT
+[DÁN NỘI DUNG REQUIREMENT / USER STORIES VÀO ĐÂY]
+
+# TÙY CHỌN
+- Độ hạt test case: [GỘP (mặc định — biến thể cùng trường gom vào 1 TC có Bảng biến thể) / TÁCH (mỗi biến thể 1 TC — khi cần 1 dòng/TC trên Jira, TestRail, Xray)]
+- Prefix TC ID: [VD: CRM_LOGIN — để trống nếu muốn agent tự đặt]
+
+# GHI CHÚ
+- Command này chạy theo quy trình AI-RBT 6 bước (FULL RBT mode) — agent sẽ dừng ở checkpoint chờ bạn xác nhận
+- Nếu chỉ cần sinh TC nhanh không qua 6 bước → dùng /generate-testcases-from-requirements
+- Module đã có bộ TC → agent chỉ sinh BỔ SUNG cho REQ chưa có TC (TC ID nối tiếp dải); REQ đã có TC mà vừa đổi → dùng /update-testcases-from-impact
+- Output là file Markdown trong docs/testcases/ — cần Excel thì mở scripts/testcases-viewer/bundle.html rồi xuất

@@ -1,0 +1,24 @@
+/analyze-flaky-tests
+
+# CONTEXT
+- Môi trường: [Local / CI/CD pipeline]
+- Mode: [ANALYZE (chỉ báo cáo) / FIX (báo cáo + tự sửa code)]
+
+# TEST BỊ FLAKY
+[Cung cấp 1 trong các thông tin sau:]
+
+## Cách 1: File path + error log
+- Test file: [path/to/test_file.ts]
+- Tần suất fail: [VD: 3/10 lần chạy]
+- Error log:
+```
+[DÁN ERROR LOG / STACK TRACE VÀO ĐÂY]
+```
+
+## Cách 2: Chỉ file path (agent tự chạy test để tái hiện)
+- Test file: [path/to/test_file.ts]
+
+## Cách 3: Source code
+```typescript
+[DÁN SOURCE CODE VÀO ĐÂY]
+```

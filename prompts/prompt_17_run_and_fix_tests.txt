@@ -1,0 +1,24 @@
+/run-and-fix-tests
+
+# CONTEXT
+- Mode: [RUN (chạy + báo cáo) / FIX (chạy + sửa + chạy lại)]
+- Môi trường: [Local / Staging / CI — có phải môi trường dùng chung không?]
+
+# PHẠM VI CHẠY
+[Chọn 1:]
+- Toàn bộ suite
+- Theo tag: [VD: @smoke / @regression / groups=smoke]
+- Theo module: [VD: src/tests/customer/]
+- File cụ thể: [VD: src/tests/login.spec.ts]
+
+# LỆNH CHẠY
+- [Để trống nếu muốn agent tự suy từ package.json / pom.xml / pytest.ini]
+- Lệnh tuỳ chỉnh: [VD: npm run test:smoke]
+
+# TÙY CHỌN
+- Report lần chạy trước để so trend: [path trong reports/ hoặc "Không có"]
+- Giới hạn phạm vi sửa: [VD: "Chỉ sửa locator, đừng đụng test data" / để trống = sửa mọi nhóm sửa được]
+
+# LƯU Ý BẤT BIẾN
+- KHÔNG sửa test cho xanh khi nguyên nhân là bug của app — giữ nguyên đỏ và báo bug
+- Lỗi môi trường → dừng và báo, không sửa test để né

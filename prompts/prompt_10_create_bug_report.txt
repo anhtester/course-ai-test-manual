@@ -1,0 +1,32 @@
+/create-bug-report
+
+# CONTEXT
+- Môi trường: [Dev / Staging / Production] — [URL nếu có]
+- Browser/Device: [Chrome 126 / Firefox / Mobile...]
+- Account test: [email/username đã dùng khi gặp lỗi]
+
+# TEST FAIL / LỖI GẶP PHẢI
+[Cung cấp 1 trong các thông tin sau:]
+
+## Cách 1: Automation test fail
+- Test file: [path/to/test_file.ts]
+- Error log:
+```
+[DÁN ERROR LOG / STACK TRACE VÀO ĐÂY]
+```
+
+## Cách 2: Manual test fail
+- Test case: [TC ID hoặc mô tả]
+- Các bước đã thực hiện: [liệt kê ngắn gọn]
+- Lỗi quan sát được: [mô tả hiện tượng]
+
+## Cách 3: Chỉ có mô tả lỗi (agent tự tái hiện)
+- Mô tả: [VD: "Thêm sản phẩm vào giỏ nhưng số lượng không tăng"]
+- URL trang lỗi: [https://...]
+
+# REQUIREMENT LIÊN QUAN (nếu có — để viết Expected có căn cứ)
+[Dán requirement / user story / link Jira ticket]
+
+# TÙY CHỌN
+- Đẩy lên Jira sau khi review: [Có / Không]
+- Jira Project Key: [VD: PROJ] (nếu chọn Có)

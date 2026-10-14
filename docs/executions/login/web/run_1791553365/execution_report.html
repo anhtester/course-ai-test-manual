@@ -1,0 +1,164 @@
+<title>Execution Report Smoke Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Lexend:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Bố cục: đầu báo cáo (thông tin) → ô tổng kết → bảng kết quả từng mục → mục BLOCKED → dữ liệu → bước tiếp theo */
+:root {
+  --bg: #f2f4f7; --surface: #ffffff; --fg: #16202c; --muted: #5a6575; --line: #d8dde5;
+  --accent: #1d5c86; --accent-soft: #e2edf5; --code-bg: #edf0f4;
+  --pass: #1b7543; --pass-bg: #e0f2e7; --fail: #b3261e; --fail-bg: #fbe4e1; --block: #915600; --block-bg: #fcefd6;
+  --font-display: "Lexend", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151c; --surface: #18202a; --fg: #e3e8ee; --muted: #97a2b2; --line: #2b3542;
+    --accent: #80b9e2; --accent-soft: #1b2d3c; --code-bg: #222c38;
+    --pass: #72d39c; --pass-bg: #163225; --fail: #ff8f84; --fail-bg: #3a1c1a; --block: #f0b965; --block-bg: #382a13;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151c; --surface: #18202a; --fg: #e3e8ee; --muted: #97a2b2; --line: #2b3542;
+  --accent: #80b9e2; --accent-soft: #1b2d3c; --code-bg: #222c38;
+  --pass: #72d39c; --pass-bg: #163225; --fail: #ff8f84; --fail-bg: #3a1c1a; --block: #f0b965; --block-bg: #382a13;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.55; padding-inline: 16px; padding-block: 32px 56px; }
+.page { max-width: 1180px; margin: 0 auto; display: grid; gap: 28px; }
+h1, h2 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.25; }
+h1 { font-size: 1.9rem; font-weight: 700; }
+h2 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--accent); }
+code { font-family: var(--font-mono); font-size: 0.86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.head { display: grid; gap: 14px; }
+.title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; }
+.title-row .sub { color: var(--muted); }
+.meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin: 0; }
+.meta div { background: var(--surface); padding: 12px 14px; min-width: 0; display: grid; gap: 2px; }
+.meta dt { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.meta dd { margin: 0; overflow-wrap: anywhere; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 2px; }
+.tile .n { font-family: var(--font-display); font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.tile .l { font-size: 0.8rem; color: var(--muted); }
+.tile.pass .n { color: var(--pass); } .tile.fail .n { color: var(--fail); } .tile.block .n { color: var(--block); }
+.bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--code-bg); }
+.bar i { display: block; height: 100%; }
+.bar .pass { background: var(--pass); } .bar .block { background: var(--block); }
+.rate { color: var(--muted); max-width: 95ch; }
+.rate strong { color: var(--fg); }
+
+.group { display: grid; gap: 10px; min-width: 0; }
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+table { width: 100%; min-width: 1000px; border-collapse: collapse; font-size: inherit; }
+th, td { padding: 11px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--accent-soft); white-space: nowrap; }
+td.id, td.ids { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+td.id { white-space: nowrap; }
+td.ids span { display: block; white-space: nowrap; }
+.badge { display: inline-block; font-size: 0.8rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.badge.pass { background: var(--pass-bg); color: var(--pass); border: 1px solid var(--pass); }
+.badge.block { background: var(--block-bg); color: var(--block); border: 1px solid var(--block); }
+tr.is-block td:first-child { box-shadow: inset 3px 0 0 var(--block); }
+tr.is-pass td:first-child { box-shadow: inset 3px 0 0 var(--pass); }
+.prio { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+.prio.p1 { background: var(--accent); color: var(--surface); }
+.prio.p2 { border: 1px solid var(--accent); color: var(--accent); }
+.prio.p3 { background: var(--code-bg); color: var(--muted); }
+.note { color: var(--muted); font-size: 0.9rem; max-width: 95ch; }
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); padding: 14px 16px; color: var(--muted); }
+ul.next { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 95ch; }
+footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 14px; }
+@media (max-width: 560px) { h1 { font-size: 1.5rem; } body { padding-block: 20px 40px; } }
+</style>
+
+<div class="page">
+  <header class="head">
+    <div class="eyebrow">Execution Report · Checklist Smoke · Web</div>
+    <div class="title-row"><h1>Đăng nhập <code>LOGIN</code></h1><span class="sub">lượt chạy <code>run_1791553365</code></span></div>
+    <dl class="meta">
+      <div><dt>Loại nguồn</dt><dd>Checklist smoke · <code>CL-smoke_20261009</code></dd></div>
+      <div><dt>Nguồn checklist</dt><dd><a href="../../../../checklists/login/web/checklist_smoke_20261009.html">checklist_smoke_20261009.html</a> · <a href="../../../../checklists/login/web/checklist_smoke_20261009.md">.md</a></dd></div>
+      <div><dt>Phạm vi</dt><dd>14 mục (toàn bộ checklist)</dd></div>
+      <div><dt>Môi trường</dt><dd><code>https://crm.anhtester.com</code> — Perfex CRM demo · dùng chung</dd></div>
+      <div><dt>Tài khoản</dt><dd>Mục 9: <code>projectmanager@example.com</code>, mật khẩu <strong>sai cố ý</strong> · Mục 6, 12, 13, 14: Admin · Mục 7: Project Manager (người dùng tự đăng nhập)</dd></div>
+      <div><dt>Người thực hiện</dt><dd>Agent hỗ trợ (Playwright MCP) · bước đăng nhập do người dùng làm</dd></div>
+      <div><dt>Bắt đầu → Kết thúc</dt><dd>09-10-2026 20:42 → 21:08 · đợt 1 (20:42–20:43, không cần đăng nhập), đợt 2 (21:06–21:08, sau khi người dùng đăng nhập)</dd></div>
+      <div><dt>Build / Version</dt><dd>Không có thông tin</dd></div>
+    </dl>
+  </header>
+
+  <section class="group">
+    <h2>1. Tổng kết</h2>
+    <div class="tiles">
+      <div class="tile pass"><span class="n">14</span><span class="l">✅ PASS · 100%</span></div>
+      <div class="tile fail"><span class="n">0</span><span class="l">❌ FAIL · 0%</span></div>
+      <div class="tile block"><span class="n">0</span><span class="l">⚠️ BLOCKED · 0%</span></div>
+      <div class="tile"><span class="n">0</span><span class="l">⏭️ SKIPPED · 0%</span></div>
+      <div class="tile"><span class="n">14</span><span class="l">Tổng số mục</span></div>
+    </div>
+    <div class="bar" aria-hidden="true"><i class="pass" style="width:100%"></i></div>
+    <p class="rate"><strong>Pass rate (không tính SKIPPED): 14/14 = 100%</strong>. Đợt 1 có 9 mục PASS và 5 mục BLOCKED (cần đăng nhập thật); đợt 2 chạy nốt 5 mục đó, đều PASS.</p>
+  </section>
+
+  <section class="group">
+    <h2>2. Kết quả từng mục</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mã mục</th><th>Hạng mục kiểm tra</th><th>Kết quả</th><th>Priority</th><th>REQ ID</th><th>TC ID liên quan</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-01</td><td>Mở trang đăng nhập (cửa sổ sạch)</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-01</span></td><td class="ids"><span>CRM_LOGIN_TC_001</span></td><td>URL giữ nguyên, tab <code>Perfex CRM | Anh Tester Demo - Login</code>, tiêu đề <code>Login</code></td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-02</td><td>Đủ thành phần, trạng thái mặc định</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-02</span></td><td class="ids"><span>CRM_LOGIN_TC_002</span></td><td>Đủ 3 nhãn, ô vuông rỗng và không khoá, nút <code>Login</code> bấm được, 1 liên kết <code>Forgot Password?</code></td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-03</td><td>Gõ ngay khi trang vừa tải</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p2">P2</span></td><td class="ids"><span>REQ-LOGIN-03</span></td><td class="ids"><span>CRM_LOGIN_TC_002</span></td><td>Bấm phím <code>a</code> không click chuột → ô Email nhận ký tự <code>a</code></td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-04</td><td>Ô Password che ký tự</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p2">P2</span></td><td class="ids"><span>REQ-LOGIN-02</span></td><td class="ids"><span>CRM_LOGIN_TC_002</span></td><td>Gõ 8 ký tự, ô là loại mật khẩu (hiện chấm)</td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-05</td><td>Bấm chữ <code>Remember me</code></td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p3">P3</span></td><td class="ids"><span>REQ-LOGIN-02</span></td><td class="ids"><span>CRM_LOGIN_TC_002</span></td><td>Ô vuông chuyển sang tích</td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-06</td><td>Đăng nhập Admin</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-06</span></td><td class="ids"><span>CRM_LOGIN_TC_005</span></td><td>Vào <code>/admin/</code>, tab <code>Dashboard</code>, có menu trái và ảnh đại diện. Lệch bước: người dùng <strong>có tích</strong> <code>Remember me</code> (checklist ghi không tích), kết quả vẫn đúng kỳ vọng</td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-07</td><td>Đăng nhập Project Manager</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-06</span></td><td class="ids"><span>CRM_LOGIN_TC_006</span></td><td>Menu trái đếm được 9 mục (Dashboard, Customers, Projects, Tasks, Contracts, Sales, Support, Leads, Utilities); không có <code>Reports</code>, <code>Subscriptions</code>, <code>Expenses</code>, <code>Estimate Request</code>, <code>Knowledge Base</code></td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-08</td><td>Bỏ trống cả hai ô</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-10</span><span>REQ-LOGIN-11</span><span>REQ-LOGIN-12</span></td><td class="ids"><span>CRM_LOGIN_TC_011 (a)</span></td><td>2 dải đỏ đúng thứ tự: <code>The Password field is required.</code> rồi <code>The Email Address field is required.</code>; vẫn ở trang đăng nhập</td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-09</td><td>PM + mật khẩu sai</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-14</span></td><td class="ids"><span>CRM_LOGIN_TC_013 (a)</span></td><td>1 dải <code>Invalid email or password</code>; gửi sai đúng 1 lần</td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-10</td><td>Mở <code>/admin/clients</code> khi chưa đăng nhập</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-17</span></td><td class="ids"><span>CRM_LOGIN_TC_021 (a)</span></td><td>Bị đưa về <code>/admin/authentication</code>, có biểu mẫu đăng nhập, trang không có bảng dữ liệu nào</td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-11</td><td>Mở Quên mật khẩu (không bấm Confirm)</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p2">P2</span></td><td class="ids"><span>REQ-LOGIN-23</span></td><td class="ids"><span>CRM_LOGIN_TC_027</span></td><td>Tới <code>/admin/authentication/forgot_password</code>, tiêu đề <code>Forgot Password</code>, 1 ô <code>Email Address</code>, nút <code>Confirm</code> nền xanh</td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-12</td><td>Menu ảnh đại diện</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-29</span></td><td class="ids"><span>CRM_LOGIN_TC_032</span></td><td>Menu 5 mục theo thứ tự <code>My Profile</code>, <code>My Timesheets</code>, <code>Edit Profile</code>, <code>Language</code>, <code>Logout</code>; <code>Logout</code> là mục cuối, chỉ có 1 lối Logout nhìn thấy</td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-13</td><td>Logout khi không có bộ đếm giờ</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-31</span><span>REQ-LOGIN-32</span></td><td class="ids"><span>CRM_LOGIN_TC_035</span><span>CRM_LOGIN_TC_036 (a)</span></td><td>Huy hiệu bộ đếm giờ = 0. Bấm <code>Logout</code> → về <code>/admin/authentication</code>, hai ô rỗng, không hộp thoại, không dải thông báo</td></tr>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009-14</td><td>Sau Logout: mở <code>/admin/clients</code> và Back</td><td><span class="badge pass">✅ PASS</span></td><td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-32</span><span>REQ-LOGIN-33</span></td><td class="ids"><span>CRM_LOGIN_TC_036 (a)</span></td><td>Mở <code>/admin/clients</code> → về <code>/admin/authentication</code>; Back vẫn ở trang đăng nhập, không có dữ liệu khách hàng. Giới hạn: Back làm trong tab mới, chưa kiểm trường hợp <code>/admin/clients</code> đã nằm sẵn trong lịch sử (bước 4–5 của <code>TC_036-a</code>)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Chưa kiểm: màu "nút xanh" của mục 2 chỉ đối chiếu theo cùng kiểu nút ở trang Quên mật khẩu (nền <code>rgb(37, 99, 235)</code>), không đo riêng ở trang đăng nhập.</p>
+  </section>
+
+  <section class="group">
+    <h2>3. Chi tiết mục FAIL</h2>
+    <div class="empty">Không có mục FAIL.</div>
+  </section>
+
+  <section class="group">
+    <h2>4. Mục BLOCKED</h2>
+    <div class="empty">Không còn mục BLOCKED. Đợt 1 có 5 mục bị chặn (6, 7, 12, 13, 14) vì cần đăng nhập thật; người dùng đã tự đăng nhập Admin và Project Manager, đợt 2 chạy nốt cả 5 mục.</div>
+  </section>
+
+  <section class="group">
+    <h2>5. Dữ liệu đã tạo & dọn dẹp</h2>
+    <div class="empty">Không tạo dữ liệu nào. Không bấm <code>Confirm</code> ở trang Quên mật khẩu nên không có email nào được gửi. Mật khẩu sai chỉ gửi 1 lần (giới hạn ≤ 4). Phiên đăng nhập đã lưu vào <code>.auth/admin.json</code> và <code>.auth/pm.json</code> (nằm trong <code>.gitignore</code>); phiên Admin đã bị huỷ phía máy chủ sau mục 13.</div>
+  </section>
+
+  <section class="group">
+    <h2>6. Đề xuất bước tiếp theo</h2>
+    <ul class="next">
+      <li>Không có mục FAIL nên chưa cần <code>/create-bug-report</code>.</li>
+      <li>Muốn phủ rộng hơn Smoke: chạy checklist Regression hoặc bộ TC chi tiết (<code>/execute-test-cases</code> với <code>docs/testcases/login/web/test_cases_login_web.md</code>).</li>
+      <li>Chạy lại mục Logout ở lần sau cần đăng nhập Admin lại, vì phiên đã lưu bị huỷ sau mục 13.</li>
+    </ul>
+  </section>
+
+  <footer>Bản HTML của <code>execution_report.md</code> cùng thư mục. File <code>.md</code> là bản gốc để truy vết và để <code>scripts/execution-viewer</code> nạp.</footer>
+</div>

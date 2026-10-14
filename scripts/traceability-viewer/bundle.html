@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Traceability Viewer — Anh Tester</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234DBD44'/%3E%3Cpath d='M8 11h16M8 16h16M8 21h16M13 8v16' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --brand:#4DBD44; --brand-600:#3EA036; --brand-700:#2F7A29; --brand-50:#F0F9EF; --brand-100:#DCF0DA;
+  --red:#dc2626; --orange:#ea580c; --amber:#d97706; --violet:#7c3aed; --slate:#64748b;
+  --bg:#f6f7f9; --card:#fff; --line:#e4e7ec; --text:#111827; --muted:#6b7280;
+}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text)}
+button{font:inherit;cursor:pointer}
+h1,h2,h3,h4{margin:0}
+code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:.92em;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+
+/* layout */
+header{background:#fff;border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
+.logo{width:30px;height:30px;border-radius:7px;background:var(--brand);display:grid;place-items:center;flex:none}
+.logo svg{width:19px;height:19px}
+.title{font-size:16px;font-weight:700}
+.subtitle{font-size:12px;color:var(--muted)}
+.spacer{flex:1}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 13px;font-weight:600;color:var(--text)}
+.btn:hover{background:#f9fafb}
+.btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-600)}
+
+main{display:flex;align-items:flex-start;gap:16px;padding:16px 20px;max-width:1800px;margin:0 auto}
+aside{width:250px;flex:none;position:sticky;top:72px;min-width:0}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0;overflow:hidden}
+.panel + .panel{margin-top:12px}
+.panel h3{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px}
+section.content{flex:1;min-width:0}
+
+/* drop zone */
+#drop{border:2px dashed var(--brand);border-radius:12px;background:var(--brand-50);padding:44px 20px;text-align:center;color:var(--brand-700);cursor:pointer}
+#drop.over{background:var(--brand-100)}
+#drop b{display:block;font-size:16px;margin-bottom:6px}
+#drop small{color:var(--muted);display:block;margin-top:10px;line-height:1.7}
+
+/* file list */
+.file{display:flex;align-items:center;gap:6px;padding:6px 7px;border-radius:7px;font-size:13px}
+.file:hover{background:#f3f4f6}
+.file .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file .rm{border:0;background:none;color:var(--muted);padding:0 3px;font-size:14px;line-height:1}
+.file .rm:hover{color:var(--red)}
+.tag{font-size:10px;padding:1px 5px;border-radius:4px;flex:none;font-weight:700}
+.tag.index{background:#dcfce7;color:#166534}
+.tag.module{background:#eef2ff;color:#4338ca}
+.tag.legacy{background:#fef3c7;color:#92400e}
+#meta{font-size:12.5px}
+#meta .row{padding:5px 0;border-bottom:1px solid #f1f2f4}
+#meta .row:last-child{border-bottom:0}
+#meta .mk{display:block;color:var(--muted);font-size:11px;line-height:1.35}
+#meta .mv{display:block;line-height:1.45;overflow-wrap:anywhere}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.stat .n{font-size:23px;font-weight:700;line-height:1.2}
+.stat .n small{font-size:13px;font-weight:600;color:var(--muted)}
+.stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.stat .meter{height:6px;border-radius:99px;background:#eef0f3;margin-top:7px;overflow:hidden}
+.stat .meter i{display:block;height:100%;background:var(--brand)}
+.stat.bad .n{color:var(--red)} .stat.bad .meter i{background:var(--red)}
+.stat.warn .meter i{background:var(--amber)}
+
+/* module cards */
+.mods{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:14px}
+.mod{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer}
+.mod:hover{border-color:var(--brand)}
+.mod.on{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-100)}
+.mod h4{font-size:14px;display:flex;gap:6px;align-items:baseline}
+.mod h4 code{font-size:11px}
+.mod .src{font-size:11px;color:var(--muted);margin-top:1px}
+.mod .src.warn{color:#92400e}
+.bars{margin-top:8px;display:grid;grid-template-columns:96px 1fr 70px;gap:5px 8px;align-items:center;font-size:12px}
+.bars .lbl{color:var(--muted)}
+.bars .val{text-align:right;font-variant-numeric:tabular-nums}
+.bar{height:7px;border-radius:99px;background:#eef0f3;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.dist{display:flex;height:8px;border-radius:99px;overflow:hidden;margin-top:9px;background:#eef0f3}
+.dist i{display:block;height:100%}
+
+/* alerts */
+.alert{border-radius:10px;padding:11px 14px;margin-bottom:10px;font-size:13px;border:1px solid}
+.alert > b{display:block;margin-bottom:2px}
+.alert.danger{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.alert.warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.alert.info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+
+/* tabs + toolbar */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:12px;flex-wrap:wrap}
+.tab{border:0;background:none;padding:9px 14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--brand-700);border-bottom-color:var(--brand)}
+.tab .cnt{font-size:11px;background:#f1f5f9;color:#475569;border-radius:99px;padding:0 6px;margin-left:5px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+input[type=search],select{border:1px solid var(--line);border-radius:8px;padding:7px 11px;font:inherit;background:#fff;color:var(--text)}
+input[type=search]{flex:1;min-width:220px}
+input[type=search]:focus,select:focus{outline:2px solid var(--brand-100);border-color:var(--brand)}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.chip.on{background:var(--brand-50);border-color:var(--brand);color:var(--brand-700)}
+.chip .c{font-weight:500;opacity:.8;margin-left:3px}
+.chiprow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chiprow .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-right:2px}
+
+/* table */
+.tablewrap{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow-x:auto}
+.tablewrap + h3, .gap h3{margin:18px 0 8px;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#fafbfc;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);white-space:nowrap;position:sticky;top:0}
+th[data-s]{cursor:pointer}
+th[data-s]:hover{color:var(--text)}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover{background:#fafbfc}
+tr.grp td{background:#f8fafc;font-weight:700;font-size:12.5px;color:#334155;cursor:default}
+tr.grp td .gbar{display:inline-block;width:70px;vertical-align:middle;margin:0 6px}
+td.id{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;white-space:nowrap}
+td.tcs{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11.5px;color:#334155;max-width:340px}
+td.num{text-align:center;white-space:nowrap}
+.st{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.st.FULL{background:#dcfce7;color:#166534}
+.st.PARTIALCOV{background:#ede9fe;color:#5b21b6}
+.st.MANUAL{background:#fef3c7;color:#92400e}
+.st.CHECKLISTONLY{background:#ffedd5;color:#9a3412}
+.st.NOTCOVERED{background:#fee2e2;color:#991b1b}
+.st.EXCLUDED{background:#f1f5f9;color:#475569}
+.res{white-space:nowrap;font-size:12.5px}
+.muted{color:var(--muted)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.ok{padding:12px 14px;color:var(--brand-700);font-size:13px}
+.pivot td,.pivot th{text-align:center}
+.pivot td:first-child,.pivot th:first-child{text-align:left}
+
+/* detail */
+#detail{position:fixed;right:0;top:0;bottom:0;width:min(560px,94vw);background:#fff;border-left:1px solid var(--line);box-shadow:-8px 0 26px rgba(0,0,0,.09);padding:18px 20px;overflow:auto;z-index:40;display:none}
+#detail.open{display:block}
+#detail h2{font-size:15px;margin-bottom:3px}
+#detail .close{position:absolute;right:14px;top:14px;border:0;background:none;font-size:21px;color:var(--muted);line-height:1}
+.kv{margin-top:14px}
+.kv div{display:grid;grid-template-columns:140px 1fr;gap:10px;padding:7px 0;border-bottom:1px solid #f1f2f4;font-size:13px}
+.kv .k{color:var(--muted);font-weight:600}
+.kv .v{white-space:pre-wrap;word-break:break-word;min-width:0}
+.tclist{display:flex;flex-wrap:wrap;gap:5px}
+.tclist code{font-size:11.5px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><svg viewBox="0 0 32 32"><path d="M7 10h18M7 16h18M7 22h18M13 7v18" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></div>
+  <div>
+    <div class="title">Traceability Viewer</div>
+    <div class="subtitle">Ma trận truy vết REQ ↔ TC ↔ Automation — <code>docs/traceability/</code></div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="btnCsv">↓ CSV</button>
+  <button class="btn" id="btnXlsx">↓ Excel</button>
+  <button class="btn" id="btnAdd">+ Import file .md</button>
+  <button class="btn btn-primary" id="btnAddFolder">+ Import thư mục</button>
+  <button class="btn" id="btnReset" style="display:none">Xoá tất cả</button>
+  <input type="file" id="file" accept=".md,.markdown" multiple hidden>
+  <input type="file" id="folder" webkitdirectory mozdirectory directory multiple hidden>
+</header>
+
+<main>
+  <aside>
+    <div class="panel">
+      <h3>File đã nạp</h3>
+      <div id="files"></div>
+    </div>
+    <div class="panel" id="metaPanel" style="display:none">
+      <h3>File chung</h3>
+      <div id="meta"></div>
+    </div>
+  </aside>
+
+  <section class="content">
+    <div id="drop">
+      <b>Kéo thả thư mục <code>docs/traceability/</code> vào đây</b>
+      Hoặc bấm <strong>+ Import thư mục</strong> / <strong>+ Import file .md</strong> ở góc trên — hai nút luôn hiện, bấm thêm lúc nào cũng được
+      <small>
+        Nhận <code>traceability_matrix.md</code> (file chung — tổng hợp mọi module, mục ⬛ ngoài tầm nhìn) và <code>&lt;module&gt;/traceability_matrix_&lt;module&gt;.md</code> (chi tiết từng module).<br>
+        Nạp cả thư mục là đủ: trang tự ghép file chung với file module theo <b>Bản đồ tài liệu</b>.<br>
+        RTM kiểu cũ (một file phẳng) vẫn đọc được — được gắn nhãn <b>KIỂU CŨ</b>.<br>
+        Chỉ số được <b>tính lại từ ma trận chi tiết</b>, không tin bảng tổng trong file. Toàn bộ xử lý chạy trong trình duyệt — không gửi dữ liệu đi đâu.
+      </small>
+    </div>
+
+    <div id="app" style="display:none">
+      <div id="alerts"></div>
+      <div class="stats" id="stats"></div>
+      <div class="mods" id="mods"></div>
+
+      <div class="tabs" id="tabs">
+        <button class="tab on" data-tab="req">Ma trận REQ<span class="cnt" id="cntReq"></span></button>
+        <button class="tab" data-tab="auto">TC chưa automate<span class="cnt" id="cntAuto"></span></button>
+        <button class="tab" data-tab="gap">Gap &amp; kiểm tra<span class="cnt" id="cntGap"></span></button>
+        <button class="tab" data-tab="todo">Việc cần làm<span class="cnt" id="cntTodo"></span></button>
+      </div>
+
+      <div id="tabReq">
+        <div class="toolbar">
+          <input type="search" id="q" placeholder="Tìm theo REQ ID, tên yêu cầu, TC ID, Story…">
+          <select id="fStory"><option value="">Mọi Story</option></select>
+        </div>
+        <div class="toolbar"><span class="chiprow"><span class="lbl">Trạng thái</span><span id="chipsSt"></span></span></div>
+        <div class="tablewrap">
+          <table id="tblReq">
+            <thead><tr>
+              <th data-s="module">Module</th><th data-s="req">REQ ID</th><th data-s="desc">Yêu cầu</th>
+              <th data-s="nTc">TC</th><th data-s="auto">Automation</th><th data-s="resOrder">Kết quả gần nhất</th><th data-s="status">Trạng thái</th>
+            </tr></thead>
+            <tbody id="rowsReq"></tbody>
+          </table>
+          <div class="empty" id="noReq" style="display:none">Không có REQ nào khớp bộ lọc.</div>
+        </div>
+      </div>
+
+      <div id="tabAuto" style="display:none">
+        <div id="autoPivot"></div>
+        <div class="toolbar" style="margin-top:12px">
+          <input type="search" id="qAuto" placeholder="Tìm theo TC ID, ghi chú…">
+          <span class="chiprow"><span class="lbl">Priority</span><span id="chipsPrio"></span></span>
+        </div>
+        <div class="tablewrap">
+          <table><thead><tr><th>Module</th><th>TC ID</th><th>Priority</th><th>Automation dự kiến</th><th>Ghi chú</th></tr></thead>
+          <tbody id="rowsAuto"></tbody></table>
+          <div class="empty" id="noAuto" style="display:none">Không có TC nào khớp bộ lọc.</div>
+        </div>
+      </div>
+
+      <div id="tabGap" class="gap" style="display:none"></div>
+      <div id="tabTodo" style="display:none"></div>
+    </div>
+  </section>
+</main>
+
+<div id="detail">
+  <button class="close" id="btnClose">×</button>
+  <h2 id="dTitle"></h2>
+  <div class="subtitle" id="dSub"></div>
+  <div class="kv" id="dKv"></div>
+</div>
+
+<footer>Anh Tester · claude-testing-skills — dữ liệu lưu trong localStorage của trình duyệt này</footer>
+
+<script>
+/* ============================ PARSER ============================
+   Hợp đồng format nằm ở .claude/skills/skills-coverage-traceability/SKILL.md.
+   Bảng được nhận diện theo TÊN CỘT, không theo số thứ tự mục — RTM thêm/bớt mục vẫn đọc được.   */
+const clean = s => String(s||'').replace(/\\\|/g,'|').replace(/<br\s*\/?>/gi,'\n').trim();
+const PLACEHOLDER = /^(?:[—–\-]+|n\/a|na)$/i;
+function stripMd(s){
+  const v = clean(s).replace(/!?\[([^\]]*)\]\(([^)]*)\)/g,(m,a,b)=>a||b).replace(/[`*]/g,'').trim();
+  return PLACEHOLDER.test(v) ? '' : v;
+}
+const linkOf = s => (String(s||'').match(/\]\(([^)]+)\)/)||[,''])[1];
+const splitRow = r => r.trim().replace(/^\|/,'').replace(/\|$/,'').split(/(?<!\\)\|/).map(clean);
+
+function parseTables(lines){
+  const out=[]; let i=0, heading='', h2='';
+  while(i<lines.length){
+    const L=lines[i];
+    const h=L.match(/^(#{2,4})\s+(.*)$/);
+    if(h){ heading=h[2].trim(); if(h[1].length===2) h2=heading; i++; continue; }
+    if(/^\s*\|/.test(L)){
+      const blk=[]; while(i<lines.length && /^\s*\|/.test(lines[i])) blk.push(lines[i++]);
+      if(blk.length>=2 && /^[\s|:-]+$/.test(blk[1])){
+        const header=splitRow(blk[0]).map(h=>stripMd(h));
+        const rows=blk.slice(2).filter(r=>!/^[\s|:-]+$/.test(r)).map(splitRow).filter(r=>r.some(c=>c!==''));
+        out.push({heading,h2,header,rows});
+      }
+      continue;
+    }
+    i++;
+  }
+  return out;
+}
+const colIdx=(header,re)=>header.findIndex(h=>re.test(h));
+const cell=(r,i)=>i>=0?stripMd(r[i]):'';
+const fracOf=s=>{ const m=String(s||'').match(/(\d+)\s*\/\s*(\d+)/); return m?[+m[1],+m[2]]:null; };
+
+const ST_LABEL={EXCLUDED:'⏭️ Loại trừ',NOTCOVERED:'🔴 Chưa có TC',CHECKLISTONLY:'🟠 Chỉ có checklist',
+  MANUAL:'🟡 Thủ công',PARTIALCOV:'🟣 Automate một phần',FULL:'✅ Đã automate'};
+const ALL_ST=['NOTCOVERED','CHECKLISTONLY','MANUAL','PARTIALCOV','FULL','EXCLUDED'];
+const ST_COLOR={FULL:'#22c55e',PARTIALCOV:'#8b5cf6',MANUAL:'#f59e0b',CHECKLISTONLY:'#f97316',NOTCOVERED:'#ef4444',EXCLUDED:'#cbd5e1'};
+const PRIO=['Critical','High','Medium','Low'];
+
+// REQ-LOGIN-01 → LOGIN · REQ-BOOK-AUTH-03 → BOOK-AUTH
+const modOfReq=id=>{ const m=String(id).match(/^REQ-(.+)-\d+$/i); return m?m[1].toUpperCase():''; };
+const modOfTc=id=>{ const m=String(id).match(/^(?:[A-Z]+_)?([A-Z]+)_TC_\d+/i); return m?m[1].toUpperCase():''; };
+
+function parseResult(s){
+  const t=String(s||''); const g=re=>{ const m=t.match(re); return m?+m[1]:0; };
+  return {pass:g(/✅\s*(\d+)/), fail:g(/❌\s*(\d+)/), blocked:g(/🚫\s*(\d+)/), skipped:g(/⏩\s*(\d+)/), bug:/🐞/.test(t), raw:t};
+}
+
+function parseDoc(text, fileName){
+  const lines=text.split(/\r?\n/);
+  const title=(lines.find(l=>/^#\s+/.test(l))||'').replace(/^#\s+/,'').trim();
+  const tables=parseTables(lines);
+  const doc={fileName, title, kind:'module', legacy:false, meta:{}, module:'', moduleName:'',
+    rows:[], passRate:null, excluded:[], notAuto:[], orphans:[], deprecatedScripts:[], guesses:[], badRefs:[], suggest:{},
+    clItems:{}, outside:[], undocumented:[], idxModules:[], map:[], todo:[]};
+
+  const pm=title.match(/—\s*(.+?)\s*\(`?([A-Z0-9_-]+)`?\)\s*$/);
+  if(pm){ doc.moduleName=pm[1]; doc.module=pm[2].toUpperCase(); }
+  else { const fm=fileName.match(/traceability_matrix_([^.]+)\.md$/i); if(fm) doc.module=fm[1].toUpperCase(); }
+
+  for(const t of tables){
+    const H=t.header;
+    const iReq=colIdx(H,/^REQ(\s*ID)?$/i), iTc=colIdx(H,/^TC\s*IDs?$/i), iTcId=colIdx(H,/^TC\s*ID$/i);
+    const iMod=colIdx(H,/^module$/i), iFile=colIdx(H,/^file(\s*RTM)?$/i), iTest=colIdx(H,/^test$/i);
+
+    if(colIdx(H,/^chỉ số$/i)>=0 && colIdx(H,/giá trị/i)>=0){         // Tổng quan — chỉ lấy pass rate
+      const iV=colIdx(H,/giá trị/i);
+      for(const r of t.rows) if(/pass rate/i.test(stripMd(r[0]))){ const v=cell(r,iV), f=fracOf(v);
+        if(f) doc.passRate={pass:f[0], ran:f[1], fail:+((v.match(/❌\s*(\d+)/)||[,0])[1])}; }
+      continue;
+    }
+    if(H.length===2 && /thông tin/i.test(H[0])){ for(const r of t.rows) if(r[0]) doc.meta[stripMd(r[0])]=stripMd(r[1]); continue; }
+
+    if(iReq>=0 && iTc>=0){                                             // Ma trận chi tiết (theo Story)
+      const iDesc=colIdx(H,/yêu cầu|mô tả/i), iAuto=colIdx(H,/^automation|script/i), iCl=colIdx(H,/^checklist$/i),
+            iRes=colIdx(H,/kết quả/i), iSt=colIdx(H,/trạng thái/i), iPf=colIdx(H,/nền tảng/i);
+      if(colIdx(H,/mô tả ngắn/i)>=0) doc.legacy=true;
+      const story=/ma trận chi tiết/i.test(t.heading)?'':t.heading;
+      for(const r of t.rows){
+        const req=cell(r,iReq); if(!/^REQ-/i.test(req)) continue;
+        const tcs=cell(r,iTc).split(/[,;\n]/).map(s=>s.trim()).filter(s=>s && !PLACEHOLDER.test(s));
+        const auto=cell(r,iAuto), cls=cell(r,iCl).split(/[,;\n]/).map(s=>s.trim()).filter(Boolean);
+        const declared=cell(r,iSt);
+        if(/manual only|not covered|checklist only/i.test(declared)) doc.legacy=true;
+        doc.rows.push({req, module:modOfReq(req)||doc.module, story, desc:cell(r,iDesc), tcs, auto, cls,
+          platform:cell(r,iPf), result:iRes>=0?parseResult(r[iRes]):null, declared, fileName});
+      }
+      continue;
+    }
+    if(iReq>=0 && colIdx(H,/lý do/i)>=0){                               // ⏭️ REQ loại trừ
+      const iL=colIdx(H,/lý do/i), iC=colIdx(H,/căn cứ/i);
+      for(const r of t.rows){ const req=cell(r,iReq); if(req) doc.excluded.push({req, module:modOfReq(req)||doc.module, reason:cell(r,iL), basis:cell(r,iC)}); }
+      continue;
+    }
+    if(iReq>=0 && colIdx(H,/mục checklist/i)>=0){                       // 🟠 REQ chỉ có checklist
+      const iC=colIdx(H,/mục checklist/i);
+      for(const r of t.rows){ const req=cell(r,iReq); if(req) doc.clItems[req]=cell(r,iC); }
+      continue;
+    }
+    if(iReq>=0 && colIdx(H,/đề xuất/i)>=0){                             // 🔴 REQ chưa có TC → đề xuất
+      const iS=colIdx(H,/đề xuất/i);
+      for(const r of t.rows){ const req=cell(r,iReq); if(req) doc.suggest[req]=cell(r,iS); }
+      continue;
+    }
+    if(iTcId>=0 && colIdx(H,/priority|ưu tiên/i)>=0){                    // 🟡 TC chưa automate
+      const iP=colIdx(H,/priority|ưu tiên/i), iA=colIdx(H,/automation/i), iN=colIdx(H,/ghi chú/i);
+      for(const r of t.rows){ const id=cell(r,iTcId); if(id) doc.notAuto.push({id, module:modOfTc(id)||doc.module, priority:cell(r,iP), planned:cell(r,iA), note:cell(r,iN)}); }
+      continue;
+    }
+    if(iTcId>=0 && colIdx(H,/REQ ghi/i)>=0){                            // 🧩 TC trỏ tới REQ không tồn tại
+      const iR=colIdx(H,/REQ ghi/i), iS=colIdx(H,/đề xuất/i);
+      for(const r of t.rows){ const id=cell(r,iTcId); if(id) doc.badRefs.push({id, req:cell(r,iR), suggest:cell(r,iS)}); }
+      continue;
+    }
+    if(iTest>=0 && colIdx(H,/deprecated/i)>=0){                         // 🗑️ Script trỏ vào TC Deprecated
+      const iD=colIdx(H,/deprecated/i);
+      for(const r of t.rows){ const n=cell(r,iTest); if(n) doc.deprecatedScripts.push({test:n, file:cell(r,iFile), tc:cell(r,iD)}); }
+      continue;
+    }
+    if(iTest>=0 && iFile>=0){                                            // ⚪ Orphan test
+      const iS=colIdx(H,/đề xuất/i);
+      for(const r of t.rows){ const n=cell(r,iTest); if(n) doc.orphans.push({test:n, file:cell(r,iFile), suggest:cell(r,iS)}); }
+      continue;
+    }
+    if(colIdx(H,/căn cứ suy luận/i)>=0){                                // ⚠️ Mapping suy luận
+      const iB=colIdx(H,/căn cứ/i);
+      for(const r of t.rows){ const a=stripMd(r[0]); if(a) doc.guesses.push({req:a, tc:stripMd(r[1]), basis:cell(r,iB)}); }
+      continue;
+    }
+    if(colIdx(H,/^nhóm$/i)>=0 && iMod>=0){                              // ⬛ Ngoài tầm nhìn (file chung)
+      const iN=colIdx(H,/^nhóm$/i), iC=colIdx(H,/số module/i), iY=colIdx(H,/ý nghĩa/i);
+      for(const r of t.rows){ const g=cell(r,iN); const n=parseInt(cell(r,iC))||0; if(g && n) doc.outside.push({group:g, count:n, modules:cell(r,iMod), note:cell(r,iY)}); }
+      continue;
+    }
+    if(iMod>=0 && iFile>=0 && colIdx(H,/ngày sinh/i)>=0){               // Bản đồ tài liệu
+      const iD=colIdx(H,/ngày sinh/i), iG=colIdx(H,/mốc git/i);
+      for(const r of t.rows){ const m=cell(r,iMod); if(m) doc.map.push({module:m.toUpperCase(), file:linkOf(r[iFile]), fileLabel:cell(r,iFile), date:cell(r,iD), git:cell(r,iG)}); }
+      continue;
+    }
+    if(iMod>=0 && colIdx(H,/requirement coverage/i)>=0){                // Độ phủ theo module (file chung)
+      const iCov=colIdx(H,/requirement coverage/i), iIn=colIdx(H,/trong phạm vi/i), iT=colIdx(H,/^TC$/i),
+            iA=colIdx(H,/^automation/i), iRun=colIdx(H,/lần chạy/i);
+      for(const r of t.rows){
+        const raw=r[iMod]||''; if(/tổng/i.test(stripMd(raw))) continue;
+        const code=(raw.match(/`([^`]+)`/)||[,''])[1].toUpperCase();
+        doc.idxModules.push({module:code, name:stripMd(raw.replace(/`[^`]+`/,'')), inScope:parseInt(cell(r,iIn))||0,
+          cov:fracOf(cell(r,iCov)), tc:parseInt(cell(r,iT))||0, auto:fracOf(cell(r,iA)), run:cell(r,iRun)});
+      }
+      continue;
+    }
+    if(iMod>=0 && colIdx(H,/^việc$/i)>=0){                              // Việc cần làm (file chung)
+      const iV=colIdx(H,/^việc$/i), iQ=colIdx(H,/số lượng/i), iC=colIdx(H,/command/i);
+      for(const r of t.rows){ const v=cell(r,iV); if(v) doc.todo.push({task:v, module:cell(r,iMod), qty:cell(r,iQ), cmd:cell(r,iC)}); }
+      continue;
+    }
+    if(iMod>=0 && /⬛|chưa có tài liệu|recon/i.test(t.heading)){        // ⬛ kiểu cũ: một dòng một module
+      for(const r of t.rows){ const m=stripMd(r[iMod]); if(m) doc.undocumented.push({module:m, note:stripMd(r[1])}); }
+    }
+  }
+  if(doc.idxModules.length || doc.map.length || /tổng hợp/i.test(title)) doc.kind='index';
+  if(doc.kind==='module' && !doc.module && doc.rows.length){
+    const mods=[...new Set(doc.rows.map(r=>r.module))]; doc.module=mods.length===1?mods[0]:'';
+  }
+  // Việc cần làm của file module: danh sách đánh số dưới heading "Việc cần làm"
+  let inTodo=false;
+  for(const l of lines){
+    if(/^##\s/.test(l)) inTodo=/việc cần làm/i.test(l);
+    else if(inTodo && doc.kind==='module'){
+      const m=l.match(/^\d+\.\s+(.*)$/); if(m){
+        const cmd=(m[1].match(/→\s*`([^`]+)`\s*$/)||[,''])[1];
+        doc.todo.push({task:stripMd(m[1].replace(/→\s*`[^`]+`\s*$/,'')), module:doc.module, qty:'', cmd});
+      }
+    }
+  }
+  return doc;
+}
+
+/* ============================ STATE ============================ */
+let DOCS=[];
+const offSt=new Set(), offPrio=new Set();
+let selMod='', tab='req', sortKey='', sortDir=1;
+const $=s=>document.querySelector(s);
+function save(){ try{ localStorage.setItem('traceabilityViewer', JSON.stringify(DOCS)); }catch(e){} }
+function load(){ try{ const r=localStorage.getItem('traceabilityViewer'); if(r) DOCS=JSON.parse(r); }catch(e){} }
+
+function readEntry(entry, out){
+  return new Promise(res=>{
+    if(entry.isFile) return entry.file(f=>{ out.push(f); res(); }, res);
+    if(entry.isDirectory){
+      const rd=entry.createReader(); const all=[];
+      const step=()=>rd.readEntries(batch=>{
+        if(!batch.length) return Promise.all(all.map(e=>readEntry(e,out))).then(res);
+        all.push(...batch); step();
+      }, res);
+      return step();
+    }
+    res();
+  });
+}
+async function filesFromDrop(dt){
+  const entries=[...(dt.items||[])].filter(i=>i.kind==='file').map(i=>i.webkitGetAsEntry?.()).filter(Boolean);
+  if(!entries.length) return [...(dt.files||[])];
+  const out=[]; await Promise.all(entries.map(e=>readEntry(e,out)));
+  return out.length?out:[...(dt.files||[])];
+}
+function addFiles(list){
+  const md=[...list].filter(f=>/\.(md|markdown)$/i.test(f.name));
+  let skipped=0;
+  Promise.all(md.map(f=>f.text().then(t=>{
+    const title=(t.match(/^#\s+(.*)$/m)||[,''])[1];
+    if(!/ma trận truy vết|traceability|\bRTM\b/i.test(title) && !/traceab|rtm/i.test(f.name)){ skipped++; return; }
+    DOCS=DOCS.filter(d=>d.fileName!==f.name);
+    DOCS.push(parseDoc(t,f.name));
+  }))).then(()=>{ save(); render(); if(skipped) toast(`Bỏ qua ${skipped} file không phải RTM`); });
+}
+function toast(msg){
+  const el=document.createElement('div'); el.textContent=msg;
+  el.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#101318;color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;z-index:70';
+  document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
+}
+
+/* ============================ DERIVED ============================
+   Trạng thái SUY TỪ DỮ LIỆU, không đọc cột "Trạng thái" của file — RTM ghi tay sai vẫn hiện đúng.
+   Thứ tự đúng như bảng "Trạng thái của một REQ" trong skill.                                       */
+function model(){
+  const index=DOCS.find(d=>d.kind==='index');
+  const mods=DOCS.filter(d=>d.kind==='module');
+  // Một REQ xuất hiện ở nhiều file (VD RTM kiểu cũ + file module mới) → ưu tiên file mới
+  const byReq=new Map();
+  for(const d of [...mods].sort((a,b)=>(b.legacy?1:0)-(a.legacy?1:0)))
+    for(const r of d.rows) byReq.set(r.req, {...r, legacy:d.legacy});
+  const excl=new Map(); for(const d of mods) for(const e of d.excluded) excl.set(e.req,e);
+  const clItems={}; for(const d of mods) Object.assign(clItems,d.clItems);
+  const suggest={}; for(const d of mods) Object.assign(suggest,d.suggest);
+  const rows=[...byReq.values()].map(r=>{
+    const cls=r.cls.length?r.cls:(clItems[r.req]?clItems[r.req].split(/[,;]/).map(s=>s.trim()):[]);
+    const nTc=r.tcs.length;
+    const fr=[...String(r.auto).matchAll(/\((\d+)\s*\/\s*(\d+)\)/g)];
+    const nAuto=!r.auto?0:fr.length?Math.min(nTc||Infinity, fr.reduce((s,m)=>s+ +m[1],0)):nTc;
+    let status;
+    if(!nTc) status = (excl.has(r.req) || /⏭|loại trừ/i.test(r.declared)) ? 'EXCLUDED' : cls.length ? 'CHECKLISTONLY' : 'NOTCOVERED';
+    else status = nAuto===0 ? 'MANUAL' : nAuto<nTc ? 'PARTIALCOV' : 'FULL';
+    const res=r.result;
+    const resOrder=!res?99:res.fail?0:res.blocked?1:res.skipped?2:res.pass?3:98;
+    return {...r, cls, nTc, nAuto, status, resOrder, exclusion:excl.get(r.req), suggest:suggest[r.req]||'',
+      reqNotImpl:/⚪/.test(r.declared)};
+  });
+  for(const [req,e] of excl) if(!byReq.has(req)) rows.push({req, module:e.module, story:'', desc:'', tcs:[], cls:[], auto:'', nTc:0, nAuto:0,
+    status:'EXCLUDED', resOrder:99, exclusion:e, result:null, declared:'', fileName:'', suggest:''});
+  const modList=[...new Set([...rows.map(r=>r.module), ...(index?index.idxModules.map(m=>m.module):[])])].filter(Boolean);
+  return {index, mods, rows, modList};
+}
+/* Pass rate KHÔNG cộng được từ ma trận: một TC phủ nhiều REQ sẽ bị đếm lặp ở mỗi dòng REQ.
+   Ma trận chỉ có số đếm theo REQ, không suy ngược ra từng TC → lấy từ bảng Tổng quan của file module.
+   Automation tính theo TC duy nhất: TC − danh sách "TC chưa automate" (khi file có danh sách đó). */
+function modStats(rows, docs){
+  const ins=rows.filter(r=>r.status!=='EXCLUDED');
+  const cov=ins.filter(r=>r.nTc>0).length;
+  const tcSet=new Set(rows.flatMap(r=>r.tcs));
+  const nTc=tcSet.size;
+  let autoTc=rows.reduce((s,r)=>s+r.nAuto,0), tcLinks=rows.reduce((s,r)=>s+r.nTc,0);
+  const mine=(docs||[]).filter(d=>d.notAuto.length || d.passRate);
+  const notAuto=new Set(mine.flatMap(d=>d.notAuto.map(t=>t.id)).filter(id=>tcSet.has(id)));
+  if(notAuto.size){ tcLinks=nTc; autoTc=nTc-notAuto.size; }
+  const pr=mine.filter(d=>d.passRate).map(d=>d.passRate);
+  const res={pass:pr.reduce((s,p)=>s+p.pass,0), fail:pr.reduce((s,p)=>s+p.fail,0), ran:pr.reduce((s,p)=>s+p.ran,0)};
+  const hasRes=pr.length>0;
+  const dist={}; for(const s of ALL_ST) dist[s]=rows.filter(r=>r.status===s).length;
+  return {total:rows.length, inScope:ins.length, cov, excluded:rows.length-ins.length, nTc,
+    // Không có danh sách TC chưa automate (RTM kiểu cũ) → tính theo liên kết REQ–TC: TC dùng chung bị đếm trùng ở cả tử lẫn mẫu nên tỷ lệ vẫn dùng được
+    autoPct:tcLinks?autoTc/tcLinks:0, autoTc, tcLinks, res, hasRes, dist};
+}
+const docsOf=(M,code)=>M.mods.filter(d=>!code||d.module===code);
+function statsFor(M,code){ return modStats(M.rows.filter(r=>!code||r.module===code), docsOf(M,code));
+}
+const pct=(n,d)=>d?Math.round(100*n/d)+'%':'—';
+
+/* ============================ RENDER ============================ */
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const bar=(n,d,color)=>`<div class="bar"><i style="width:${d?100*n/d:0}%;background:${color||'var(--brand)'}"></i></div>`;
+const resHTML=r=>{ if(!r) return '<span class="muted">—</span>';
+  const p=[]; if(r.pass)p.push(`✅ ${r.pass}`); if(r.fail)p.push(`❌ ${r.fail}${r.bug?' 🐞':''}`);
+  if(r.blocked)p.push(`🚫 ${r.blocked}`); if(r.skipped)p.push(`⏩ ${r.skipped}`);
+  return `<span class="res">${p.join(' · ')||'<span class="muted">chưa chạy</span>'}</span>`; };
+const modName=(M,code)=>{ const d=M.mods.find(d=>d.module===code); const i=M.index?.idxModules.find(m=>m.module===code);
+  return d?.moduleName||i?.name||code; };
+
+function render(){
+  const has=DOCS.length>0;
+  $('#drop').style.display=has?'none':'block';
+  $('#app').style.display=has?'block':'none';
+  $('#btnReset').style.display=has?'':'none';
+  renderFiles();
+  if(!has) return;
+  const M=model();
+  if(selMod && !M.modList.includes(selMod)) selMod='';
+  renderAlerts(M); renderStats(M); renderMods(M);
+  const rows=M.rows.filter(r=>!selMod||r.module===selMod);
+  $('#cntReq').textContent=rows.length;
+  renderReq(M, rows); renderAuto(M); renderGap(M); renderTodo(M);
+  for(const t of ['req','auto','gap','todo']) $('#tab'+t[0].toUpperCase()+t.slice(1)).style.display=tab===t?'':'none';
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+}
+
+function renderFiles(){
+  if(!DOCS.length){ $('#files').innerHTML='<div class="muted" style="font-size:12.5px">Chưa có file nào</div>'; $('#metaPanel').style.display='none'; return; }
+  const order={index:0,module:1};
+  $('#files').innerHTML=[...DOCS].sort((a,b)=>order[a.kind]-order[b.kind]||a.fileName.localeCompare(b.fileName)).map(d=>{
+    const [cl,lb]=d.kind==='index'?['index','CHUNG']:d.legacy?['legacy','KIỂU CŨ']:['module','MODULE'];
+    return `<div class="file"><span class="tag ${cl}">${lb}</span><span class="nm" title="${esc(d.fileName)}">${esc(d.kind==='module'&&d.module&&!d.legacy?d.module:d.fileName)}</span>
+      <button class="rm" data-rm="${esc(d.fileName)}" title="Gỡ file">×</button></div>`;
+  }).join('');
+  const idx=DOCS.find(d=>d.kind==='index');
+  $('#metaPanel').style.display=idx?'block':'none';
+  if(idx) $('#meta').innerHTML=Object.entries(idx.meta).map(([k,v])=>`<div class="row"><span class="mk">${esc(k)}</span><span class="mv">${esc(v)}</span></div>`).join('');
+}
+
+function renderAlerts(M){
+  const al=[];
+  // ⬛ đứng TRƯỚC mọi phần trăm: module ngoài RTM không có REQ để "chưa cover", nên % vẫn đẹp trong khi cả vùng chưa ai chạm
+  const outside=M.index?.outside||[];
+  const legacyUndoc=M.mods.flatMap(d=>d.undocumented);
+  if(outside.length) al.push(['danger','⬛ Ngoài tầm nhìn của RTM — mọi con số dưới đây KHÔNG tính các module này',
+    outside.map(o=>`<b>${esc(o.group)}</b> (${o.count}): ${esc(o.modules)}${o.note?' — '+esc(o.note):''}`).join('<br>')]);
+  else if(legacyUndoc.length) al.push(['danger',`⬛ ${legacyUndoc.length} module chưa có tài liệu — nằm ngoài ma trận này`,
+    [...new Set(legacyUndoc.map(u=>u.module))].map(m=>`<b>${esc(m)}</b>`).join(' · ')]);
+  if(!M.index) al.push(['info','Chưa nạp file chung traceability_matrix.md',
+    'Không thấy được mục ⬛ (module chưa khảo sát / có REQ mà chưa có TC). Kéo thả cả thư mục <code>docs/traceability/</code> để có đủ bối cảnh.']);
+  if(M.index){
+    const loaded=new Set(M.mods.map(d=>d.module));
+    const missing=M.index.map.filter(m=>m.file && !loaded.has(m.module));
+    if(missing.length) al.push(['info',`${missing.length} file module có trong Bản đồ tài liệu nhưng chưa nạp`,
+      missing.map(m=>`<b>${esc(m.module)}</b> → <code>${esc(m.file)}</code>`).join(' · ')+' — số của các module này đang lấy từ bảng tổng của file chung.']);
+    const stale=M.index.map.filter(m=>{ const d=M.mods.find(x=>x.module===m.module); return d && m.date && d.meta['Ngày sinh'] && d.meta['Ngày sinh']!==m.date; });
+    if(stale.length) al.push(['warn',`${stale.length} file module lệch ngày với Bản đồ tài liệu — file chung chưa được cập nhật sau lần sinh module`,
+      stale.map(m=>{ const d=M.mods.find(x=>x.module===m.module); return `<b>${esc(m.module)}</b>: bản đồ ghi ${esc(m.date)}, file module ${esc(d.meta['Ngày sinh'])}`; }).join(' · ')]);
+    const drift=M.index.idxModules.filter(im=>{ const rs=M.rows.filter(r=>r.module===im.module); if(!rs.length||!im.cov) return false;
+      const s=statsFor(M,im.module); return s.cov!==im.cov[0] || s.inScope!==im.cov[1]; });
+    if(drift.length) al.push(['warn','Bảng tổng của file chung lệch với ma trận chi tiết — trang này hiện số tính lại từ ma trận',
+      drift.map(im=>{ const s=statsFor(M,im.module); return `<b>${esc(im.module)}</b>: file chung ${im.cov[0]}/${im.cov[1]}, ma trận ${s.cov}/${s.inScope}`; }).join(' · ')]);
+  }
+  if(M.mods.some(d=>d.legacy)) al.push(['info','Có RTM kiểu cũ (một bảng phẳng, trạng thái tiếng Anh)',
+    'Vẫn đọc được, nhưng không có Story, kết quả chạy, REQ loại trừ. Chạy lại <code>/generate-traceability-matrix</code> để sinh theo format mới.']);
+  const exc=M.rows.filter(r=>r.status==='EXCLUDED');
+  if(exc.length) al.push(['info',`${exc.length} REQ ⏭️ loại trừ — đã trừ khỏi mẫu số`,'Xem lý do + căn cứ ở tab <b>Gap &amp; kiểm tra</b>. Loại trừ không có căn cứ trong tài liệu là che gap.']);
+  $('#alerts').innerHTML=al.map(([k,t,d])=>`<div class="alert ${k}"><b>${t}</b><div>${d||''}</div></div>`).join('');
+}
+
+function renderStats(M){
+  const s=statsFor(M,selMod);
+  const ran=s.res.ran;
+  const card=(cls,label,n,sub,ratio)=>`<div class="stat ${cls}"><div class="n">${n}${sub?` <small>${sub}</small>`:''}</div><div class="l">${label}</div>${ratio!==undefined?`<div class="meter"><i style="width:${Math.round(100*ratio)}%"></i></div>`:''}</div>`;
+  $('#stats').innerHTML=[
+    card('', 'Requirement Coverage', pct(s.cov,s.inScope), `${s.cov}/${s.inScope} REQ`, s.inScope?s.cov/s.inScope:0),
+    card(s.autoPct<.3?'warn':'', 'Automation Coverage', pct(s.autoTc,s.tcLinks), `${s.nTc} TC`, s.autoPct),
+    card(s.res.fail?'warn':'', 'Pass rate gần nhất', s.hasRes?pct(s.res.pass,ran):'—', s.hasRes?`${s.res.pass}/${ran} · ❌ ${s.res.fail}${s.nTc>ran?` · ${s.nTc-ran} TC chưa chạy`:''}`:'chưa chạy', s.hasRes&&ran?s.res.pass/ran:undefined),
+    card(s.dist.NOTCOVERED?'bad':'', '🔴 REQ chưa có TC', s.dist.NOTCOVERED, ''),
+    card('', '🟠 Chỉ có checklist', s.dist.CHECKLISTONLY, ''),
+    card('', '⏭️ Loại trừ', s.excluded, s.total?`/ ${s.total} REQ`:''),
+  ].join('');
+}
+
+function renderMods(M){
+  $('#mods').innerHTML=M.modList.map(code=>{
+    const rs=M.rows.filter(r=>r.module===code);
+    const im=M.index?.idxModules.find(m=>m.module===code);
+    const mp=M.index?.map.find(m=>m.module===code);
+    const name=modName(M,code);
+    if(!rs.length && im){                       // chỉ có số từ file chung
+      return `<div class="mod ${selMod===code?'on':''}" data-mod="${esc(code)}"><h4>${esc(name)} <code>${esc(code)}</code></h4>
+        <div class="src warn">Số từ file chung — chưa nạp file chi tiết</div>
+        <div class="bars"><span class="lbl">REQ có TC</span>${bar(im.cov?.[0]||0,im.cov?.[1]||0)}<span class="val">${im.cov?im.cov.join('/'):'—'}</span>
+        <span class="lbl">Automation</span>${bar(im.auto?.[0]||0,im.auto?.[1]||0,'var(--violet)')}<span class="val">${im.auto?im.auto.join('/'):'—'}</span></div></div>`;
+    }
+    const s=statsFor(M,code), ran=s.res.ran;
+    const d=M.mods.find(x=>x.module===code);
+    return `<div class="mod ${selMod===code?'on':''}" data-mod="${esc(code)}"><h4>${esc(name)} <code>${esc(code)}</code></h4>
+      <div class="src">${esc(d?.meta['Ngày sinh']||mp?.date||'')}${d?.meta['Mốc git']?' · '+esc(d.meta['Mốc git'].split(' ')[0]):''}</div>
+      <div class="bars">
+        <span class="lbl">REQ có TC</span>${bar(s.cov,s.inScope)}<span class="val">${s.cov}/${s.inScope}</span>
+        <span class="lbl">Automation</span>${bar(s.autoTc,s.tcLinks,'var(--violet)')}<span class="val">${pct(s.autoTc,s.tcLinks)}</span>
+        <span class="lbl">Pass gần nhất</span>${s.hasRes?bar(s.res.pass,ran):bar(0,0)}<span class="val">${s.hasRes?`${s.res.pass}/${ran}`:'chưa chạy'}</span>
+      </div>
+      <div class="dist" title="${ALL_ST.map(k=>ST_LABEL[k]+': '+s.dist[k]).join(' · ')}">${ALL_ST.map(k=>s.dist[k]?`<i style="width:${100*s.dist[k]/s.total}%;background:${ST_COLOR[k]}"></i>`:'').join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderReq(M, base){
+  const stories=[...new Set(base.map(r=>r.story).filter(Boolean))];
+  const cur=$('#fStory').value;
+  $('#fStory').innerHTML='<option value="">Mọi Story</option>'+stories.map(s=>`<option ${cur===s?'selected':''}>${esc(s)}</option>`).join('');
+  $('#fStory').style.display=stories.length?'':'none';
+  const cnt={}; for(const s of ALL_ST) cnt[s]=base.filter(r=>r.status===s).length;
+  $('#chipsSt').innerHTML=ALL_ST.map(s=>`<button class="chip ${offSt.has(s)?'':'on'}" data-st="${s}">${ST_LABEL[s]}<span class="c">${cnt[s]}</span></button>`).join(' ');
+  const q=$('#q').value.trim().toLowerCase(), story=$('#fStory').value;
+  let rows=base.filter(r=>!offSt.has(r.status) && (!story||r.story===story) &&
+    (!q || [r.req,r.desc,r.story,r.tcs.join(' '),r.auto,r.cls.join(' ')].some(v=>String(v).toLowerCase().includes(q))));
+  const stRank=Object.fromEntries(ALL_ST.map((s,i)=>[s,i]));
+  if(sortKey){
+    rows=[...rows].sort((a,b)=>{ const x=a[sortKey], y=b[sortKey];
+      const m = sortKey==='status' ? stRank[x]-stRank[y] : typeof x==='number' ? x-y : String(x).localeCompare(String(y),'vi',{numeric:true});
+      return sortDir*m || a.req.localeCompare(b.req,'vi',{numeric:true}); });
+  }
+  window.__req=rows;
+  const showMod=!selMod && M.modList.length>1;
+  // Cùng luật với RTM: cột không có nguồn thì ẩn. Đang nhóm theo Module · Story thì dòng nhóm đã ghi module.
+  const showModCol=showMod && !!sortKey, showAuto=base.some(r=>r.auto), showRes=base.some(r=>r.result);
+  const th=k=>$(`#tblReq thead th[data-s="${k}"]`);
+  th('module').style.display=showModCol?'':'none'; th('auto').style.display=showAuto?'':'none'; th('resOrder').style.display=showRes?'':'none';
+  const ncol=4+showModCol+showAuto+showRes;
+  let html='', lastGrp=null;
+  rows.forEach((r,i)=>{
+    const grp=sortKey?null:`${r.module}·${r.story}`;
+    if(grp && grp!==lastGrp && (r.story||showMod)){
+      const g=rows.filter(x=>`${x.module}·${x.story}`===grp), gi=g.filter(x=>x.status!=='EXCLUDED'), gc=gi.filter(x=>x.nTc).length;
+      html+=`<tr class="grp"><td colspan="${ncol}">${showMod?esc(r.module)+' · ':''}${esc(r.story||'(không có Story)')}<span class="gbar">${bar(gc,gi.length)}</span><span class="muted" style="font-weight:500">${gc}/${gi.length} REQ có TC</span></td></tr>`;
+      lastGrp=grp;
+    }
+    html+=`<tr class="click" data-i="${i}">
+      ${showModCol?`<td>${esc(r.module)}</td>`:''}
+      <td class="id">${esc(r.req)}</td>
+      <td>${esc(r.desc||'—')}${r.reqNotImpl?' <span class="muted">· ⚪ REQ chưa implement</span>':''}</td>
+      <td class="tcs" title="${esc(r.tcs.join(', '))}">${r.nTc?`<b>${r.nTc}</b> · ${esc(r.tcs.slice(0,3).join(', '))}${r.nTc>3?' …':''}`:'<span class="muted">—</span>'}</td>
+      ${showAuto?`<td>${r.auto?esc(r.auto):'<span class="muted">—</span>'}</td>`:''}
+      ${showRes?`<td>${resHTML(r.result)}</td>`:''}
+      <td><span class="st ${r.status}">${ST_LABEL[r.status]}</span></td></tr>`;
+  });
+  $('#rowsReq').innerHTML=html;
+  $('#noReq').style.display=rows.length?'none':'block';
+}
+
+function autoList(M){
+  return M.mods.flatMap(d=>d.notAuto).filter(t=>!selMod||t.module===selMod);
+}
+function renderAuto(M){
+  const all=autoList(M);
+  $('#cntAuto').textContent=all.length;
+  const plans=['Yes','Partial','No'];
+  const hasPlan=all.some(t=>t.planned);
+  $('#autoPivot').innerHTML=all.length?`<div class="tablewrap"><table class="pivot"><thead><tr><th>Priority</th>${hasPlan?plans.map(p=>`<th>Automation = ${p}</th>`).join(''):''}<th>Tổng</th></tr></thead><tbody>
+    ${PRIO.map(p=>{ const g=all.filter(t=>t.priority===p); if(!g.length) return '';
+      return `<tr><td><b>${p}</b></td>${hasPlan?plans.map(a=>`<td>${g.filter(t=>t.planned===a).length||'<span class="muted">0</span>'}</td>`).join(''):''}<td><b>${g.length}</b></td></tr>`; }).join('')}
+    </tbody></table></div>`:'';
+  const prios=[...new Set(all.map(t=>t.priority))].sort((a,b)=>(PRIO.indexOf(a)+1||9)-(PRIO.indexOf(b)+1||9));
+  $('#chipsPrio').innerHTML=prios.map(p=>`<button class="chip ${offPrio.has(p)?'':'on'}" data-prio="${esc(p)}">${esc(p)}<span class="c">${all.filter(t=>t.priority===p).length}</span></button>`).join(' ');
+  const q=$('#qAuto').value.trim().toLowerCase();
+  const rows=all.filter(t=>!offPrio.has(t.priority) && (!q||[t.id,t.note,t.planned].some(v=>String(v).toLowerCase().includes(q))));
+  $('#rowsAuto').innerHTML=rows.map(t=>`<tr><td>${esc(t.module)}</td><td class="id">${esc(t.id)}</td><td>${esc(t.priority)}</td><td>${esc(t.planned||'—')}</td><td>${esc(t.note||'—')}</td></tr>`).join('');
+  $('#noAuto').style.display=rows.length?'none':'block';
+  window.__auto=rows;
+}
+
+function gapSections(M){
+  const inMod=x=>!selMod||x.module===selMod;
+  const rows=M.rows.filter(inMod);
+  const docs=M.mods.filter(d=>!selMod||d.module===selMod);
+  return [
+    ['🔴 REQ chưa có TC',['Module','REQ ID','Yêu cầu','Đề xuất'],rows.filter(r=>r.status==='NOTCOVERED').map(r=>[r.module,r.req,r.desc,r.suggest||'/generate-testcases-from-requirements'])],
+    ['🟠 REQ chỉ có checklist',['Module','REQ ID','Mục checklist','Đề xuất'],rows.filter(r=>r.status==='CHECKLISTONLY').map(r=>[r.module,r.req,r.cls.join(', '),'Sinh TC bằng /generate-testcases-from-requirements'])],
+    ['⏭️ REQ loại trừ có chủ đích',['Module','REQ ID','Lý do','Căn cứ'],rows.filter(r=>r.status==='EXCLUDED').map(r=>[r.module,r.req,r.exclusion?.reason||r.declared,r.exclusion?.basis||''])],
+    ['⚪ Orphan test',['Test','File','Đề xuất'],docs.flatMap(d=>d.orphans).map(o=>[o.test,o.file,o.suggest])],
+    ['🧩 TC trỏ tới REQ không tồn tại',['TC ID','REQ ghi trong TC','Đề xuất'],docs.flatMap(d=>d.badRefs).map(o=>[o.id,o.req,o.suggest])],
+    ['🗑️ Script trỏ vào TC Deprecated',['Test','File','TC Deprecated'],docs.flatMap(d=>d.deprecatedScripts).map(o=>[o.test,o.file,o.tc])],
+    ['⚠️ Mapping suy luận cần xác nhận',['REQ','TC/Test','Căn cứ suy luận'],docs.flatMap(d=>d.guesses).map(o=>[o.req,o.tc,o.basis])],
+  ];
+}
+function renderGap(M){
+  const secs=gapSections(M);
+  $('#cntGap').textContent=secs.filter(s=>!s[0].startsWith('⏭')).reduce((n,s)=>n+s[2].length,0);
+  const outside=M.index?.outside||[];
+  let html='';
+  if(outside.length) html+=`<h3 style="margin-top:0">⬛ Ngoài tầm nhìn của RTM</h3><div class="tablewrap"><table><thead><tr><th>Nhóm</th><th>Số module</th><th>Module</th><th>Ý nghĩa</th></tr></thead><tbody>${
+    outside.map(o=>`<tr><td><b>${esc(o.group)}</b></td><td class="num">${o.count}</td><td>${esc(o.modules)}</td><td>${esc(o.note)}</td></tr>`).join('')}</tbody></table></div>`;
+  html+=`<h3${outside.length?'':' style="margin-top:0"'}>Tổng hợp kiểm tra</h3><div class="tablewrap"><table><thead><tr><th>Hạng mục</th><th>Số lượng</th></tr></thead><tbody>${
+    secs.map(([t,,r])=>`<tr><td>${t}</td><td class="num">${r.length?`<b>${r.length}</b>`:'<span style="color:var(--brand-700)">✅ 0</span>'}</td></tr>`).join('')}</tbody></table></div>`;
+  for(const [t,head,rows] of secs){ if(!rows.length) continue;
+    html+=`<h3>${t}</h3><div class="tablewrap"><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${
+      rows.map(r=>`<tr>${r.map((c,i)=>`<td${/ID|REQ/.test(head[i])?' class="id"':''}>${esc(c||'—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  }
+  $('#tabGap').innerHTML=html;
+}
+
+function renderTodo(M){
+  // File chung có Việc cần làm gộp mọi module → dùng nó; không có thì gộp từ các file module
+  let items=M.index?.todo?.length ? M.index.todo : M.mods.flatMap(d=>d.todo);
+  if(selMod) items=items.filter(t=>String(t.module).toUpperCase().includes(selMod));
+  $('#cntTodo').textContent=items.length;
+  $('#tabTodo').innerHTML=items.length?`<div class="tablewrap"><table><thead><tr><th>#</th><th>Việc</th><th>Module</th><th>Số lượng</th><th>Command</th></tr></thead><tbody>${
+    items.map((t,i)=>`<tr><td class="num">${i+1}</td><td>${esc(t.task)}</td><td>${esc(t.module)}</td><td class="num">${esc(t.qty||'—')}</td><td>${t.cmd?`<code>${esc(t.cmd)}</code>`:'—'}</td></tr>`).join('')}</tbody></table></div>`
+    :'<div class="tablewrap"><div class="ok">✅ Không có việc nào được ghi trong RTM.</div></div>';
+}
+
+function openDetail(r){
+  $('#dTitle').textContent=r.req;
+  $('#dSub').textContent=r.desc||'';
+  const kv=[['Trạng thái',`<span class="st ${r.status}">${ST_LABEL[r.status]}</span>`],
+    ['Module',esc(r.module)],['Story',esc(r.story)],
+    ['TC',r.nTc?`<div class="tclist">${r.tcs.map(t=>`<code>${esc(t)}</code>`).join('')}</div>`:''],
+    ['Automation',esc(r.auto)+(r.nTc&&r.auto?` <span class="muted">(${r.nAuto}/${r.nTc} TC)</span>`:'')],
+    ['Checklist',esc(r.cls.join(', '))],['Kết quả gần nhất',r.result?resHTML(r.result):''],
+    ['Lý do loại trừ',esc(r.exclusion?.reason)],['Căn cứ',esc(r.exclusion?.basis)],['Đề xuất',esc(r.suggest)],
+    // File ghi tay khác với trạng thái suy từ dữ liệu → hiện cả hai để người đọc thấy chỗ lệch
+    ['Trạng thái ghi trong file',r.declared&&!r.declared.includes(ST_LABEL[r.status].split(' ').slice(1).join(' '))?esc(r.declared):''],
+    ['File nguồn',esc(r.fileName)]];
+  $('#dKv').innerHTML=kv.filter(([,v])=>v).map(([k,v])=>`<div><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+  $('#detail').classList.add('open');
+}
+
+/* ============================ EXPORT ============================ */
+function ts(){ const p=n=>String(n).padStart(2,'0'); const d=new Date();
+  return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`; }
+function downloadBlob(name, blob){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
+function exportPlan(){
+  const M=model();
+  const reqSheet={name:'Ma trận REQ', statusCol:7, widths:[12,46,18,40,60,28,22,22,30],
+    head:['Module','Story','REQ ID','Yêu cầu','TC IDs','Automation','Kết quả gần nhất','Trạng thái','Ghi chú'],
+    rows:(window.__req||[]).map(r=>[r.module,r.story,r.req,r.desc,r.tcs.join(', '),r.auto,r.result?.raw||'',ST_LABEL[r.status],
+      r.exclusion?`${r.exclusion.reason} (${r.exclusion.basis})`:r.reqNotImpl?'REQ chưa implement':''])};
+  const modSheet={name:'Theo module', widths:[14,26,14,14,14,14,14,14],
+    head:['Module','Tên','REQ trong phạm vi','REQ có TC','Coverage','REQ loại trừ','Automation','Pass gần nhất'],
+    rows:M.modList.map(code=>{ const s=statsFor(M,code); const ran=s.res.ran;
+      return [code,modName(M,code),String(s.inScope),String(s.cov),pct(s.cov,s.inScope),String(s.excluded),pct(s.autoTc,s.tcLinks),s.hasRes?`${s.res.pass}/${ran}`:'chưa chạy']; })};
+  const autoSheet={name:'TC chưa automate', widths:[12,24,12,18,50], head:['Module','TC ID','Priority','Automation dự kiến','Ghi chú'],
+    rows:autoList(M).map(t=>[t.module,t.id,t.priority,t.planned,t.note])};
+  const gapSheet={name:'Gap & kiểm tra', widths:[34,24,24,40,40], head:['Hạng mục','Cột 1','Cột 2','Cột 3','Cột 4'],
+    rows:gapSections(M).flatMap(([t,,rows])=>rows.map(r=>[t,...r]))};
+  const outSheet={name:'Ngoài tầm nhìn', widths:[26,12,70,50], head:['Nhóm','Số module','Module','Ý nghĩa'],
+    rows:(M.index?.outside||[]).map(o=>[o.group,String(o.count),o.modules,o.note])};
+  const sheets=[reqSheet,modSheet];
+  if(autoSheet.rows.length) sheets.push(autoSheet);
+  if(gapSheet.rows.length) sheets.push(gapSheet);
+  if(outSheet.rows.length) sheets.push(outSheet);
+  const first={req:reqSheet,auto:autoSheet,gap:gapSheet,todo:modSheet}[tab]||reqSheet;
+  return {base:'rtm', sheets, csv:first};
+}
+function toCsv(){
+  const s=exportPlan().csv, q=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+  const body=[s.head,...s.rows].map(r=>r.map(q).join(',')).join('\r\n');
+  downloadBlob(`rtm_${s.name.replace(/\W+/g,'_')}_${ts()}.csv`, new Blob(['﻿'+body],{type:'text/csv;charset=utf-8'}));
+}
+/* ---- XLSX: dựng thủ công bằng zip + Office Open XML — không dùng SheetJS (~900 KB) để trang vẫn là 1 file mở offline */
+const CRC_TABLE=(()=>{const t=new Uint32Array(256);
+  for(let i=0;i<256;i++){let c=i;for(let k=0;k<8;k++)c=c&1?0xedb88320^(c>>>1):c>>>1;t[i]=c>>>0}return t})();
+function crc32(b){let c=0xffffffff;for(let i=0;i<b.length;i++)c=CRC_TABLE[(c^b[i])&0xff]^(c>>>8);return (c^0xffffffff)>>>0}
+function zipStore(files){
+  const enc=new TextEncoder();
+  const e=files.map(f=>{const data=enc.encode(f.content);return {data,crc:crc32(data)}});
+  const nm=files.map(f=>enc.encode(f.name));
+  const localSize=e.reduce((s,x,i)=>s+30+nm[i].length+x.data.length,0);
+  const centralSize=e.reduce((s,_,i)=>s+46+nm[i].length,0);
+  const buf=new ArrayBuffer(localSize+centralSize+22), v=new DataView(buf), out=new Uint8Array(buf);
+  let off=0; const offs=[];
+  e.forEach((x,i)=>{ offs.push(off);
+    v.setUint32(off,0x04034b50,true); v.setUint16(off+4,20,true); v.setUint16(off+6,0x0800,true);
+    v.setUint16(off+8,0,true); v.setUint16(off+10,0,true); v.setUint16(off+12,0x2821,true);
+    v.setUint32(off+14,x.crc,true); v.setUint32(off+18,x.data.length,true); v.setUint32(off+22,x.data.length,true);
+    v.setUint16(off+26,nm[i].length,true); v.setUint16(off+28,0,true); off+=30;
+    out.set(nm[i],off); off+=nm[i].length; out.set(x.data,off); off+=x.data.length; });
+  const cStart=off;
+  e.forEach((x,i)=>{
+    v.setUint32(off,0x02014b50,true); v.setUint16(off+4,20,true); v.setUint16(off+6,20,true);
+    v.setUint16(off+8,0x0800,true); v.setUint16(off+10,0,true); v.setUint16(off+12,0,true);
+    v.setUint16(off+14,0x2821,true); v.setUint32(off+16,x.crc,true);
+    v.setUint32(off+20,x.data.length,true); v.setUint32(off+24,x.data.length,true);
+    v.setUint16(off+28,nm[i].length,true); v.setUint16(off+30,0,true); v.setUint16(off+32,0,true);
+    v.setUint16(off+34,0,true); v.setUint16(off+36,0,true); v.setUint32(off+38,0,true);
+    v.setUint32(off+42,offs[i],true); off+=46; out.set(nm[i],off); off+=nm[i].length; });
+  v.setUint32(off,0x06054b50,true); v.setUint16(off+8,e.length,true); v.setUint16(off+10,e.length,true);
+  v.setUint32(off+12,centralSize,true); v.setUint32(off+16,cStart,true);
+  return new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function xmlEsc(s){ let o=''; for(const ch of String(s??'')){ const c=ch.codePointAt(0); if(c===9||c===10||c===13||c>=32) o+=ch; }
+  return o.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function colLetter(i){ let n=i+1,s=''; while(n>0){ const r=(n-1)%26; s=String.fromCharCode(65+r)+s; n=Math.floor((n-1)/26);} return s; }
+// style index: 3 xanh · 4 đỏ · 5 vàng · 6 xám · 7 tím (khai trong STYLES_XML)
+const XLSX_STATUS={[ST_LABEL.FULL]:3,[ST_LABEL.NOTCOVERED]:4,[ST_LABEL.MANUAL]:5,[ST_LABEL.CHECKLISTONLY]:5,[ST_LABEL.EXCLUDED]:6,[ST_LABEL.PARTIALCOV]:7};
+const STYLES_XML=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="7"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF166534"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF991B1B"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF92400E"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF475569"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF5B21B6"/><name val="Calibri"/></font></fonts><fills count="8"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2F7A29"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDCFCE7"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFEE2E2"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFEF3C7"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF1F5F9"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFEDE9FE"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="8"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="3" fillId="4" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="4" fillId="5" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="5" fillId="6" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="6" fillId="7" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+function sheetXml(sh){
+  const all=[sh.head,...sh.rows], last=colLetter(sh.head.length-1);
+  const body=all.map((cells,r)=>{
+    const n=r+1;
+    const td=cells.map((val,c)=>{
+      const v=String(val??''); let s=r===0?1:2;
+      if(r>0 && c===sh.statusCol && XLSX_STATUS[v]!==undefined) s=XLSX_STATUS[v];
+      return v==='' ? `<c r="${colLetter(c)}${n}" s="${s}"/>` : `<c r="${colLetter(c)}${n}" s="${s}" t="inlineStr"><is><t xml:space="preserve">${xmlEsc(v)}</t></is></c>`;
+    }).join('');
+    return `<row r="${n}"${r===0?' ht="22" customHeight="1"':''}>${td}</row>`;
+  }).join('');
+  const cols=(sh.widths||sh.head.map(()=>24)).map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/><cols>${cols}</cols><sheetData>${body}</sheetData><autoFilter ref="A1:${last}${all.length}"/></worksheet>`;
+}
+function sheetName(raw, taken){
+  let n=String(raw||'Sheet').replace(/[:\\/?*[\]]/g,'-').trim()||'Sheet';
+  if(n.length>31) n=n.slice(0,30).trim()+'…';
+  let c=n, i=2; while(taken.has(c.toLowerCase())){ const sfx=` (${i++})`; c=n.slice(0,31-sfx.length)+sfx; }
+  taken.add(c.toLowerCase()); return c;
+}
+function toXlsx(){
+  const p=exportPlan(), taken=new Set();
+  const sheets=p.sheets.map(s=>({...s, name:sheetName(s.name,taken)}));
+  const ov=sheets.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('');
+  const files=[
+    {name:'[Content_Types].xml',content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${ov}</Types>`},
+    {name:'_rels/.rels',content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`},
+    {name:'xl/workbook.xml',content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets.map((s,i)=>`<sheet name="${xmlEsc(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`},
+    {name:'xl/_rels/workbook.xml.rels',content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`},
+    {name:'xl/styles.xml',content:STYLES_XML},
+    ...sheets.map((s,i)=>({name:`xl/worksheets/sheet${i+1}.xml`,content:sheetXml(s)}))
+  ];
+  downloadBlob(`${p.base}_${ts()}.xlsx`, zipStore(files));
+}
+
+/* ============================ EVENTS ============================ */
+$('#btnReset').onclick=()=>{ DOCS=[]; selMod=''; offSt.clear(); offPrio.clear(); $('#q').value=''; $('#qAuto').value='';
+  try{ localStorage.removeItem('traceabilityViewer'); }catch(e){} $('#detail').classList.remove('open'); render(); };
+$('#btnAdd').onclick=()=>$('#file').click();
+$('#btnAddFolder').onclick=()=>$('#folder').click();
+$('#file').onchange=e=>{ addFiles(e.target.files); e.target.value=''; };
+$('#folder').onchange=e=>{ addFiles(e.target.files); e.target.value=''; };
+$('#drop').onclick=()=>$('#folder').click();
+$('#btnCsv').onclick=toCsv; $('#btnXlsx').onclick=toXlsx;
+$('#btnClose').onclick=()=>$('#detail').classList.remove('open');
+$('#q').oninput=render; $('#qAuto').oninput=render; $('#fStory').onchange=render;
+const dz=$('#drop');
+['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over')}));
+document.addEventListener('drop',async e=>{ if(!e.dataTransfer) return; const f=await filesFromDrop(e.dataTransfer); if(f.length) addFiles(f); });
+$('#files').onclick=e=>{ const rm=e.target.closest('[data-rm]'); if(rm){ DOCS=DOCS.filter(d=>d.fileName!==rm.dataset.rm); save(); render(); } };
+$('#mods').onclick=e=>{ const m=e.target.closest('[data-mod]'); if(!m) return; selMod=selMod===m.dataset.mod?'':m.dataset.mod; $('#fStory').value=''; render(); };
+$('#tabs').onclick=e=>{ const b=e.target.closest('[data-tab]'); if(b){ tab=b.dataset.tab; render(); } };
+$('#chipsSt').onclick=e=>{ const b=e.target.closest('[data-st]'); if(!b) return; const s=b.dataset.st; offSt.has(s)?offSt.delete(s):offSt.add(s); render(); };
+$('#chipsPrio').onclick=e=>{ const b=e.target.closest('[data-prio]'); if(!b) return; const s=b.dataset.prio; offPrio.has(s)?offPrio.delete(s):offPrio.add(s); render(); };
+document.querySelector('#tblReq thead').onclick=e=>{ const th=e.target.closest('[data-s]'); if(!th) return;
+  const k=th.dataset.s; if(sortKey===k){ if(sortDir===-1){ sortKey=''; sortDir=1; } else sortDir=-1; } else { sortKey=k; sortDir=1; } render(); };
+$('#rowsReq').onclick=e=>{ const tr=e.target.closest('[data-i]'); if(tr) openDetail(window.__req[+tr.dataset.i]); };
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') $('#detail').classList.remove('open'); });
+
+load(); render();
+</script>
+</body>
+</html>

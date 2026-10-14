@@ -1,0 +1,23 @@
+/review-testcases
+
+# CONTEXT
+- Module/Tính năng: [Tên module của bộ TC]
+- Mode: [REVIEW (chỉ báo cáo) / FIX (báo cáo + sửa tại chỗ các TC được duyệt) / AUTOMATION (chấm TC nào làm automation được — Yes/Partial/No + điều kiện cần xin dev)]
+
+# TEST CASES CẦN REVIEW
+[Cung cấp 1 trong các cách sau:]
+
+## Cách 1: File path
+- File TC: [path/to/testcases.md hoặc .xlsx/.csv]
+
+## Cách 2: Dán trực tiếp
+```
+[DÁN NỘI DUNG TEST CASES VÀO ĐÂY]
+```
+
+# REQUIREMENTS LIÊN QUAN (khuyến nghị — để đánh giá traceability + coverage)
+[Dán requirements / user stories, hoặc file path, hoặc ghi "Không có"]
+
+# TÙY CHỌN
+- Trọng tâm review: [VD: "Tập trung negative cases" / để trống = review toàn diện]
+- Môi trường test đã có sẵn (chỉ Mode AUTOMATION, nếu biết): [VD: "có OTP cố định", "hộp thư test Mailpit", "sandbox VNPay" / để trống = TC phụ thuộc ghi Partial + điều kiện cần hỏi]

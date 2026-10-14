@@ -1,0 +1,468 @@
+# ══════════════════════════════════════════════════════════════════════
+#  MẪU ĐÃ ĐIỀN ĐỦ — Perfex CRM (hệ thống THẬT của repo) · CHỈ ĐỂ THAM KHẢO, KHÔNG SỬA
+# ══════════════════════════════════════════════════════════════════════
+#  Phiếu thật cần điền:   plans/master-test-plan/test_plan.config.yaml
+#  Plan sinh từ mẫu này:  plans/master-test-plan/test_plan_crm_example.md
+#
+#  Bám hệ thống THẬT trong docs/ — module, prefix, số REQ, số TC, số bug đều đọc
+#  từ danh mục ngày 20-09-2026 → đối chiếu được từng con số. Chỉ có mặt Web.
+#
+#  ⚠️ Tên người (trừ Anh Tester), ngày tháng, công sức, ngân sách là GIẢ ĐỊNH
+#     để minh hoạ một phiếu đã điền kín — KHÔNG chép sang dự án thật.
+#
+#  CÁCH ĐIỀN
+#   • Chỉ sửa phần SAU dấu hai chấm. KHÔNG đổi tên ô (phần trước dấu hai chấm).
+#   • Chưa có thông tin → để trống. Plan ghi ❓ và đưa vào danh sách ô còn treo.
+#   • Đã quyết định là không → ghi  không  (đây KHÔNG phải ô treo).
+#   • Ngày ghi NGÀY-THÁNG-NĂM, VD 15-10-2026 (dùng dấu - hoặc /, ngày và tháng đủ 2 chữ số).
+#   • Thụt lề bằng 2 dấu cách — KHÔNG dùng phím Tab.
+#   • Giá trị chứa  ": "  hoặc  " #"  → đặt trong ngoặc kép, VD "Web: chạy tay".
+#   • Danh sách: mỗi phần tử bắt đầu bằng  "- ", các ô con thẳng cột với ô đầu.
+#   • Dòng bắt đầu bằng # là chú thích — giữ nguyên.
+#   • 🔒 KHÔNG ghi URL có token, mật khẩu, API key — những thứ đó ở .env.
+#
+#  Nhãn đầu mỗi nhóm: BẮT BUỘC / tuỳ chọn · người thường nắm thông tin.
+# ══════════════════════════════════════════════════════════════════════
+
+
+# ─── 1. MỐC ───────────────────────────── BẮT BUỘC · QA Lead ─────────
+Mốc:
+  Tên: Release 2.0
+  Mã mốc: crm_example           # chữ thường, không dấu, nối bằng _ — dùng đặt tên file
+  Phiên bản phần mềm: v2.0.0-rc1
+  Hệ thống: Perfex CRM          # repo chỉ có một hệ thống → để trống
+
+
+# ─── 2. KIỂM SOÁT TÀI LIỆU ────────────── tuỳ chọn · QA Lead ─────────
+Kiểm soát tài liệu:
+  Người lập: Anh Tester          # để trống = người có vai trò "trưởng nhóm QA" ở Nhân lực
+  Người review:
+    - Tên: Lê Thu Hà
+      Vai trò: Product Owner — review mục 1, 2, 4
+    - Tên: Nguyễn Hoàng Vũ
+      Vai trò: Dev Lead — review mục 5, 9
+  Mức phân loại: nội bộ          # công khai | nội bộ | mật
+
+
+# ─── 3. PHẠM VI ───────────────────────── BẮT BUỘC · QA Lead ─────────
+Phạm vi:
+  Trong phạm vi:
+    # - Module: LOGIN            # prefix trong docs/requirements/README.md
+    #   Nền tảng: [web]          # web | mobile | api — được ghi nhiều
+    #   Ghi chú:
+    - Module: LOGIN
+      Nền tảng: [web]
+      Ghi chú: Đã có 51 TC và 2 lần chạy trên bản demo — đợt này chạy lại trên môi trường riêng, retest 5 bug đang mở
+    - Module: CUST
+      Nền tảng: [web]
+      Ghi chú: Đã có 129 TC, chưa chạy lần nào. 2 TC thiết kế để FAIL theo REQ-CUST-42, 43
+    - Module: PRJ
+      Nền tảng: [web]
+      Ghi chú: 104 REQ, chưa có TC — phải sinh và review trong đợt
+
+  Ngoài phạm vi bổ sung:
+    # Chỉ khai phần CHƯA có trong docs/ (bảng ISO 25010, Vùng loại khỏi phạm vi, REQ ⚪ đã tự đọc)
+    # - Nội dung:
+    #   Lý do:
+    #   Người chịu trách nhiệm:  # ai/đợt nào lo phần này
+    #   Người quyết định:
+    #   Ngày quyết định:
+    - Nội dung: 20 module CRM còn lại (CONT · LEAD · TASK · EST · PROP · INV · PAY · CN · SUB · CTR · EXP · ITEM · TICK · ESTREQ · KB · REP · DASH · TODO · REM · PROF)
+      Lý do: Chưa recon requirements — không thuộc Release 2.0
+      Người chịu trách nhiệm: Đợt sau
+      Người quyết định: Lê Thu Hà — Product Owner
+      Ngày quyết định: 21-09-2026
+    - Nội dung: Hệ thống AnhTester Book Management (namespace _book-api/ — API + app Android)
+      Lý do: Hệ thống riêng, có đợt kiểm thử riêng
+      Người chịu trách nhiệm: Đợt Book Release 1.0
+      Người quyết định: Lê Thu Hà — Product Owner
+      Ngày quyết định: 21-09-2026
+    - Nội dung: Cổng khách hàng (khu front-end ngoài /admin)
+      Lý do: Chưa chốt phạm vi. Hệ quả - STORY-PRJ-03 chỉ kiểm được mức biểu mẫu ghi nhận đúng
+      Người chịu trách nhiệm: Chưa xếp đợt — chờ PO chốt phạm vi
+      Người quyết định: Lê Thu Hà — Product Owner
+      Ngày quyết định: 21-09-2026
+    - Nội dung: Kiểm thử tải và đo ngưỡng thời gian phản hồi
+      Lý do: Tách thành đợt kiểm thử hiệu năng riêng tháng 01/2027, cần công cụ tải chưa mua
+      Người chịu trách nhiệm: Đội Hạ tầng
+      Người quyết định: Phạm Đức Long — Project Manager
+      Ngày quyết định: 21-09-2026
+
+  Đưa lại REQ bị loại vì môi trường: có   # có | không — REQ ⚪ trước đây bị loại chỉ vì môi trường dùng chung
+
+
+# ─── 4. LỊCH ──────────────────────────── tuỳ chọn · QA Lead · PM ────
+Lịch:
+  # Mỗi ngày ghi NGÀY-THÁNG-NĂM, VD 15-10-2026
+  Duyệt kế hoạch: 25-09-2026
+  Hoàn tất viết TC: 16-10-2026
+  Môi trường sẵn sàng: 12-10-2026
+  Bắt đầu thực thi: 19-10-2026
+  Đóng băng mã nguồn: 27-11-2026     # code freeze
+  Hồi quy từ: 30-11-2026
+  Hồi quy đến: 04-12-2026
+  Nghiệm thu từ: 07-12-2026          # UAT
+  Nghiệm thu đến: 11-12-2026
+  Tần suất báo cáo tiến độ: Hằng tuần   # hằng ngày | hằng tuần | hai tuần
+  Ngày gửi báo cáo tiến độ: Thứ 6
+  Báo cáo tổng hợp: 15-12-2026
+  Phát hành: 18-12-2026              # release
+
+
+# ─── 5. NHÂN LỰC ──────────────────────── tuỳ chọn · QA Lead ─────────
+Nhân lực:
+  # - Tên:
+  #   Vai trò:                   # trưởng nhóm QA | kiểm thử viên | tự động hoá | khác
+  #   Phụ trách: [LOGIN × web]   # "Toàn bộ" hoặc từng cặp MODULE × nền tảng
+  #   Cần đào tạo:
+  - Tên: Anh Tester
+    Vai trò: trưởng nhóm QA
+    Phụ trách: [Toàn bộ]
+    Cần đào tạo:
+  - Tên: Hồng
+    Vai trò: kiểm thử viên
+    Phụ trách: [LOGIN × web]
+    Cần đào tạo: Buổi 2 giờ về DevTools — 25 TC @TechCheck của LOGIN, riêng TC_025 và TC_041 bắt buộc
+  - Tên: Lan
+    Vai trò: kiểm thử viên
+    Phụ trách: [CUST × web]
+    Cần đào tạo:
+  - Tên: Huệ
+    Vai trò: kiểm thử viên
+    Phụ trách: [PRJ × web]
+    Cần đào tạo:
+  - Tên: Anh Tester
+    Vai trò: tự động hoá
+    Phụ trách: [LOGIN × web, CUST × web, PRJ × web]
+    Cần đào tạo:
+
+Cần tuyển thêm người: không      # có (ghi rõ vị trí) | không
+
+
+# ─── 6. MÔI TRƯỜNG, DỮ LIỆU & CÔNG CỤ ─── tuỳ chọn · DEV · QA Lead ───
+Môi trường:
+  Tên: Môi trường test riêng cho Release 2.0
+  Dùng chung với đội khác: không   # có | không — để trống = theo docs/requirements/README.md
+  Người dựng: Đội DEV — Nguyễn Hoàng Vũ
+  Trình duyệt: [Google Chrome (chính), Mozilla Firefox, Microsoft Edge]   # VD [Google Chrome, Microsoft Edge]
+  Thiết bị mobile:                 # VD ["Pixel 7 · Android 14 · app bản release"]
+
+Dữ liệu kiểm thử:
+  Dữ liệu nền: Bản sao production đã che — khoảng 2.000 khách hàng, 125 dự án đủ 5 trạng thái, 305 nhóm khách hàng, 3 tài khoản nhân sự cho 3 vai trò
+  Nguồn dữ liệu: [bản sao production đã che, tự sinh khi chạy]   # tự sinh khi chạy | nạp sẵn | bản sao production đã che | nhập tay
+  Có dữ liệu thật của khách hàng: có   # có | không
+  Cách che dữ liệu: Script của đội DEV chạy trước khi nạp — tên, email, số điện thoại, địa chỉ thay bằng dữ liệu giả; giữ nguyên phân bố số tiền và ngày để báo cáo vẫn giống thật
+  Dọn dữ liệu sau khi chạy: có
+  Làm mới dữ liệu nền: Trước mỗi vòng regression và sau mỗi lần nạp build mới
+  Người cung cấp: Đội DEV — Nguyễn Hoàng Vũ
+
+Công cụ:
+  Quản lý lỗi: Jira · file markdown trong repo
+  Quản lý kết quả kiểm thử: Jira · file markdown trong repo
+  Nguồn chính khi lệch: Jira cho trạng thái bug · repo cho execution report   # nơi được coi là đúng khi hai công cụ lệch nhau
+  Tự động hoá: Playwright + TypeScript + Allure Report + GitHub Actions   # framework · ngôn ngữ · report
+  Khác:
+
+
+# ─── 7. CẤP ĐỘ & LOẠI KIỂM THỬ ────────── tuỳ chọn · QA Lead ─────────
+Cấp độ kiểm thử:
+  # Trong đợt: có | không · Tiêu chí riêng: để trống = dùng bộ tiêu chí chung mục 4
+  Thành phần:                    # component / unit
+    Trong đợt: không
+    Ai thực hiện: Đội Dev — ngoài phạm vi báo cáo của QA
+    Tiêu chí riêng:
+  Tích hợp thành phần:           # component integration
+    Trong đợt: không
+    Ai thực hiện: Đội Dev — ngoài phạm vi báo cáo của QA
+    Tiêu chí riêng:
+  Hệ thống:                      # system
+    Trong đợt: có
+    Ai thực hiện: QA — Hồng, Lan, Huệ
+    Tiêu chí riêng:
+  Tích hợp hệ thống:             # system integration
+    Trong đợt: có
+    Ai thực hiện: QA — luồng LOGIN sang CUST sang PRJ
+    Tiêu chí riêng:
+  Chấp nhận:                     # acceptance / UAT
+    Trong đợt: có
+    Ai thực hiện: PO/BA nội bộ, QA hỗ trợ
+    Tiêu chí riêng: 100% kịch bản nghiệp vụ chính PASS và không còn bug Critical/Major mở trên vùng UAT
+
+Độc lập kiểm thử:
+  Mức độ: đội QA riêng trong tổ chức   # tác giả tự kiểm thử | đồng nghiệp cùng đội | đội QA riêng trong tổ chức | bên ngoài tổ chức
+  Ghi chú: QA báo cáo cho Trưởng phòng Chất lượng, không báo cáo cho trưởng nhóm Dev. TC review chéo giữa 3 tester — người viết TC không review TC của chính mình
+
+Loại kiểm thử:
+  # Mỗi ô: có | không
+  Chức năng: có
+  Hồi quy: có
+  Kiểm thử lại lỗi: có
+  Tích hợp liên module: có
+  Tự động hoá: có
+  Nghiệm thu (UAT): có
+  Bên thực hiện nghiệm thu: PO/BA nội bộ, QA hỗ trợ chuẩn bị dữ liệu và ghi nhận lỗi
+  Hiệu năng: không
+  Bảo mật chuyên sâu: không
+  Tương thích: có
+  Khả năng truy cập: không
+  Khả dụng: có
+  Độ tin cậy và phục hồi: có
+  Cách chạy mobile: ngoài phạm vi  # tự động hoá | kiểm thử viên tự chạy | ngoài phạm vi
+  Cách chạy API: ngoài phạm vi     # tự động hoá | kiểm thử viên tự chạy | ngoài phạm vi
+  Tỷ trọng thủ công / tự động: Chạy manual toàn bộ TC trên web · automate bộ Smoke 3 module trước 19-10-2026 và bộ regression Priority High trước 30-11-2026   # câu mô tả tự do
+
+
+Phi chức năng:
+  # Chỉ khai loại mà Loại kiểm thử ghi "có". Ngưỡng trống → plan ghi ❓, agent KHÔNG tự đặt số.
+  # - Loại:                      # hiệu năng | bảo mật | tương thích | khả năng truy cập | khả dụng | độ tin cậy và phục hồi
+  #   Mục tiêu đo:
+  #   Ngưỡng chấp nhận:
+  #   Cách làm:                  # kỹ thuật · công cụ
+  #   Môi trường:
+  #   Ai thực hiện:
+  - Loại: tương thích
+    Mục tiêu đo: Bộ Smoke của 3 module chạy đúng trên Google Chrome, Mozilla Firefox, Microsoft Edge ở 5 kích thước màn hình đã khảo sát
+    Ngưỡng chấp nhận: 100% TC bộ Smoke PASS trên từng trình duyệt · 0 lỗi bố cục che mất nút hoặc thông báo lỗi
+    Cách làm: Chạy tay bộ Smoke trên 3 trình duyệt cài sẵn ở máy tester · dùng lại TC_049 (5 kích thước) và TC_050 (trình duyệt) của LOGIN, TC_125 và TC_127 của CUST
+    Môi trường: Môi trường test riêng cho Release 2.0
+    Ai thực hiện: Hồng (LOGIN) · Lan (CUST) · Huệ (PRJ)
+  - Loại: khả dụng
+    Mục tiêu đo: Nhân viên kinh doanh tự tạo khách hàng và dự án gắn với khách hàng đó, không cần hướng dẫn
+    Ngưỡng chấp nhận: 3/3 người tham gia UAT hoàn tất kịch bản trong dưới 8 phút ở lần thử đầu · không ai phải hỏi lại cách làm
+    Cách làm: Quan sát trong tuần UAT, ghi vào biên bản UAT · đối chiếu với TC thông báo lỗi và trạng thái rỗng đã có (LOGIN TC_011, TC_013 · CUST TC_039, TC_084)
+    Môi trường: Môi trường test riêng cho Release 2.0
+    Ai thực hiện: Lê Thu Hà chủ trì · Lan ghi nhận
+  - Loại: độ tin cậy và phục hồi
+    Mục tiêu đo: Không mất dữ liệu đang nhập khi phiên hết hạn, mất mạng giữa chừng, bấm đúp hoặc mở 2 tab
+    Ngưỡng chấp nhận: 0 bản ghi trùng và 0 lần mất dữ liệu đã nhập trong 10 lần thử mỗi tình huống
+    Cách làm: Chạy tay theo TC đã có — LOGIN TC_026 (hết hạn phiên) · TC_040 (mất mạng) · CUST TC_107 đến TC_111 (bấm đúp, Back, 2 tab, F5). Ngắt mạng bằng DevTools chế độ Offline
+    Môi trường: Môi trường test riêng cho Release 2.0
+    Ai thực hiện: Hồng · Lan
+
+Chiến lược tự động hoá:
+  # Chỉ khi Loại kiểm thử → Tự động hoá: có
+  Mục tiêu: Rút thời gian một vòng regression 3 module từ khoảng 2 ngày công xuống dưới 1 giờ chạy máy, và có Smoke tự động chặn build hỏng trước khi tester đụng vào
+  Phạm vi tự động:               # VD [Bộ Smoke LOGIN × web, TC Priority High của bộ regression]
+    - Bộ Smoke LOGIN × web (9 TC)
+    - Bộ Smoke CUST × web (16 TC — part_01)
+    - Bộ Smoke PRJ × web (xác định khi sinh TC)
+    - TC Priority High của bộ regression 3 module có cột Automation ghi Yes
+  Không tự động:
+    # - Nội dung:
+    #   Lý do:
+    - Nội dung: LOGIN TC_026 (hết hạn phiên, 65 phút) · TC_051 (@PersonalOnly, 70 phút)
+      Lý do: Chạy quá lâu cho pipeline — giữ ở dạng QA tự chạy theo lịch riêng
+    - Nội dung: TC gắn @NeedsVerify và 2 TC thiết kế để FAIL của CUST (TC_040, TC_041 theo REQ-CUST-42, 43)
+      Lý do: Hành vi chưa chốt hoặc đang chờ fix — script sẽ khoá cứng kết quả sai thành kỳ vọng
+    - Nội dung: Kịch bản khả dụng trong UAT
+      Lý do: Cần mắt người đánh giá, không có tiêu chí máy chấm được
+    - Nội dung: LOGIN TC_034 (hộp thoại xác nhận đăng xuất) · TC_044
+      Lý do: Cột Automation của tài liệu TC đã chấm No
+  Tầng kiểm thử: Đợt này QA chỉ đặt được ở tầng UI — cấp Component do Dev làm ngoài đợt, QA chưa có quyền gọi API. Giữ suite UI nhỏ và chỉ phủ luồng chính; đã đề nghị Dev bổ sung test tầng API cho CUST và PRJ ở Release 2.1
+  Tiêu chí chọn TC: Cột Automation của tài liệu TC ghi Yes · Priority High · chạy lặp mỗi build · không cần mắt người đánh giá · dữ liệu sinh được bằng script
+  Kích hoạt chạy:
+    # - Bộ chạy:                 # VD Smoke
+    #   Khi nào:                 # mỗi commit | mỗi merge request | hằng đêm | mỗi build lên môi trường test | trước phát hành | chạy tay
+    #   Môi trường:
+    - Bộ chạy: Smoke 3 module
+      Khi nào: mỗi build lên môi trường test
+      Môi trường: Môi trường test riêng cho Release 2.0
+    - Bộ chạy: Regression Priority High
+      Khi nào: hằng đêm
+      Môi trường: Môi trường test riêng cho Release 2.0
+    - Bộ chạy: Regression đầy đủ đã automate
+      Khi nào: trước phát hành
+      Môi trường: Môi trường test riêng cho Release 2.0
+  Hệ thống CI: GitHub Actions
+  Người bảo trì: Anh Tester — kiêm vai trò QA Lead
+
+
+# ─── 8. MỤC TIÊU ──────────────────────── tuỳ chọn · QA Lead · PO ────
+Mục tiêu:
+  # Để trống → agent đề xuất, đánh dấu chờ duyệt. Mỗi mục tiêu một dòng "- ".
+  - Xác nhận 3 vai trò Admin, Project Manager, Customer đăng nhập và bị chặn đúng ranh giới phân quyền trên môi trường test riêng
+  - Xác nhận vòng đời khách hàng và dự án hoạt động đúng đặc tả, dự án gắn đúng khách hàng
+  - Không còn bug Critical và Major mở ở cả 3 module trước ngày phát hành
+  - Cả 3 cặp module × nền tảng đều có TC đã review và đã chạy ít nhất một lượt đầy đủ
+  - Có bộ Smoke tự động chạy được trên CI trước ngày bắt đầu thực thi
+
+
+# ─── 9. ƯỚC LƯỢNG & NGÂN SÁCH ─────────── tuỳ chọn · QA Lead · PM ────
+Ước lượng:
+  Kỹ thuật: ba điểm   # tỷ lệ | ngoại suy | Wideband Delphi | Planning Poker | ba điểm | không ước lượng
+  Tổng công sức (người-ngày):    # kỹ thuật "ba điểm" → để trống, agent tự tính
+  Giả định: LOGIN và CUST đã có TC nên chỉ cập nhật, công sức viết mới dồn vào PRJ (104 REQ) · thực thi tính 1 lượt đầy đủ + 3 vòng theo build · không tính công sức PO/BA làm UAT · không tính thời gian Dev sửa bug
+  Chi tiết ba điểm:
+    # Chỉ khi Kỹ thuật = ba điểm. Đơn vị người-ngày.
+    # - Hạng mục:
+    #   Lạc quan:
+    #   Khả năng nhất:
+    #   Bi quan:
+    - Hạng mục: Viết & review TC cho PRJ × web (104 REQ)
+      Lạc quan: 10
+      Khả năng nhất: 13
+      Bi quan: 18
+    - Hạng mục: Cập nhật TC LOGIN · CUST theo AMB đã chốt và môi trường mới
+      Lạc quan: 2
+      Khả năng nhất: 3
+      Bi quan: 5
+    - Hạng mục: Thực thi manual 3 module × web
+      Lạc quan: 18
+      Khả năng nhất: 24
+      Bi quan: 34
+    - Hạng mục: Retest bug và regression
+      Lạc quan: 5
+      Khả năng nhất: 7
+      Bi quan: 11
+    - Hạng mục: Automation — dựng framework, script Smoke và regression
+      Lạc quan: 8
+      Khả năng nhất: 12
+      Bi quan: 20
+    - Hạng mục: Hỗ trợ UAT, lập báo cáo và quản lý đợt
+      Lạc quan: 4
+      Khả năng nhất: 5
+      Bi quan: 8
+
+Ngân sách:
+  Có ngân sách riêng: có         # có | không
+  Tổng: 14.190.000
+  Đơn vị tiền: VND
+  Hạng mục:
+    # - Nội dung:
+    #   Số tiền:
+    - Nội dung: Giấy phép Jira — 5 người × 3 tháng
+      Số tiền: 4.500.000
+    - Nội dung: Máy ảo dựng môi trường test riêng — 3 tháng
+      Số tiền: 5.400.000
+    - Nội dung: Dịch vụ chạy trình duyệt đám mây cho tuần kiểm tương thích
+      Số tiền: 3.000.000
+    - Nội dung: Dự phòng 10%
+      Số tiền: 1.290.000
+
+
+# ─── 10. QUẢN LÝ LỖI ──────────────────── tuỳ chọn · QA Lead · Dev Lead
+Quản lý lỗi:
+  Quy trình trạng thái: mặc định  # mặc định | riêng — mặc định = Đang mở → Đã fix chờ retest → Đóng / Mở lại
+  Quy trình riêng:               # chỉ khi riêng — mô tả hoặc đường dẫn workflow (VD workflow Jira)
+  Thang Severity: mặc định       # mặc định | riêng — mặc định = Critical · Major · Minor · Trivial
+  Thang Priority: mặc định       # mặc định | riêng — mặc định = P1 · P2 · P3
+  Thang riêng:
+    # - Loại:                    # Severity | Priority
+    #   Mức:
+    #   Định nghĩa:
+  Người phân loại lỗi: Anh Tester — QA Lead cùng Nguyễn Hoàng Vũ — Dev Lead   # triage — ai chốt Severity/Priority
+  Họp phân loại lỗi: Hằng ngày 15 phút, 9h30
+  Thời hạn xử lý:
+    # Không có mặc định — để trống thì plan ghi ❓
+    # - Severity: Critical
+    #   Phản hồi:
+    #   Sửa xong:
+    - Severity: Critical
+      Phản hồi: 2 giờ làm việc
+      Sửa xong: 1 ngày làm việc
+    - Severity: Major
+      Phản hồi: 1 ngày làm việc
+      Sửa xong: 3 ngày làm việc
+    - Severity: Minor
+      Phản hồi: 3 ngày làm việc
+      Sửa xong: Trong Release 2.0
+    - Severity: Trivial
+      Phản hồi: Họp phân loại kế tiếp
+      Sửa xong: Backlog
+
+
+# ─── 11. TIÊU CHÍ RA & TẠM DỪNG ───────── tuỳ chọn · QA Lead · PM ────
+Tiêu chí:
+  Bộ tiêu chí ra: mặc định       # mặc định | riêng
+  Tiêu chí ra bổ sung:
+    # Thêm vào bộ mặc định, đánh số tiếp từ #8
+    # - Tiêu chí:
+    #   Ngưỡng:
+    - Tiêu chí: Mọi lỗi tìm thấy đã được báo cáo và đã phân loại Severity/Priority
+      Ngưỡng: 100% — không còn TC FAIL nào chưa có bug tương ứng
+    - Tiêu chí: Bộ Smoke của 3 module đã automate và chạy xanh trên CI
+      Ngưỡng: 3/3 module · 2 lần chạy liên tiếp xanh
+  Tiêu chí ra riêng:
+    # Chỉ khi Bộ tiêu chí ra = riêng — thay toàn bộ bộ mặc định
+    # - Tiêu chí:
+    #   Ngưỡng:
+  Người chấp nhận dừng khi hết thời gian hoặc ngân sách: Lê Thu Hà — Product Owner cùng Phạm Đức Long — Project Manager
+  Dùng ngưỡng tạm dừng đề xuất: có   # có | không
+  Ngưỡng tạm dừng riêng:
+    # Chỉ khi không dùng ngưỡng đề xuất — mỗi ngưỡng một dòng "- "
+
+
+# ─── 12. BÊN LIÊN QUAN & MẪU TÀI LIỆU ─── tuỳ chọn · QA Lead ─────────
+Bên liên quan:
+  # - Tên:
+  #   Vai trò:
+  #   Nhận gì: [kế hoạch, báo cáo tiến độ]   # kế hoạch | báo cáo tiến độ | báo cáo tổng hợp | báo cáo lỗi
+  #   Tần suất:
+  #   Kênh:
+  - Tên: Anh Tester
+    Vai trò: QA Lead — lập plan, phụ trách automation
+    Nhận gì: [kế hoạch, báo cáo tiến độ, báo cáo tổng hợp, báo cáo lỗi]
+    Tần suất: Hằng tuần thứ Sáu · cuối đợt
+    Kênh: Jira · repo
+  - Tên: Lê Thu Hà
+    Vai trò: Product Owner — duyệt plan, trả lời AMB, chủ trì UAT
+    Nhận gì: [kế hoạch, báo cáo tiến độ, báo cáo tổng hợp]
+    Tần suất: Hằng tuần thứ Sáu · cuối đợt
+    Kênh: Email · Jira
+  - Tên: Phạm Đức Long
+    Vai trò: Project Manager — duyệt lịch và ngân sách, quyết định release
+    Nhận gì: [kế hoạch, báo cáo tiến độ, báo cáo tổng hợp]
+    Tần suất: Hằng tuần thứ Sáu · cuối đợt
+    Kênh: Email
+  - Tên: Nguyễn Hoàng Vũ
+    Vai trò: Dev Lead — dựng môi trường, sửa bug, phân loại lỗi cùng QA Lead
+    Nhận gì: [báo cáo lỗi, báo cáo tiến độ]
+    Tần suất: Khi phát sinh · hằng ngày ở họp phân loại lỗi
+    Kênh: Jira
+  - Tên: Hồng · Lan · Huệ
+    Vai trò: Kiểm thử viên — viết và chạy TC theo module phụ trách
+    Nhận gì: [kế hoạch, báo cáo tiến độ]
+    Tần suất: Khi plan hoặc TC đổi phiên bản
+    Kênh: Jira · repo
+
+Mẫu tài liệu:
+  Dùng mẫu có sẵn của repo: có   # có | không
+  Mẫu riêng:
+    # - Tài liệu:
+    #   Mẫu:                     # đường dẫn hoặc mô tả nơi để mẫu
+
+
+# ─── 13. PHÊ DUYỆT ────────────────────── tuỳ chọn · QA Lead ─────────
+Phê duyệt:
+  # - Tên:
+  #   Vai trò:
+  - Tên: Anh Tester
+    Vai trò: QA Lead
+  - Tên: Lê Thu Hà
+    Vai trò: Product Owner
+  - Tên: Phạm Đức Long
+    Vai trò: Project Manager
+
+
+# ─── 14. CHUẨN TỔ CHỨC ────────────────── tuỳ chọn · QA Lead ─────────
+Chuẩn tổ chức:
+  Mẫu của khách:                 # đường dẫn file mẫu khách yêu cầu — để trống = cấu trúc mặc định
+  Có chính sách kiểm thử (Test Policy): có   # có | không
+  Có chiến lược kiểm thử (Test Strategy): có
+  Điểm làm khác:
+    # Chỉ khi có Test Policy / Test Strategy mà đợt này làm khác
+    # - Nội dung:
+    #   Quy định chung:
+    #   Đợt này làm:
+    #   Lý do:
+    #   Người duyệt:
+    - Nội dung: Kiểm thử hiệu năng
+      Quy định chung: Mọi release lớn phải đo thời gian phản hồi của màn hình danh sách
+      Đợt này làm: Không đo — chỉ kiểm mức thô bằng TC_128 của CUST (danh sách hơn 2.000 dòng không treo)
+      Lý do: Chưa mua công cụ tải; tách thành đợt kiểm thử hiệu năng riêng tháng 01/2027
+      Người duyệt: Phạm Đức Long — Project Manager, 21-09-2026
+    - Nội dung: Tỷ trọng tầng kiểm thử tự động
+      Quy định chung: Automation ưu tiên tầng API, UI chỉ phủ luồng chính
+      Đợt này làm: Toàn bộ script ở tầng UI
+      Lý do: QA chưa có quyền gọi API của CRM; đã đề nghị cấp quyền cho Release 2.1
+      Người duyệt: Anh Tester — QA Lead cùng Nguyễn Hoàng Vũ — Dev Lead, 21-09-2026

@@ -1,0 +1,17 @@
+/generate-automation-api
+
+# ĐẦU VÀO
+- File TC API: [VD: docs/testcases/customers/api/test_cases_customers_api.md]
+
+# CONTEXT
+- Môi trường chạy test: [VD: Staging]
+- Môi trường dùng chung với người khác không: [Có / Không]
+- Tài khoản test để lấy token: [EMAIL] / [PASSWORD] — agent lưu vào .env, không ghi vào docs/
+
+# PROJECT (chọn 1 trong 2)
+- A. Đã có sẵn source code — Project path: [path/to/project]
+- B. Chưa có project — agent tự scaffold. Stack: [REST Assured + Java / Playwright API + TypeScript / Requests + Pytest / Supertest + Jest]
+
+# GHI CHÚ
+- Chưa có file TC API → chạy /generate-testcases-api trước (prompt_09)
+- Suite tự tạo 2 tài khoản để kiểm BOLA/IDOR, tự dọn dữ liệu đã tạo — không đụng bản ghi có sẵn

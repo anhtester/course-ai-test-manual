@@ -1,0 +1,268 @@
+# ============================================================
+# BƯỚC 5: SINH TEST CASE CHI TIẾT (RBT & TC Generation)
+# ============================================================
+# Đây là prompt độc lập — copy & paste vào bất kỳ AI nào
+# Nội dung đồng bộ với skill `skills-rbt-manual-testing` — Mode FULL RBT, Bước 5
+# ============================================================
+# CÁCH DÙNG:
+# 1. Gửi prompt này SAU KHI đã duyệt scenarios, bảng 4 vòng và mức rủi ro ở Bước 4
+# 2. Tùy chỉnh phần [Gợi ý] nếu cần focus vào module cụ thể
+# 3. AI sinh lần lượt từng Vòng; câu trả lời quá dài thì AI chia Part — gõ "Tiếp tục" để nhận phần sau
+# 4. Review test cases → sang Bước 6
+# ============================================================
+
+---START---
+
+Áp dụng chiến lược **Risk-Based Testing (RBT)**, hãy sinh danh sách Test Case chi tiết từ các High-Level Scenarios đã được duyệt ở Bước 4.
+
+## 0. Trước khi viết TC đầu tiên
+
+1. **Áp đúng mức rủi ro và độ sâu tôi đã duyệt ở Bước 4** — không tự chấm lại
+2. **Áp đúng độ hạt đã chốt ở Bước 1** (GỘP / TÁCH), nêu lại ở dòng đầu. Toàn bộ bộ TC theo **một** độ hạt
+3. **Đối chiếu lại toàn bộ ảnh giao diện** đã đính kèm (xem mục 2)
+4. **Công bố kế hoạch** một dòng mỗi vòng, VD:
+   ```
+   Độ hạt GỘP · ~46 TC · rủi ro Cao → Đầy đủ
+   V1 Smoke (≈9 TC) · V2a Validation (≈14) · V2b CRUD & luồng (≈11) · V3 Technical (≈8) · V4 Non-func (≈4)
+   ```
+
+## 1. Cấu trúc Test Case
+
+Mỗi Test Case phải có đầy đủ:
+
+| Field | Yêu cầu |
+|-------|---------|
+| **TC ID** | `<TIỀN_TỐ>_TC_<3 số>` (VD `CRM_CUST_TC_001`) — tăng dần, không nhảy số. Bộ TC đã có → **nối tiếp** dải đang dùng |
+| **REQ ID** | Mã requirement mà TC cover — **BẮT BUỘC**; nhiều REQ phân cách `,` |
+| **Module / Sub-module** | Tên module đã phân rã ở Bước 3 |
+| **Risk Level** | `High` / `Medium` / `Low` — theo mức đã duyệt ở Bước 4 (Cao / Trung bình / Thấp) |
+| **Test Case Title** | Tiêu đề ngắn gọn, rõ mục đích |
+| **Pre-conditions** | Điều kiện tiên quyết trước khi test |
+| **Test Steps** | **Đánh số 1. 2. 3. — mỗi bước 1 hành động**, không viết đoạn văn liền |
+| **Expected Results** | **Đánh số khớp 1-1** với step có kết quả quan sát được |
+| **Test Data** | Dữ liệu cụ thể (mục 5). Độ hạt GỘP: chứa **Bảng biến thể** |
+| **Priority** | High / Medium / Low |
+| **Tags** | `@Smoke` · `@Regression` · `@CriticalPath` · `@Security` · `@Boundary` · `@TechCheck` (cần DevTools) · `@NeedsVerify` (chưa có ảnh chống lưng) · tag nền tảng `@Web` / `@Android` / `@iOS` / `@API` khi có ≥2 nền tảng |
+
+## 2. Đối chiếu ảnh giao diện (evidence) — BẮT BUỘC
+
+- **Thứ tự tin cậy:** giao diện thật > ảnh > tài liệu chữ. Tài liệu và ảnh mâu thuẫn → **viết TC theo ảnh**, ghi `ASM-XX` nêu rõ xung đột + tên ảnh, báo lại ở tóm tắt cuối
+- **Bốn nhóm TC bắt buộc có ảnh chống lưng:** bố cục & thứ tự (tab order, thứ tự cột, thứ tự field) · nhãn nguyên văn (nút, tiêu đề, thông báo, tooltip) · giá trị mặc định (checkbox tick sẵn, option đang chọn) · định dạng hiển thị (tiền `$1,403.00`, ngày, giờ, badge)
+- Vùng **không có ảnh / ảnh bị cắt cụt** → TC vẫn viết, nhưng gắn `@NeedsVerify` và ghi `⚠️ chưa có evidence` trong Expected Result. **CẤM** khẳng định chắc chắn nhãn, vị trí, thứ tự Tab, định dạng khi không nhìn thấy trong ảnh
+- Checkbox/nút **xám mờ = disabled**, khác hẳn "không tick" → sinh TC cả hai chiều (bật điều kiện → mở khoá; tắt → khoá lại)
+
+## 3. Viết bằng ngôn ngữ người dùng NHÌN THẤY — BẮT BUỘC
+
+Người chạy manual TC là tester, chấm PASS/FAIL bằng thứ **nhìn thấy trên màn hình**. Câu hỏi trước mỗi dòng Expected: *"Người dùng thật sẽ thấy điều này bằng cách nào?"*
+
+| ❌ Ngôn ngữ DOM / DevTools | ✅ Viết trong manual TC |
+|---|---|
+| `document.title` chứa `Dashboard` | Vào được trang Dashboard, thanh tiêu đề trình duyệt ghi `Dashboard` |
+| `input#email.checkValidity()` = `false` | Trình duyệt hiện cảnh báo cạnh ô Email, biểu mẫu **không** gửi đi, dữ liệu đã nhập còn nguyên |
+| `document.activeElement.id` = `email` | Con trỏ nhấp nháy sẵn trong ô Email, gõ được ngay |
+| `POST` trả `303`, header `location: /admin/` | Trang tự chuyển sang Dashboard |
+
+- **CẤM** ở phần TC chính: `document.`, `querySelector`, `checkValidity`, `className`, `getAttribute`, selector CSS/XPath, mã HTTP, tên header (trừ TC gọi thẳng API)
+- Yêu cầu **không có biểu hiện nhìn thấy** (cookie, mã CSRF, header bảo mật) → Expected chính vẫn phát biểu **hệ quả nghiệp vụ**; phần kỹ thuật tách xuống một dòng riêng mở đầu `🔧 Ghi chú kỹ thuật (cần DevTools):` và TC gắn tag `@TechCheck`
+- **Phép thử:** che hết dòng `🔧 Ghi chú kỹ thuật` → mọi TC vẫn chạy và chấm được
+- Nhãn hiển thị (`Login`, `Invalid email or password`) và URL đầy đủ **vẫn** ghi nguyên văn — đó là thứ tester đọc trên màn hình
+
+## 4. Độ hạt GỘP / TÁCH
+
+**GỘP** (mặc định) — hai kiểu gộp được phép:
+- **Kiểu A — Bảng biến thể:** các case **cùng trường**, **cùng chuỗi thao tác**, **cùng loại phản hồi**, chỉ khác giá trị. Ví dụ ô Test Data:
+  ```
+  Mọi biến thể cho cùng kết quả: trình duyệt hiện cảnh báo cạnh ô Email · trang không nạp lại · dữ liệu còn nguyên
+  `a` Thiếu `@` → `abc`
+  `b` Thiếu tên miền → `abc@`
+  `c` Nhiều `@` → `a@b@example.com`
+  ```
+- **Kiểu B — Bảng kiểm:** cùng precondition, mọi mục là **quan sát tĩnh** trên cùng màn hình (không bấm, không gửi). Mỗi mục đánh số và ghi REQ. Dùng cho nhánh `UI cơ bản`
+
+**CẤM gộp** (dù độ hạt nào): khác trường nhập liệu · khác **loại** phản hồi (trình duyệt chặn vs máy chủ báo lỗi; lỗi vs thành công) · TC `@Smoke`/Critical với TC khác hành vi · TC được thiết kế để FAIL (mỗi cái gắn một bug) · khác REQ mà mỗi REQ chỉ có đúng TC đó · khác nhóm chức năng / màn hình
+
+**Ràng buộc:** mỗi biến thể có **mã riêng** (`a`, `b`, `c`… — báo FAIL ghi được `CRM_LOGIN_TC_012-c`) · **tối đa 6 biến thể / TC** · gộp **không** được cắt bớt biến thể — số TC giảm, số case kiểm giữ nguyên
+
+**TÁCH** — mỗi biến thể một TC.
+
+## 5. Quy tắc Test Data
+
+Test Data **PHẢI CỤ THỂ**, không được dùng mô tả chung chung:
+
+```
+❌ SAI: "Nhập email hợp lệ"
+✅ ĐÚNG: "Nhập email: test_customer_01@domain.com"
+
+❌ SAI: "Nhập mã số hợp lệ"
+✅ ĐÚNG: "Nhập mã: KH-2026-0012"
+
+❌ SAI: "Nhập số điện thoại sai định dạng"
+✅ ĐÚNG: "Nhập SĐT: abc123xyz (chữ cái thay vì số)"
+
+❌ SAI: "Nhập tên quá dài"
+✅ ĐÚNG: "Nhập tên: [chuỗi 256 ký tự 'A' liên tiếp] (vượt giới hạn 255)"
+```
+
+Field yêu cầu unique (email, username, mã) → ghi rõ cần sinh ngẫu nhiên, có dấu vết (VD `test_login_<timestamp>@auto.test`).
+
+## 6. Phạm vi bao phủ — sinh TUẦN TỰ theo 4 VÒNG
+
+**BẮT BUỘC đi theo đúng thứ tự V1 → V4, không nhảy cóc.** Mỗi batch nằm trọn trong một vòng, không trộn vòng. V1 fail thì mọi TC V2 đều BLOCKED — nên V1 phải có trước. Nhánh nào đã chấm `➖` / `⏭️` ở Bước 4 thì không sinh.
+
+```
+VÒNG 1 – SMOKE
+├── UI cơ bản      → nhãn nguyên văn · thứ tự field · nút · liên kết · trạng thái mặc định từng ô · con trỏ đang ở đâu  (gộp Kiểu B)
+├── Open form      → mở được bằng mọi lối vào (nút, menu, URL) · đóng bằng X / Cancel / ESC / click ra ngoài
+├── Display        → định dạng hiển thị (tiền, ngày, badge) · trạng thái rỗng · đang tải
+├── Input valid    → bộ dữ liệu hợp lệ tối thiểu (chỉ field bắt buộc) + bộ đầy đủ
+├── Save           → lưu thành công · thông báo đúng · điều hướng đúng
+└── Verify data    → dữ liệu hiện đúng ở danh sách VÀ ở màn hình chi tiết
+
+VÒNG 2 – FUNCTIONAL
+├── UI Behavior    → field bật/tắt theo lựa chọn khác · nút khoá đến khi đủ điều kiện · bộ đếm ký tự · hiện/ẩn mật khẩu
+├── Required       → bỏ trống TỪNG field bắt buộc · bỏ trống tất cả
+├── Validation     → đối soát ĐỦ TỪNG MỤC của bảng loại field ở mục 7
+├── Equivalence Partitioning  → mỗi partition ≥1 TC
+├── Boundary Value Analysis   → min-1 · min · max · max+1
+├── Business Rule  → mỗi rule: 1 TC tuân thủ + 1 TC vi phạm
+├── Decision Table → ≥3 điều kiện kết hợp → mỗi rule 1 TC
+├── State Transition → mọi transition hợp lệ + mọi transition bị chặn
+├── Dependency     → đổi A thì B đổi theo · xoá A đang được B tham chiếu · A rỗng thì B khoá
+├── Use Case       → chuỗi nghiệp vụ nhiều bước trong module
+├── Save / Edit / Delete → toàn bộ CRUD, gồm huỷ giữa chừng
+└── Error Guessing → bấm Lưu 2 lần · dán dữ liệu lạ · Back sau khi lưu · nạp lại giữa chừng · 2 tab cùng sửa
+
+VÒNG 3 – TECHNICAL   (phần lớn cần DevTools/DB → tách xuống "🔧 Ghi chú kỹ thuật" + tag @TechCheck)
+├── Permission     → ma trận role × hành động · truy cập URL trực tiếp khi không đủ quyền · phần tử ẩn/khoá theo role
+├── Security       → truy cập khi chưa đăng nhập · dữ liệu lộ chéo · XSS/SQLi ở field text · phiên sau đăng xuất · nút Back sau đăng xuất
+└── API · Database · Integration · Logging/Audit → theo Năng lực kiểm thử của QA đã khai ở Bước 1
+
+VÒNG 4 – NON-FUNCTIONAL & REGRESSION   (app nghiệp vụ thường: phần lớn ➖/⏭️ là ĐÚNG)
+├── Compatibility  → danh sách trình duyệt ĐÃ CHỐT × luồng chính
+├── Responsive     → các breakpoint ĐÃ CHỐT (VD 1920 · 1366 · 768 · 375) · không tràn ngang · zoom 125%
+├── Accessibility  → Tab đúng thứ tự · Enter/Space kích hoạt · viền focus nhìn thấy được · ảnh có văn bản thay thế
+├── Performance    → chỉ mức quan sát thô
+├── Regression     → mỗi bug đã đóng = 1 TC chống tái phát, trỏ về mã bug
+└── E2E            → kịch bản xuyên ≥2 module
+
+⚠️ BA NHÁNH KHÔNG BAO GIỜ ĐƯỢC ➖ HAY ⏭️:  UI cơ bản (V1) · Validation (V2, khi có field nhập) · Permission (V3, khi có ≥2 role)
+🚫 KHÔNG sinh TC chỉ để lấp ô
+```
+
+`Positive` / `Negative` / `Boundary` / `Edge case` không phải nhánh riêng — là thuộc tính phải có **trong từng vòng**.
+
+**Component-Level (BẮT BUỘC rà nếu module có — không có thì ghi "Không áp dụng", không im lặng bỏ qua):**
+- **Giao diện tĩnh của màn hình:** đủ thành phần theo ảnh · trạng thái mặc định từng ô · con trỏ ở ô nào khi vừa mở · định dạng hiển thị · trạng thái rỗng / đang tải · placeholder · tooltip
+- **Data Table/List:** Sort từng cột · Filter đơn + kết hợp · Search (một phần, không dấu/có dấu, không kết quả) · Pagination (đầu/cuối, đổi page size) · Empty state · Danh sách lớn (100+) · Bulk action · Refresh giữ/mất filter
+- **CRUD Lifecycle:** Create → verify trong list · View detail khớp · Edit → verify cả list và detail · Delete → confirm dialog (Cancel/OK) · Xóa bản ghi đang liên kết · Tạo trùng unique field · 2 người sửa đồng thời
+- **Phân quyền:** Mỗi role × mỗi hành động = 1 TC · Truy cập URL trực tiếp khi không có quyền · Phần tử ẩn/khoá đúng theo role
+- **Modal/Dialog:** Đóng bằng X/Cancel/ESC/click ngoài · Data reset hay giữ khi mở lại · Submit lỗi không đóng modal
+- **Notification/Toast:** Nội dung đúng theo từng hành động · tự đóng / đóng tay · toast lỗi khác toast thành công
+- **Trạng thái (Status Flow):** Mỗi transition hợp lệ + mỗi transition bị chặn = 1 TC · hành động cho phép/khoá theo trạng thái
+
+**Scenarios chuyên sâu:** Double submit / race condition · Session hết hạn / mất mạng giữa chừng · Tiếng Việt có dấu, emoji, ký tự đa ngôn ngữ · Điều hướng bàn phím · Mã trạng thái HTTP (chỉ với TC gọi API).
+
+[Gợi ý bổ sung (tùy chỉnh theo dự án):
+- Tương thích: danh sách trình duyệt / thiết bị cam kết
+- Performance: Xử lý danh sách lớn (1000+ records)
+- ...]
+
+## 7. Validation chuyên biệt từng trường (Field-Level Validation)
+
+**BẮT BUỘC:** Khi form/UI có các input fields, phải:
+1. **Liệt kê tất cả input fields** trên form/UI đang test, kèm loại field
+2. **Sinh validation TCs riêng cho TỪNG trường** theo đặc tính riêng của field đó
+3. **KHÔNG gộp** validation của **các trường khác nhau** vào 1 TC. Biến thể **cùng một trường** thì gộp (Bảng biến thể) hay tách theo độ hạt đã chốt
+4. **Đối soát ĐỦ TỪNG MỤC** của dòng loại field trong bảng dưới — mục nào không áp dụng phải **ghi lý do một dòng**, không im lặng bỏ qua
+
+> 🚨 `1 positive + 2 negative` là **sàn tối thiểu, KHÔNG phải mức đạt**. Trường Mật khẩu có 7 mục trong bảng, Email có 9 mục — sinh 3 TC rồi dừng là **chưa đạt**, dù nhìn số lượng vẫn qua sàn. Đây chính là chỗ bộ TC bị nông nhất.
+
+| Loại Field | Validation cần test |
+|---|---|
+| **Text (Name, Address...)** | Required/Optional · Min/Max length · Whitespace-only · Ký tự đặc biệt (`<>&"'`) · XSS (`<script>alert(1)</script>`) · SQL injection (`' OR 1=1--`) · Unicode/Emoji · Leading/trailing spaces |
+| **Email** | Format hợp lệ (`user@domain.com`) · Thiếu `@` · Thiếu domain · Domain không hợp lệ · Nhiều `@` · Ký tự đặc biệt trước `@` · Max length · Case sensitivity · Email đã tồn tại (nếu unique) |
+| **Phone** | Chỉ số · Prefix hợp lệ (`+84`, `0`) · Min/Max length · Chữ cái xen lẫn · Dấu `-`, `.`, khoảng trắng · Mã vùng không hợp lệ |
+| **Date / DateTime** | Format đúng · Ngày không tồn tại (`31/02`, `30/02`) · Năm nhuận (`29/02/2024`) · Quá khứ / tương lai · Min/max date · Timezone |
+| **Number / Currency** | Min/Max value · Số âm · Số 0 · Số thập phân · Ký tự không phải số · Overflow · Leading zeros · Định dạng currency |
+| **Dropdown / Select** | Giá trị mặc định · Tất cả options hợp lệ · Option disabled · Thay đổi selection · Required validation |
+| **Checkbox / Radio** | Trạng thái mặc định · Check/Uncheck · Required validation · Nhóm radio (chỉ chọn 1) |
+| **File Upload** | File type hợp lệ/không hợp lệ · Max size · File rỗng (0 KB) · Tên file ký tự đặc biệt · Multiple files · Kéo thả vs nút chọn |
+| **Password** | Min/Max length · Yêu cầu ký tự đặc biệt · Yêu cầu chữ hoa/thường · Yêu cầu số · Copy-paste bị chặn? · Hiện/ẩn password · Confirm password khớp/không khớp |
+| **Textarea** | Max length · Line breaks · HTML tags · Resize (nếu UI cho phép) · Character counter (nếu có) |
+| **OTP / MFA Code** | Auto-focus ô tiếp theo · Paste chuỗi OTP · Hết hạn timeout · Vượt số lần nhập sai (lockout) · Re-send OTP rate limit |
+| **Date Range / Time Picker** | Ngày kết thúc < Ngày bắt đầu · Khung giờ trùng lặp · Giới hạn khoảng ngày (VD max 30 ngày) · Quá khứ/Tương lai restriction |
+| **Rich Text Editor (WYSIWYG)** | Sanitize HTML nguy hiểm (`<script>`, `<iframe>`) · Paste văn bản kèm format/ảnh · Character counter tính text thô vs HTML |
+| **Multi-Select / Tag Input** | Giới hạn số lượng tag · Tag trùng lặp · Xóa tag bằng Backspace/nút X · Tag có ký tự đặc biệt |
+| **Range Slider / Stepper** | Giới hạn min/max · Bước nhảy (step increment violation) · Nhập tay trực tiếp so với kéo slider |
+
+**Ví dụ trường "Email" (required, unique) — hai độ hạt:**
+```
+TÁCH (mỗi biến thể 1 TC):
+  TC_010: Nhập test@domain.com → Hợp lệ
+  TC_011: Nhập testdomain.com (thiếu @) → Báo lỗi định dạng
+  TC_012: Nhập test@ (thiếu domain) → Báo lỗi định dạng
+  TC_013: Nhập email đã tồn tại → Báo lỗi trùng
+
+GỘP (cùng loại phản hồi mới được chung TC):
+  TC_010: Nhập test@domain.com → Hợp lệ                         (phản hồi: thành công)
+  TC_011: Bảng biến thể a) testdomain.com  b) test@  c) a@b@x.com → cùng báo lỗi định dạng
+  TC_012: Nhập email đã tồn tại → Báo lỗi trùng                  (phản hồi từ máy chủ — KHÔNG gộp với TC_011)
+```
+
+> Xác định đặc tính từng field (type, required, min/max, format, unique...) từ requirements và ảnh giao diện trước khi sinh TCs.
+
+## 8. Kỹ thuật thiết kế Test Case (Test Design Techniques)
+
+**a) Equivalence Partitioning (Phân lớp tương đương)**
+Chia dữ liệu đầu vào thành các nhóm tương đương, chỉ cần test 1 giá trị đại diện mỗi nhóm.
+```
+Ví dụ với trường "Tuổi" (hợp lệ: 18-60):
+- Lớp hợp lệ: 25 (đại diện 18-60)
+- Lớp không hợp lệ dưới: 10 (đại diện <18)
+- Lớp không hợp lệ trên: 70 (đại diện >60)
+```
+
+**b) Boundary Value Analysis — BVA (Phân tích giá trị biên)**
+Test các giá trị tại ranh giới: min-1, min, max, max+1 (thêm min+1, max-1 khi rủi ro Cao).
+```
+Ví dụ với trường "Mật khẩu" (6-20 ký tự):
+- 5 ký tự (biên dưới -1) → Báo lỗi
+- 6 ký tự (biên dưới)    → Hợp lệ
+- 20 ký tự (biên trên)    → Hợp lệ
+- 21 ký tự (biên trên +1) → Báo lỗi
+```
+
+**c) Decision Table (Bảng quyết định)**
+Dùng khi logic có nhiều điều kiện kết hợp (AND/OR). Liệt kê tổ hợp điều kiện → kết quả.
+```
+Ví dụ với chức năng "Đăng nhập":
+| Email hợp lệ | Password đúng | Tài khoản active | Kết quả         |
+|:---:|:---:|:---:|---|
+| ✅ | ✅ | ✅ | Đăng nhập thành công |
+| ✅ | ❌ | ✅ | Báo sai mật khẩu |
+| ❌ | ✅ | ✅ | Báo email không tồn tại |
+| ✅ | ✅ | ❌ | Báo tài khoản bị khóa |
+```
+
+**d) State Transition (Chuyển đổi trạng thái)**
+Dùng cho đối tượng có nhiều trạng thái chuyển đổi (workflow, order status...).
+```
+Ví dụ với trạng thái Đơn hàng:
+Mới tạo → Đang xử lý → Đang giao → Hoàn thành
+                      → Hủy đơn
+Test: Mỗi transition hợp lệ + các transition KHÔNG hợp lệ (VD: Hoàn thành → Mới tạo)
+```
+
+**Quy tắc BẮT BUỘC áp dụng (không được chỉ nhắc tên kỹ thuật):**
+- Field có ràng buộc min/max/format → PHẢI có EP + BVA
+- Có **≥3 điều kiện kết hợp** ảnh hưởng 1 output → PHẢI lập Decision Table đầy đủ tổ hợp, mỗi rule = 1 TC (nếu >20 tổ hợp → pairwise, ghi chú lý do)
+- Entity có **≥3 trạng thái** hoặc status flow → PHẢI lập bảng State Transition, TC cho mọi transition hợp lệ + mọi transition bị chặn
+
+---
+
+## Cách trả lời
+
+- Sinh **lần lượt từng vòng** (V1 → V4), mỗi phần ghi rõ `Vòng · Nhánh` đang sinh. Nhiều module → lần lượt từng module, trong mỗi module vẫn đi V1 → V4
+- Câu trả lời vượt giới hạn độ dài → **chia Part** và dừng ở ranh giới nhóm chức năng, ghi *"Còn Part X — gõ Tiếp tục"*. Không cắt giữa một nhóm
+- Mục **Assumptions** (`ASM-XX | Điểm chưa rõ | Giả định đã áp dụng | TC bị ảnh hưởng`) đặt ở đầu, gồm cả xung đột tài liệu ↔ ảnh
+- Cuối cùng liệt kê **Vùng chưa có evidence** (màn hình/trạng thái không có ảnh + TC gắn `@NeedsVerify`)

@@ -1,0 +1,11 @@
+{
+  "browser": {
+    "launchOptions": {
+      "args": [
+        "--test-type",
+        "--window-position=-3,0"
+      ]
+    },
+    "initPage": ["playwright-mcp-init.cjs"]
+  }
+}

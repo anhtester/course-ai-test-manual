@@ -1,0 +1,27 @@
+/update-requirements-from-ticket
+
+# CONTEXT
+- Module đích: [VD: project → docs/requirements/project/requirements_project.md]
+- Ticket gây thay đổi: [VD: TICKET-456]
+
+# TICKET MỚI
+- File ticket: [VD: docs/requirements/project/analysis/sources/TICKET-456.docx]
+- File đính kèm / mockup (nếu có): [VD: .../fields_TICKET-456.xlsx, .../mockup_new_field.png]
+
+[Hoặc dán thẳng nội dung ticket vào đây nếu không có file:]
+```
+[DÁN NỘI DUNG TICKET — kèm cả comments, vì comment thường đè lên phần mô tả gốc]
+```
+
+# NGUỒN ĐỐI CHIẾU
+- Thư mục test cases (để Impact Report chính xác): [VD: docs/testcases/project/ — để trống thì Impact Report ghi "⚠️ chưa rà soát"]
+
+# TÙY CHỌN
+- Ambiguity vừa được PO/BA trả lời (nếu có): [VD: AMB-PRJ-03 → "Deadline bắt buộc, phải sau Start Date" — để trống nếu không có]
+- Giới hạn phạm vi: [VD: "Chỉ phần Field Spec" / để trống = áp toàn bộ delta]
+
+# GHI CHÚ
+- Command này chạy chế độ DELTA — sửa tại chỗ tài liệu đã có, GIỮ NGUYÊN mã REQ cũ, không đánh lại từ 01
+- Module CHƯA có `REQUIREMENTS_<TÊN_MODULE>_SUMMARY.md` → agent sẽ dừng; dùng /analyze-requirement-document hoặc /generate-requirements-from-website trước
+- Chỉ muốn phân tích ticket, chưa động vào tài liệu module → dùng /analyze-requirement-document
+- Output quan trọng nhất là **Impact Report** (TC nào stale) — dùng nó làm input cho /update-automation-from-impact

@@ -1,0 +1,18 @@
+/generate-requirements-from-mobile
+
+# CONTEXT
+- Module Name: [TEN_MODULE]
+- Nền tảng lượt này: [Android / iOS — có cả hai thì agent chạy lần lượt từng nền tảng]
+- App: [đường dẫn .apk / .ipa HOẶC package / bundle id của app đã cài]
+- Thiết bị: [tên emulator / simulator / máy thật — để trống để agent liệt kê]
+- Bản build: [release / debug / profile]
+- Thông tin đăng nhập: [EMAIL] và [PASSWORD]
+- Môi trường dùng chung với người khác không: [Có / Không]
+- Được xoá dữ liệu app / cài lại không: [Có / Không]
+
+# NẾU LÀ APP FLUTTER
+- Dev đã bọc Semantics(label:) cho widget chưa: [Rồi / Chưa / Không rõ — agent tự nhận diện]
+
+# TÙY CHỌN
+- Có proxy xem được request của app không: [Có — mitmproxy/Charles / Không]
+- Tài liệu kèm theo (mockup Figma, spec màn hình): [ĐƯỜNG DẪN — để trống nếu không có]

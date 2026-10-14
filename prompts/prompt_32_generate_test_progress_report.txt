@@ -1,0 +1,15 @@
+/generate-test-progress-report
+
+# KỲ BÁO CÁO
+- Mốc: [VD: Release 2.0 — để trống nếu chỉ có một Master Test Plan đang mở]
+- Kỳ: [VD: 13-10-2026 → 16-10-2026 — để trống = từ sau kỳ trước tới hôm nay]
+
+# THÔNG TIN KHÔNG CÓ TRONG FILE
+[Để trống dòng nào không có — agent ghi "—", KHÔNG bịa:]
+- Công sức thực tế đã bỏ ra trong kỳ: [VD: 18 người-ngày]
+- Trở ngại ngoài những gì có trong execution report: [VD: Staging sập sáng thứ Tư — mất 4 giờ]
+- Thay đổi ngoài repo: [VD: Lan nghỉ phép 2 ngày tuần tới]
+
+# GHI CHÚ
+- Báo cáo tiến độ KHÔNG khuyến nghị go/no-go — việc đó là /generate-test-summary-report cuối đợt
+- Cần đổi lịch/phạm vi → agent chỉ đề xuất, cập nhật plan bằng /generate-master-test-plan

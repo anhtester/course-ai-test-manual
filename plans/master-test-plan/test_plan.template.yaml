@@ -1,0 +1,398 @@
+# ══════════════════════════════════════════════════════════════════════
+#  MẪU ĐÃ ĐIỀN ĐỦ — hệ thống hư cấu ShopMini · CHỈ ĐỂ THAM KHẢO, KHÔNG SỬA
+# ══════════════════════════════════════════════════════════════════════
+#  Phiếu thật cần điền:   plans/master-test-plan/test_plan.config.yaml
+#  Plan sinh từ mẫu này:  plans/master-test-plan/test_plan_release_example.md
+#  Tên người, ngày tháng, số liệu đều là giả định — KHÔNG chép sang dự án thật.
+#
+#  CÁCH ĐIỀN
+#   • Chỉ sửa phần SAU dấu hai chấm. KHÔNG đổi tên ô (phần trước dấu hai chấm).
+#   • Chưa có thông tin → để trống. Plan ghi ❓ và đưa vào danh sách ô còn treo.
+#   • Đã quyết định là không → ghi  không  (đây KHÔNG phải ô treo).
+#   • Ngày ghi NGÀY-THÁNG-NĂM, VD 15-10-2026 (dùng dấu - hoặc /, ngày và tháng đủ 2 chữ số).
+#   • Thụt lề bằng 2 dấu cách — KHÔNG dùng phím Tab.
+#   • Giá trị chứa  ": "  hoặc  " #"  → đặt trong ngoặc kép, VD "Web: chạy tay".
+#   • Danh sách: mỗi phần tử bắt đầu bằng  "- ", các ô con thẳng cột với ô đầu.
+#   • Dòng bắt đầu bằng # là chú thích — giữ nguyên.
+#   • 🔒 KHÔNG ghi URL có token, mật khẩu, API key — những thứ đó ở .env.
+#
+#  Nhãn đầu mỗi nhóm: BẮT BUỘC / tuỳ chọn · người thường nắm thông tin.
+# ══════════════════════════════════════════════════════════════════════
+
+
+# ─── 1. MỐC ───────────────────────────── BẮT BUỘC · QA Lead ─────────
+Mốc:
+  Tên: Release 2.0
+  Mã mốc: release_example       # chữ thường, không dấu, nối bằng _ — dùng đặt tên file
+  Phiên bản phần mềm: Web 2.0.0-rc1 · App Android 2.0.0 (build 200) · API v2
+  Hệ thống:                     # repo chỉ có một hệ thống → để trống
+
+
+# ─── 2. KIỂM SOÁT TÀI LIỆU ────────────── tuỳ chọn · QA Lead ─────────
+Kiểm soát tài liệu:
+  Người lập: Trần Minh Quân
+  Người review:
+    - Tên: Hoàng Văn Nam
+      Vai trò: Kiểm thử viên — review chéo toàn tài liệu
+    - Tên: Võ Quốc Bảo
+      Vai trò: DevOps — review mục 5 Môi trường, dữ liệu & công cụ
+  Mức phân loại: nội bộ          # công khai | nội bộ | mật
+
+
+# ─── 3. PHẠM VI ───────────────────────── BẮT BUỘC · QA Lead ─────────
+Phạm vi:
+  Trong phạm vi:
+    # Module: prefix trong docs/requirements/README.md · Nền tảng: web | mobile | api
+    - Module: AUTH
+      Nền tảng: [web, mobile, api]
+      Ghi chú: "mobile: chỉ Android"
+    - Module: PROD
+      Nền tảng: [web, api]
+      Ghi chú:
+    - Module: ORD
+      Nền tảng: [web, mobile, api]
+      Ghi chú: "mobile: chỉ Android — iOS ngoài phạm vi"
+    - Module: RPT
+      Nền tảng: [web]
+      Ghi chú: Bổ sung ở v1.1
+
+  Ngoài phạm vi bổ sung:
+    # Chỉ khai phần CHƯA có trong docs/ (bảng ISO 25010, Vùng loại khỏi phạm vi, REQ ⚪ đã tự đọc)
+    - Nội dung: ORD × Mobile (iOS)
+      Lý do: Chưa có bản build iOS cho Release 2.0
+      Người chịu trách nhiệm: Kiểm ở Release 2.1
+      Người quyết định: Lê Thu Hà — PO
+      Ngày quyết định: 08-10-2026
+    - Nội dung: Module Khuyến mãi PROMO
+      Lý do: Không thay đổi ở Release 2.0 — chỉ chạy lại bộ Smoke 8 TC
+      Người chịu trách nhiệm:
+      Người quyết định: Lê Thu Hà — PO
+      Ngày quyết định: 05-10-2026
+    - Nội dung: Giao dịch thật qua cổng thanh toán bên thứ ba
+      Lý do: Dùng sandbox của nhà cung cấp; giao dịch thật do nhà cung cấp chịu theo hợp đồng dịch vụ
+      Người chịu trách nhiệm: Nhà cung cấp cổng thanh toán
+      Người quyết định: Phạm Đức Long — PM
+      Ngày quyết định: 05-10-2026
+    - Nội dung: Pentest và quét lỗ hổng
+      Lý do: Thuê đơn vị đánh giá độc lập
+      Người chịu trách nhiệm: Công ty đánh giá bảo mật đối tác
+      Người quyết định: Phạm Đức Long — PM
+      Ngày quyết định: 05-10-2026
+
+  Đưa lại REQ bị loại vì môi trường: không   # có | không
+
+
+# ─── 4. LỊCH ──────────────────────────── tuỳ chọn · QA Lead · PM ────
+Lịch:
+  # Mỗi ngày ghi NGÀY-THÁNG-NĂM, VD 15-10-2026
+  Duyệt kế hoạch: 09-10-2026
+  Hoàn tất viết TC: 09-10-2026
+  Môi trường sẵn sàng: 12-10-2026
+  Bắt đầu thực thi: 13-10-2026
+  Đóng băng mã nguồn: 23-10-2026     # code freeze
+  Hồi quy từ: 26-10-2026
+  Hồi quy đến: 30-10-2026
+  Nghiệm thu từ: 02-11-2026          # UAT
+  Nghiệm thu đến: 06-11-2026
+  Tần suất báo cáo tiến độ: hằng tuần   # hằng ngày | hằng tuần | hai tuần
+  Ngày gửi báo cáo tiến độ: thứ Sáu
+  Báo cáo tổng hợp: 09-11-2026
+  Phát hành: 12-11-2026              # release
+
+
+# ─── 5. NHÂN LỰC ──────────────────────── tuỳ chọn · QA Lead ─────────
+Nhân lực:
+  # Vai trò: trưởng nhóm QA | kiểm thử viên | tự động hoá | khác
+  # Phụ trách: "Toàn bộ" hoặc từng cặp MODULE × nền tảng
+  - Tên: Trần Minh Quân
+    Vai trò: trưởng nhóm QA
+    Phụ trách: [Toàn bộ]
+    Cần đào tạo:
+  - Tên: Nguyễn Thị Mai
+    Vai trò: kiểm thử viên
+    Phụ trách: [AUTH × web, RPT × web]
+    Cần đào tạo:
+  - Tên: Hoàng Văn Nam
+    Vai trò: kiểm thử viên
+    Phụ trách: [ORD × web, cross-module]
+    Cần đào tạo:
+  - Tên: Đỗ Thị Lan
+    Vai trò: kiểm thử viên
+    Phụ trách: [PROD × web, hỗ trợ UAT]
+    Cần đào tạo: 1 buổi hướng dẫn DevTools ngày 08-10-2026 để chạy phần 🔧 của TC @TechCheck
+  - Tên: Bùi Anh Tuấn
+    Vai trò: tự động hoá
+    Phụ trách: [AUTH × mobile, ORD × mobile, AUTH × api, PROD × api, ORD × api]
+    Cần đào tạo:
+
+Cần tuyển thêm người: không      # có (ghi rõ vị trí) | không
+
+
+# ─── 6. MÔI TRƯỜNG, DỮ LIỆU & CÔNG CỤ ─── tuỳ chọn · DEV · QA Lead ───
+Môi trường:
+  Tên: Staging
+  Dùng chung với đội khác: có      # có | không
+  Người dựng: Võ Quốc Bảo — DevOps
+  Trình duyệt: [Google Chrome (chính), Microsoft Edge, Safari]
+  Thiết bị mobile:
+    - Samsung Galaxy A54 · Android 14 · app bản release · Native Android
+    - Xiaomi Redmi Note 12 · Android 13 · app bản release · Native Android
+
+Dữ liệu kiểm thử:
+  Dữ liệu nền: 200 sản phẩm · 3 cửa hàng · 5 tài khoản thuộc 3 vai trò
+  Nguồn dữ liệu: [nạp sẵn, tự sinh khi chạy]   # tự sinh khi chạy | nạp sẵn | bản sao production đã che | nhập tay
+  Có dữ liệu thật của khách hàng: không   # có | không
+  Cách che dữ liệu:              # chỉ khi có dữ liệu thật
+  Dọn dữ liệu sau khi chạy: có   # có | không
+  Làm mới dữ liệu nền: DevOps nạp lại mỗi sáng thứ Hai
+  Người cung cấp: Võ Quốc Bảo — DevOps
+
+Công cụ:
+  Quản lý lỗi: Jira
+  Quản lý kết quả kiểm thử: File markdown trong repo · kết quả automation trong reports/
+  Nguồn chính khi lệch: Jira cho bug · repo cho execution report
+  Tự động hoá: Appium + REST Assured (Java, TestNG) · Allure Report
+  Khác:
+    - "Kênh chat #shopmini-qa"   # có " #" nên phải đặt trong ngoặc kép
+
+
+# ─── 7. CẤP ĐỘ & LOẠI KIỂM THỬ ────────── tuỳ chọn · QA Lead ─────────
+Cấp độ kiểm thử:
+  # Trong đợt: có | không · Tiêu chí riêng: để trống = dùng bộ tiêu chí chung mục 4
+  Thành phần:                    # component / unit
+    Trong đợt: có
+    Ai thực hiện: Dev
+    Tiêu chí riêng: Độ phủ unit test ≥ 70% dòng lệnh trên pipeline CI
+  Tích hợp thành phần:           # component integration
+    Trong đợt: có
+    Ai thực hiện: Dev
+    Tiêu chí riêng: 100% contract test API pass trên pipeline CI
+  Hệ thống:                      # system
+    Trong đợt: có
+    Ai thực hiện: QA
+    Tiêu chí riêng:
+  Tích hợp hệ thống:             # system integration
+    Trong đợt: có
+    Ai thực hiện: QA
+    Tiêu chí riêng:
+  Chấp nhận:                     # acceptance / UAT
+    Trong đợt: có
+    Ai thực hiện: 3 cửa hàng thí điểm
+    Tiêu chí riêng: "Vào: đã đạt tiêu chí exit cấp System. Ra: 3/3 cửa hàng ký biên bản UAT, không còn lỗi Critical do UAT phát hiện"
+
+Độc lập kiểm thử:
+  Mức độ: đội QA riêng trong tổ chức   # tác giả tự kiểm thử | đồng nghiệp cùng đội | đội QA riêng trong tổ chức | bên ngoài tổ chức
+  Ghi chú: Đội QA thuộc phòng Đảm bảo chất lượng, báo cáo trực tiếp PM, không báo cáo cho Dev Lead. TC được review chéo giữa các tester. UAT do cửa hàng thí điểm thực hiện — độc lập bên ngoài tổ chức.
+
+Loại kiểm thử:
+  # Mỗi ô: có | không
+  Chức năng: có
+  Hồi quy: có
+  Kiểm thử lại lỗi: có
+  Tích hợp liên module: có
+  Tự động hoá: có
+  Nghiệm thu (UAT): có
+  Bên thực hiện nghiệm thu: 3 cửa hàng thí điểm, QA hỗ trợ
+  Hiệu năng: không
+  Bảo mật chuyên sâu: không
+  Tương thích: có
+  Khả năng truy cập: không
+  Khả dụng: có
+  Độ tin cậy và phục hồi: có
+  Cách chạy mobile: tự động hoá  # tự động hoá | kiểm thử viên tự chạy | ngoài phạm vi
+  Cách chạy API: tự động hoá     # tự động hoá | kiểm thử viên tự chạy | ngoài phạm vi
+  Tỷ trọng thủ công / tự động: "Web: chạy manual toàn bộ và automate 60% bộ regression · Android và API: automation 100%"
+
+
+Phi chức năng:
+  # Loại: hiệu năng | bảo mật | tương thích | khả năng truy cập | khả dụng | độ tin cậy và phục hồi
+  - Loại: tương thích
+    Mục tiêu đo: Web thao tác đúng trên 3 trình duyệt · app chạy đúng trên 2 máy Android 13–14
+    Ngưỡng chấp nhận: 100% TC bộ Smoke PASS trên từng trình duyệt và từng máy
+    Cách làm: Smoke Web chạy tay trên Edge và Safari qua dịch vụ trình duyệt đám mây · Smoke Android chạy Appium trên 2 máy
+    Môi trường: Staging
+    Ai thực hiện: Đỗ Thị Lan · Bùi Anh Tuấn
+  - Loại: khả dụng
+    Mục tiêu đo: Nhân viên cửa hàng tự tạo đơn trên Android không cần hướng dẫn
+    Ngưỡng chấp nhận: 3/3 cửa hàng hoàn tất kịch bản tạo đơn trong ≤ 5 phút ở lần thử đầu
+    Cách làm: Quan sát trong tuần UAT, ghi vào biên bản UAT
+    Môi trường: Staging
+    Ai thực hiện: 3 cửa hàng thí điểm · Đỗ Thị Lan ghi nhận
+  - Loại: độ tin cậy và phục hồi
+    Mục tiêu đo: App Android không mất đơn nháp khi mất mạng giữa chừng
+    Ngưỡng chấp nhận: 0 đơn nháp bị mất trong 10 lần ngắt mạng lúc đang tạo đơn
+    Cách làm: Appium mobile setConnectivity tắt/bật wifi và dữ liệu di động
+    Môi trường: Staging
+    Ai thực hiện: Bùi Anh Tuấn
+
+Chiến lược tự động hoá:
+  Mục tiêu: Rút regression Android + API từ 3 ngày chạy tay xuống dưới 2 giờ chạy máy
+  Phạm vi tự động: [TC Android của AUTH và ORD, TC API của AUTH · PROD · ORD, 60% bộ regression Web — TC Priority High]
+  Không tự động:
+    - Nội dung: RPT × web
+      Lý do: Giao diện báo cáo còn đổi liên tục trong Release 2.0 — script sẽ vỡ mỗi build
+    - Nội dung: Kịch bản UAT
+      Lý do: Cần người dùng thật đánh giá
+  Tầng kiểm thử: Unit do Dev (độ phủ ≥ 70%) · QA dồn phần lớn vào API · UI chỉ giữ luồng chính
+  Tiêu chí chọn TC: Priority High · chạy lại mỗi build · kết quả không cần mắt người đánh giá
+  Kích hoạt chạy:
+    - Bộ chạy: Smoke API
+      Khi nào: mỗi merge request   # mỗi commit | mỗi merge request | hằng đêm | mỗi build lên môi trường test | trước phát hành | chạy tay
+      Môi trường: Staging
+    - Bộ chạy: Smoke Android + API
+      Khi nào: mỗi build lên môi trường test
+      Môi trường: Staging
+    - Bộ chạy: Regression đầy đủ
+      Khi nào: hằng đêm
+      Môi trường: Staging
+  Hệ thống CI: Jenkins
+  Người bảo trì: Bùi Anh Tuấn
+
+
+# ─── 8. MỤC TIÊU ──────────────────────── tuỳ chọn · QA Lead · PO ────
+Mục tiêu:
+  # Để trống → agent đề xuất, đánh dấu chờ duyệt. Mỗi mục tiêu một dòng "- ".
+  - Luồng đặt hàng từ tạo đơn đến hoàn tất chạy đúng đặc tả trên Web, Android và API
+  - Không còn lỗi Critical ở đăng nhập, đặt hàng, thanh toán trước ngày release
+  - Số liệu báo cáo doanh thu khớp với tổng giá trị đơn hàng Hoàn tất trong cùng kỳ
+  - 120 cửa hàng đang dùng bản 1.x chuyển sang 2.0 mà không mất dữ liệu đơn hàng
+
+
+# ─── 9. ƯỚC LƯỢNG & NGÂN SÁCH ─────────── tuỳ chọn · QA Lead · PM ────
+Ước lượng:
+  Kỹ thuật: ba điểm   # tỷ lệ | ngoại suy | Wideband Delphi | Planning Poker | ba điểm | không ước lượng
+  Tổng công sức (người-ngày):    # kỹ thuật "ba điểm" → để trống, agent tự tính
+  Giả định: Ước lượng bởi QA Lead và 3 tester theo Release 1.5 (tỷ lệ công sức kiểm thử/phát triển 1:3). Không tính thời gian cửa hàng làm UAT. Số TC không tăng quá 10% so với ngày 05-10-2026.
+  Chi tiết ba điểm:              # chỉ khi Kỹ thuật = ba điểm · đơn vị người-ngày
+    - Hạng mục: Viết & review TC cho 9 cặp module × nền tảng
+      Lạc quan: 18
+      Khả năng nhất: 24
+      Bi quan: 36
+    - Hạng mục: Thực thi manual trên Web
+      Lạc quan: 20
+      Khả năng nhất: 26
+      Bi quan: 38
+    - Hạng mục: Xây dựng và chạy automation Android + API
+      Lạc quan: 15
+      Khả năng nhất: 20
+      Bi quan: 31
+    - Hạng mục: Retest bug và regression đầy đủ
+      Lạc quan: 8
+      Khả năng nhất: 12
+      Bi quan: 22
+    - Hạng mục: Lập báo cáo, họp và quản lý đợt
+      Lạc quan: 5
+      Khả năng nhất: 6
+      Bi quan: 13
+
+Ngân sách:
+  Có ngân sách riêng: có         # có | không
+  Tổng: 26000000
+  Đơn vị tiền: VND
+  Hạng mục:
+    - Nội dung: Mua 2 thiết bị Android dùng cho kiểm thử
+      Số tiền: 14000000
+    - Nội dung: Thuê dịch vụ thiết bị/trình duyệt đám mây 3 tháng
+      Số tiền: 12000000
+
+
+# ─── 10. QUẢN LÝ LỖI ──────────────────── tuỳ chọn · QA Lead · Dev Lead
+Quản lý lỗi:
+  Quy trình trạng thái: riêng    # mặc định | riêng
+  Quy trình riêng: "Workflow Jira: Mới → Đang sửa → Chờ retest → Đóng · nhánh Từ chối (không phải lỗi, QA Lead xác nhận) · nhánh Hoãn (chuyển release sau, PO duyệt)"
+  Thang Severity: mặc định       # mặc định | riêng
+  Thang Priority: mặc định       # mặc định | riêng
+  Thang riêng:
+  Người phân loại lỗi: Trần Minh Quân — QA Lead cùng Dev Lead
+  Họp phân loại lỗi: Hằng ngày 15 phút
+  Thời hạn xử lý:
+    - Severity: Critical
+      Phản hồi: 2 giờ làm việc
+      Sửa xong: 1 ngày làm việc
+    - Severity: Major
+      Phản hồi: 1 ngày làm việc
+      Sửa xong: 3 ngày làm việc
+    - Severity: Minor
+      Phản hồi: 3 ngày làm việc
+      Sửa xong: Trong Release 2.0
+    - Severity: Trivial
+      Phản hồi: Họp phân loại kế tiếp
+      Sửa xong: Backlog
+
+
+# ─── 11. TIÊU CHÍ RA & TẠM DỪNG ───────── tuỳ chọn · QA Lead · PM ────
+Tiêu chí:
+  Bộ tiêu chí ra: mặc định       # mặc định | riêng
+  Tiêu chí ra bổ sung:           # thêm vào bộ mặc định, đánh số tiếp từ #8
+    - Tiêu chí: TC Priority High của bộ regression đã được automate
+      Ngưỡng: 100%
+    - Tiêu chí: Requirements và TC của 4 module đã qua review tĩnh
+      Ngưỡng: 100% — có biên bản review
+  Tiêu chí ra riêng:             # chỉ khi Bộ tiêu chí ra = riêng — thay toàn bộ bộ mặc định
+  Người chấp nhận dừng khi hết thời gian hoặc ngân sách: Lê Thu Hà — PO cùng Phạm Đức Long — PM
+  Dùng ngưỡng tạm dừng đề xuất: có   # có | không
+  Ngưỡng tạm dừng riêng:         # chỉ khi không dùng ngưỡng đề xuất — mỗi ngưỡng một dòng "- "
+
+
+# ─── 12. BÊN LIÊN QUAN & MẪU TÀI LIỆU ─── tuỳ chọn · QA Lead ─────────
+Bên liên quan:
+  # Nhận gì: kế hoạch | báo cáo tiến độ | báo cáo tổng hợp | báo cáo lỗi
+  - Tên: Lê Thu Hà
+    Vai trò: Product Owner
+    Nhận gì: [kế hoạch, báo cáo tiến độ, báo cáo tổng hợp]
+    Tần suất: Hằng tuần thứ Sáu · cuối đợt
+    Kênh: Email + họp 30 phút
+  - Tên: Phạm Đức Long
+    Vai trò: Project Manager
+    Nhận gì: [kế hoạch, báo cáo tiến độ, báo cáo tổng hợp]
+    Tần suất: Hằng tuần thứ Sáu · cuối đợt
+    Kênh: Email
+  - Tên: Đội Dev
+    Vai trò: Fix bug · kiểm thử cấp component · xác minh CSDL
+    Nhận gì: [báo cáo lỗi]
+    Tần suất: Khi phát sinh · họp bug 15 phút mỗi ngày
+    Kênh: Jira
+  - Tên: Võ Quốc Bảo
+    Vai trò: DevOps — dựng và duy trì Staging
+    Nhận gì: []
+    Tần suất: Khi phát sinh
+    Kênh: "Kênh chat #shopmini-env"
+  - Tên: Đại diện 3 cửa hàng thí điểm
+    Vai trò: Thực hiện UAT
+    Nhận gì: [báo cáo tổng hợp]
+    Tần suất: Tuần UAT
+    Kênh: Họp trực tiếp
+
+Mẫu tài liệu:
+  Dùng mẫu có sẵn của repo: có   # có | không
+  Mẫu riêng:
+    - Tài liệu: Biên bản UAT
+      Mẫu: Mẫu biên bản nghiệm thu của công ty — thư mục dự án trên Google Drive
+
+
+# ─── 13. PHÊ DUYỆT ────────────────────── tuỳ chọn · QA Lead ─────────
+Phê duyệt:
+  - Tên: Trần Minh Quân
+    Vai trò: QA Lead
+  - Tên: Lê Thu Hà
+    Vai trò: Product Owner
+  - Tên: Phạm Đức Long
+    Vai trò: Project Manager
+
+
+# ─── 14. CHUẨN TỔ CHỨC ────────────────── tuỳ chọn · QA Lead ─────────
+Chuẩn tổ chức:
+  Mẫu của khách:                 # đường dẫn file mẫu khách yêu cầu — để trống = cấu trúc mặc định
+  Có chính sách kiểm thử (Test Policy): có     # có | không
+  Có chiến lược kiểm thử (Test Strategy): có   # có | không
+  Điểm làm khác:
+    - Nội dung: Kiểm thử hiệu năng
+      Quy định chung: "Test Strategy: mọi release lớn phải có đợt kiểm thử tải trước khi phát hành"
+      Đợt này làm: Tách sang đợt riêng tháng 11/2026, sau release
+      Lý do: Công cụ tải chưa được cấp phép kịp; lượng người dùng 2.0 tăng không đáng kể so với 1.x
+      Người duyệt: Phạm Đức Long — PM, 09-10-2026
+    - Nội dung: Nền tảng iOS
+      Quy định chung: "Test Policy: mọi release phải kiểm đủ các nền tảng đang phát hành"
+      Đợt này làm: Không kiểm iOS ở Release 2.0
+      Lý do: Chưa có bản build iOS — mục 2.2
+      Người duyệt: Lê Thu Hà — PO, 09-10-2026

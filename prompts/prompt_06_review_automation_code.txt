@@ -1,0 +1,23 @@
+/review-automation-code
+
+# CONTEXT
+- Mode: [REVIEW (chỉ báo cáo) / FIX (báo cáo + sửa code + chạy lại)]
+
+# PHẠM VI REVIEW
+[Cung cấp 1 trong các cách sau:]
+
+## Cách 1: Thư mục / module
+- Đường dẫn: [VD: src/tests/customer/ + src/pages/customer/]
+
+## Cách 2: File cụ thể
+- Danh sách file: [VD: src/tests/login.spec.ts, src/pages/login.page.ts]
+
+## Cách 3: Toàn bộ suite
+- Project path: [path/to/project]
+
+# MANUAL TEST CASES TƯƠNG ỨNG (khuyến nghị — để đối chiếu TC ID và kỳ vọng nghiệp vụ)
+[File path, VD: docs/testcases/customer/test_cases_customer.md — hoặc ghi "Không có"]
+
+# TÙY CHỌN
+- Trọng tâm review: [VD: "Soi kỹ assertion có pass giả không" / "Kiểm cấu hình Allure report" / để trống = review toàn diện 6 nhóm]
+- Bối cảnh: [VD: "Chuẩn bị merge lên main" / "Suite kế thừa từ team cũ" / "Sau nhiều vòng auto-heal"]

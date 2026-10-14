@@ -1,0 +1,41 @@
+/update-automation-from-impact
+
+# CONTEXT
+- Mode: [PLAN (chỉ lập kế hoạch) / APPLY (sửa code + chạy lại)]
+
+# DELTA — TEST CASE ĐÃ ĐỔI
+[Chọn 1 trong 2 cách:]
+
+## Cách 1: Delta TC List (từ /update-testcases-from-impact mode APPLY) — KHUYẾN NGHỊ
+- File: [VD: docs/testcases/project/impact/delta_tc_TICKET-123.md]
+  Hoặc chỉ ghi mã ticket: [VD: TICKET-123 — agent tự tìm file delta_tc_ của mọi module]
+> Chưa có file delta_tc_ → chạy /update-testcases-from-impact mode APPLY TRƯỚC (prompt_27).
+> Chỉ có Impact Report là CHƯA ĐỦ — TC còn mô tả hành vi cũ thì script sửa xong vẫn sai
+> kỳ vọng, mà test vẫn xanh nên không ai phát hiện.
+
+## Cách 2: TC đã được sửa TAY, không qua workflow — tự liệt kê
+| TC ID | Nền tảng | Đổi cái gì |
+|---|---|---|
+| [CRM_PRJ_TC_018] | [web] | [Deadline đổi từ tuỳ chọn sang bắt buộc — expected result đổi] |
+| [CRM_PRJ_TC_052] | [mobile · @Android @iOS] | [Như trên, trên app] |
+| [CRM_PRJ_TC_031] | [web] | [Chức năng bị gỡ — TC đã chuyển 🗑️ Deprecated] |
+
+# TRUY CẬP HỆ THỐNG — chỉ điền nền tảng có TC trong delta
+## Web
+- URL: [VD: https://crm.example.com]
+- Cần đăng nhập: [Có — tài khoản đã lưu ở .env / Không]
+
+## Mobile
+- File app hoặc package id / bundle id: [VD: apps/crm.apk / com.example.crm]
+- Thiết bị: [Tên emulator/simulator/real device — bỏ trống để agent liệt kê]
+- Appium server để CHẠY bộ test: [http://127.0.0.1:4723 / URL khác] — phải đang chạy khi chạy test
+
+## API
+- Môi trường chạy test: [VD: Staging]
+- Tài khoản lấy token: [Đã lưu ở .env / EMAIL + PASSWORD — agent lưu vào .env, không ghi vào docs/]
+
+# TÙY CHỌN
+- Môi trường dùng chung với người khác không: [Có / Không]
+- Mã nguồn automation nằm ngoài repo này: [VD: D:/projects/crm-mobile-tests / để trống = agent tự tìm]
+- Giới hạn phạm vi: [VD: "Chỉ nền tảng web" / để trống = toàn bộ TC trong delta]
+- Có chạy hồi quy các test dùng chung Page Object / Screen / API client không: [Có (khuyến nghị) / Không]

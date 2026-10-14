@@ -1,0 +1,20 @@
+/heal-locators
+
+# CONTEXT
+- Mode: [SCAN (chỉ báo cáo) / HEAL (sửa + verify)]
+- Lý do rà: [VD: "Frontend vừa deploy bản mới" / "Module Khách hàng redesign" / "Rà định kỳ trước release"]
+
+# PAGE OBJECT CẦN RÀ
+[Chọn 1:]
+- File cụ thể: [VD: src/pages/login.page.ts]
+- Cả module: [VD: src/pages/customer/]
+- Toàn bộ: [path/to/pages]
+
+# TRUY CẬP TRANG
+- URL: [VD: https://crm.example.com/customers]
+- Cần đăng nhập không: [Có — tài khoản đã lưu ở .env / Không]
+- Cách đạt trạng thái chứa element: [VD: "Login admin → menu Khách hàng → bấm Thêm mới để mở modal" — bắt buộc khi element chỉ hiện sau thao tác]
+
+# TÙY CHỌN
+- Error log (nếu có): [Dán stack trace để khoanh vùng nhanh, hoặc ghi "Không có — rà chủ động"]
+- Sau khi sửa có chạy test verify không: [Có — chỉ định test file / Không]

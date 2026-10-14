@@ -1,0 +1,32 @@
+/generate-user-guide
+
+# CONTEXT
+- Module: [VD: Đăng nhập / Khách hàng / Dự án — module PHẢI đã recon xong, có docs/requirements/<module>/]
+- Đối tượng đọc + vai trò: [VD: Nhân viên nội bộ vai trò Admin và Project Manager / Khách hàng dùng cổng /login]
+- Phiên bản phần mềm ghi ở đầu tài liệu: [VD: v2.4 — hoặc "trạng thái khảo sát ngày 18-08-2026" nếu hệ thống không công bố số phiên bản]
+
+# MODE
+[Xoá dòng không dùng:]
+- DOC — dùng lại ảnh trong docs/requirements/<module>/<nền-tảng>/evidence/, không mở browser
+- LIVE — mở browser thật, làm từng việc, chụp ảnh mới bằng dữ liệu mẫu
+
+# TÀI KHOẢN (chỉ Mode LIVE)
+- Tài khoản đúng vai trò đã nêu ở CONTEXT: [để trống = agent lấy từ .env]
+- Môi trường dùng chung? [Có → cấm thao tác phá huỷ, viết hướng dẫn cho thao tác đó dựa trên evidence / Không]
+
+# PHÁT HÀNH
+- Bản này gửi ra ngoài? [Có → nhắc gỡ mục 6 "Vùng chưa xác minh" và soát ảnh kỹ hơn / Không → bản nội bộ, giữ mục 6]
+
+# LƯU Ý RIÊNG CỦA ĐỢT NÀY
+[Xoá phần không cần:]
+- Tính năng đã biết là hỏng / chưa hoạt động: [VD: ô "Remember me" — PO xác nhận không hoạt động]
+  → Chọn cách viết: [Nói thật ở FAQ / Ghi trung tính / Không nhắc tới]
+- Việc người dùng hay làm mà tài liệu requirements không nêu rõ: [VD: xuất danh sách ra Excel hàng tháng]
+- Việc cần bỏ khỏi hướng dẫn: [VD: thao tác xoá — chỉ Admin dùng, viết ở tài liệu riêng]
+
+# GHI CHÚ
+- Tài liệu viết cho NGƯỜI DÙNG CUỐI, tổ chức theo VIỆC cần làm — không phải theo màn hình
+- KHÔNG bịa bước: mọi bước truy được về ảnh evidence đã mở / REQ ID / lần thao tác thật
+- Nhãn nút, tên menu, thông báo chép NGUYÊN VĂN từ màn hình — không diễn đạt lại
+- Bảng "Nếu không được" và mục FAQ lấy đúng số dòng có bằng chứng — 1 dòng cũng được, không có thì bỏ hẳn
+- 🔒 Ảnh phải dùng dữ liệu mẫu: không tên người, email, số điện thoại, số tiền thật

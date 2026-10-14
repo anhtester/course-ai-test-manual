@@ -1,0 +1,496 @@
+<title>Checklist Smoke Đăng nhập</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Lexend:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Bố cục: phiếu kiểm một cột — đầu phiếu (thông tin + tiến độ) → lưu ý → từng nhóm là một bảng → phần không áp dụng → ký nhận */
+:root {
+  --bg: #f2f4f7;
+  --surface: #ffffff;
+  --fg: #16202c;
+  --muted: #5a6575;
+  --line: #d8dde5;
+  --accent: #1d5c86;
+  --accent-soft: #e2edf5;
+  --code-bg: #edf0f4;
+  --pass: #1b7543;
+  --pass-bg: #e0f2e7;
+  --fail: #b3261e;
+  --fail-bg: #fbe4e1;
+  --block: #915600;
+  --block-bg: #fcefd6;
+  --warn-bg: #fff6e5;
+  --warn-line: #ecc77a;
+  --font-display: "Lexend", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151c; --surface: #18202a; --fg: #e3e8ee; --muted: #97a2b2; --line: #2b3542;
+    --accent: #80b9e2; --accent-soft: #1b2d3c; --code-bg: #222c38;
+    --pass: #72d39c; --pass-bg: #163225; --fail: #ff8f84; --fail-bg: #3a1c1a;
+    --block: #f0b965; --block-bg: #382a13; --warn-bg: #2c2414; --warn-line: #7a5e26;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151c; --surface: #18202a; --fg: #e3e8ee; --muted: #97a2b2; --line: #2b3542;
+  --accent: #80b9e2; --accent-soft: #1b2d3c; --code-bg: #222c38;
+  --pass: #72d39c; --pass-bg: #163225; --fail: #ff8f84; --fail-bg: #3a1c1a;
+  --block: #f0b965; --block-bg: #382a13; --warn-bg: #2c2414; --warn-line: #7a5e26;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  padding-inline: 16px;
+  padding-block: 32px 56px;
+}
+.page { max-width: 1180px; margin: 0 auto; display: grid; gap: 28px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.25; }
+h1 { font-size: 1.9rem; font-weight: 700; }
+h2 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; }
+code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--code-bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+table { font-size: inherit; }
+
+/* Đầu phiếu */
+.head { display: grid; gap: 18px; }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; }
+.title-row .sub { color: var(--muted); }
+.meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.meta div { background: var(--surface); padding: 12px 14px; min-width: 0; display: grid; gap: 2px; }
+.meta dt {
+  font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600;
+}
+.meta dd { margin: 0; overflow-wrap: anywhere; }
+.meta a { color: var(--accent); }
+
+/* Tiến độ */
+.progress {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: grid;
+  gap: 12px;
+}
+.progress-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 20px; }
+.counts { display: flex; flex-wrap: wrap; gap: 8px 18px; font-variant-numeric: tabular-nums; }
+.counts span { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+.counts b { color: var(--fg); font-weight: 600; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.dot.pass { background: var(--pass); }
+.dot.fail { background: var(--fail); }
+.dot.block { background: var(--block); }
+.dot.todo { background: transparent; border: 1.5px solid var(--muted); }
+.bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--code-bg); }
+.bar i { display: block; height: 100%; transition: width .25s ease; }
+.bar .pass { background: var(--pass); }
+.bar .fail { background: var(--fail); }
+.bar .block { background: var(--block); }
+.hint { font-size: 0.82rem; color: var(--muted); }
+.btn-reset {
+  font: inherit; font-size: 0.85rem; cursor: pointer;
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 6px; padding: 5px 12px;
+}
+.btn-reset:hover { color: var(--fg); border-color: var(--muted); }
+.btn-reset.armed { color: var(--fail); border-color: var(--fail); }
+
+/* Lưu ý */
+.notes {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: grid;
+  gap: 10px;
+}
+.notes ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.notes li { max-width: 95ch; }
+
+/* Nhóm & bảng */
+.group { display: grid; gap: 10px; min-width: 0; }
+.group-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.group-head .range { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
+.table-wrap {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+table.cl { width: 100%; min-width: 1560px; border-collapse: collapse; }
+.cl th, .cl td { padding: 11px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+.cl tr:last-child td { border-bottom: 0; }
+.cl th {
+  font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--muted); font-weight: 600; background: var(--accent-soft); white-space: nowrap;
+}
+.cl td.num { font-family: var(--font-mono); color: var(--muted); width: 44px; font-variant-numeric: tabular-nums; }
+.cl td.st { width: 128px; }
+.cl td.item { width: 30%; font-weight: 500; }
+.cl td.exp { width: 28%; }
+.cl td.ids { font-family: var(--font-mono); font-size: 0.8rem; white-space: nowrap; color: var(--muted); }
+.cl td.ids span { display: block; }
+.cl td.run, .cl td.desc { min-width: 260px; font-size: 0.88rem; }
+.cl td.desc .muted { color: var(--muted); }
+.cl td.when { white-space: nowrap; font-size: 0.8rem; }
+.cl td.when { font-family: var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.cl td.run a { color: var(--accent); }
+.cl tr.is-pass td.num { box-shadow: inset 3px 0 0 var(--pass); }
+.cl tr.is-fail td.num { box-shadow: inset 3px 0 0 var(--fail); }
+.cl tr.is-block td.num { box-shadow: inset 3px 0 0 var(--block); }
+
+.status {
+  font: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  min-width: 104px; padding: 4px 10px;
+  border-radius: 999px; border: 1.5px dashed var(--muted);
+  background: transparent; color: var(--muted);
+}
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid currentColor; }
+.status[data-s="pass"] { border: 1.5px solid var(--pass); background: var(--pass-bg); color: var(--pass); }
+.status[data-s="fail"] { border: 1.5px solid var(--fail); background: var(--fail-bg); color: var(--fail); }
+.status[data-s="block"] { border: 1.5px solid var(--block); background: var(--block-bg); color: var(--block); }
+.status[data-s="pass"]::before, .status[data-s="fail"]::before, .status[data-s="block"]::before { background: currentColor; }
+.status:focus-visible, .btn-reset:focus-visible, .sign input:focus-visible, .sign select:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+
+.prio {
+  display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500;
+  padding: 2px 8px; border-radius: 4px; white-space: nowrap;
+}
+.prio.p1 { background: var(--accent); color: var(--surface); }
+.prio.p2 { border: 1px solid var(--accent); color: var(--accent); }
+.prio.p3 { background: var(--code-bg); color: var(--muted); }
+
+/* Không áp dụng */
+.na td:first-child { font-weight: 500; width: 32%; }
+table.cl.na { min-width: 640px; }
+
+.callout { color: var(--muted); font-size: 0.9rem; max-width: 95ch; }
+
+/* Ký nhận */
+.sign table.cl { min-width: 760px; }
+.sign input, .sign select {
+  width: 100%; font: inherit; color: var(--fg);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px;
+}
+
+footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 14px; }
+
+@media (max-width: 560px) {
+  h1 { font-size: 1.5rem; }
+  body { padding-block: 20px 40px; }
+}
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+
+<div class="page">
+
+  <header class="head">
+    <div class="eyebrow">Checklist Smoke · Web · Vòng 1</div>
+    <div class="title-row">
+      <h1>Đăng nhập <code>LOGIN</code></h1>
+      <span class="sub">14 mục · khoảng 15 phút chạy tay</span>
+    </div>
+    <dl class="meta">
+      <div><dt>Mã checklist</dt><dd><code>CL-smoke_20261009</code><br><span class="hint">Mã mục khi chạy: <code>CL-smoke_20261009-03</code> = mục 3</span></dd></div>
+      <div><dt>Nguồn</dt><dd>TC-based — <a href="../../../testcases/login/web/test_cases_login_web.md"><code>test_cases_login_web.md</code></a>, bám bộ chạy <code>@Smoke</code></dd></div>
+      <div><dt>Requirement</dt><dd><a href="../../../requirements/login/REQUIREMENTS_LOGIN_SUMMARY.md"><code>REQUIREMENTS_LOGIN_SUMMARY.md</code></a></dd></div>
+      <div><dt>Scope</dt><dd>Trang đăng nhập · Admin + Project Manager · bảo vệ URL nội bộ · mở Quên mật khẩu · đăng xuất</dd></div>
+      <div><dt>Môi trường</dt><dd><code>https://crm.anhtester.com</code> — Chrome, viewport desktop · <strong>dùng chung</strong></dd></div>
+      <div><dt>Ngày lập</dt><dd>09-10-2026</dd></div>
+      <div><dt>Báo cáo lượt chạy</dt><dd><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>execution_report.html</code></a> · <code>run_1791553365</code></dd></div>
+    </dl>
+  </header>
+
+  <section class="progress" aria-label="Tiến độ chạy">
+    <div class="progress-top">
+      <div class="counts" aria-live="polite">
+        <span><span class="dot todo"></span>Chưa chạy <b id="c-todo">14</b></span>
+        <span><span class="dot pass"></span>Pass <b id="c-pass">0</b></span>
+        <span><span class="dot fail"></span>Fail <b id="c-fail">0</b></span>
+        <span><span class="dot block"></span>Blocked <b id="c-block">0</b></span>
+        <span>P1 <b>10</b> · P2 <b>3</b> · P3 <b>1</b></span>
+      </div>
+      <button type="button" class="btn-reset" id="btn-reset">Về kết quả đã ghi</button>
+    </div>
+    <div class="bar" aria-hidden="true"><i class="pass" id="b-pass" style="width:0"></i><i class="fail" id="b-fail" style="width:0"></i><i class="block" id="b-block" style="width:0"></i></div>
+    <p class="hint">Bấm ô <strong>Trạng thái</strong> để đổi lần lượt: Chưa chạy → Pass → Fail → Blocked. Trạng thái ban đầu là kết quả lượt chạy gần nhất (đợt 1 lúc 20:42, đợt 2 lúc 21:07) (cột Lượt chạy). Bạn đổi tay thì chỉ lưu trong trình duyệt của bạn; kết quả chính thức nằm ở execution report.</p>
+  </section>
+
+  <section class="notes">
+    <h2>Lưu ý trước khi chạy</h2>
+    <ul>
+      <li>Tài khoản lấy từ <code>.env</code>: Admin = <code>EMAIL_ADMIN</code> / <code>PASSWORD_ADMIN</code> · Project Manager = <code>EMAIL_PM</code> / <code>PASSWORD_PM</code>. Không ghi giá trị vào checklist hay báo cáo.</li>
+      <li>🔒 <strong>Mật khẩu sai chỉ thử bằng tài khoản Project Manager</strong> (mục 9). Không gửi mật khẩu sai bằng Admin — Admin là tài khoản cả lớp dùng chung.</li>
+      <li>🔒 <strong>Không</strong> bấm <code>Confirm</code> ở trang Quên mật khẩu với email có thật — hệ thống gửi mail thật tới hộp thư dùng chung.</li>
+      <li>Mục 13: người khác có thể đang chạy bộ đếm giờ trên tài khoản Admin. Bấm <code>Logout</code> mà hiện hộp thoại <code>Started tasks timers found!</code> → đánh <strong>Blocked</strong>, không dừng bộ đếm giờ của người khác.</li>
+      <li>Mục 1–5 và 10 chạy trong <strong>cửa sổ ẩn danh</strong> (chưa có phiên).</li>
+    </ul>
+  </section>
+
+  <section class="group">
+    <div class="group-head"><h2>Giao diện trang đăng nhập</h2><span class="range">mục 1–5</span></div>
+    <div class="table-wrap">
+      <table class="cl">
+        <thead><tr><th>#</th><th>Trạng thái</th><th>Hạng mục kiểm tra</th><th>Kết quả kỳ vọng</th><th>Mô tả (Fail / Blocked)</th><th>Priority</th><th>REQ ID</th><th>TC ID liên quan</th><th>Lượt chạy</th><th>Thời gian chạy</th></tr></thead>
+        <tbody>
+          <tr data-id="1"><td class="num">1</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Mở <code>https://crm.anhtester.com/admin/authentication</code> trong cửa sổ ẩn danh</td>
+            <td class="exp">URL giữ nguyên, tab ghi <code>Perfex CRM | Anh Tester Demo - Login</code>, khối biểu mẫu có tiêu đề <code>Login</code></td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-01</span></td><td class="ids"><span>CRM_LOGIN_TC_001</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 20:42</td></tr>
+          <tr data-id="2"><td class="num">2</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Nhìn biểu mẫu khi trang vừa tải, chưa bấm gì</td>
+            <td class="exp">Đủ ô <code>Email Address</code>, ô <code>Password</code>, ô vuông <code>Remember me</code> đang rỗng, nút xanh <code>Login</code>, liên kết <code>Forgot Password?</code> dưới nút</td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-02</span></td><td class="ids"><span>CRM_LOGIN_TC_002</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 20:42</td></tr>
+          <tr data-id="3"><td class="num">3</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Gõ chữ ngay khi trang vừa tải, không bấm chuột</td>
+            <td class="exp">Chữ hiện trong ô <code>Email Address</code> — con trỏ đã đặt sẵn ở ô này</td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p2">P2</span></td><td class="ids"><span>REQ-LOGIN-03</span></td><td class="ids"><span>CRM_LOGIN_TC_002</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 20:42</td></tr>
+          <tr data-id="4"><td class="num">4</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Gõ <code>Abc12345</code> vào ô <code>Password</code></td>
+            <td class="exp">Ô hiện 8 dấu chấm tròn, không hiện chữ</td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p2">P2</span></td><td class="ids"><span>REQ-LOGIN-02</span></td><td class="ids"><span>CRM_LOGIN_TC_002</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 20:42</td></tr>
+          <tr data-id="5"><td class="num">5</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Bấm vào <strong>chữ</strong> <code>Remember me</code> (không bấm ô vuông)</td>
+            <td class="exp">Ô vuông chuyển từ rỗng sang tích ✔</td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p3">P3</span></td><td class="ids"><span>REQ-LOGIN-02</span></td><td class="ids"><span>CRM_LOGIN_TC_002</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 20:42</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="group">
+    <div class="group-head"><h2>Đăng nhập</h2><span class="range">mục 6–9</span></div>
+    <div class="table-wrap">
+      <table class="cl">
+        <thead><tr><th>#</th><th>Trạng thái</th><th>Hạng mục kiểm tra</th><th>Kết quả kỳ vọng</th><th>Mô tả (Fail / Blocked)</th><th>Priority</th><th>REQ ID</th><th>TC ID liên quan</th><th>Lượt chạy</th><th>Thời gian chạy</th></tr></thead>
+        <tbody>
+          <tr data-id="6"><td class="num">6</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Đăng nhập bằng <code>EMAIL_ADMIN</code> / <code>PASSWORD_ADMIN</code>, không tích <code>Remember me</code></td>
+            <td class="exp">Dừng ở <code>https://crm.anhtester.com/admin/</code>, tab có chữ <code>Dashboard</code>, thấy menu trái và ảnh đại diện góc phải</td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-06</span></td><td class="ids"><span>CRM_LOGIN_TC_005</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 21:07</td></tr>
+          <tr data-id="7"><td class="num">7</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Đăng nhập bằng <code>EMAIL_PM</code> / <code>PASSWORD_PM</code></td>
+            <td class="exp">Vào <code>/admin/</code>, menu trái có 9 mục, <strong>không</strong> có <code>Reports</code> và <code>Subscriptions</code></td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-06</span></td><td class="ids"><span>CRM_LOGIN_TC_006</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 21:08</td></tr>
+          <tr data-id="8"><td class="num">8</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Bỏ trống cả hai ô, bấm <code>Login</code></td>
+            <td class="exp">Vẫn ở trang đăng nhập, 2 dải đỏ trên xuống: <code>The Password field is required.</code> rồi <code>The Email Address field is required.</code></td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-10</span><span>REQ-LOGIN-11</span><span>REQ-LOGIN-12</span></td><td class="ids"><span>CRM_LOGIN_TC_011 (a)</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 20:42</td></tr>
+          <tr data-id="9"><td class="num">9</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Đăng nhập bằng <code>EMAIL_PM</code> với mật khẩu <code>SaiMatKhau_20261009</code></td>
+            <td class="exp">Vẫn ở trang đăng nhập, đúng 1 dải đỏ <code>Invalid email or password</code></td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-14</span></td><td class="ids"><span>CRM_LOGIN_TC_013 (a)</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 20:42</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="group">
+    <div class="group-head"><h2>Bảo vệ khu quản trị</h2><span class="range">mục 10</span></div>
+    <div class="table-wrap">
+      <table class="cl">
+        <thead><tr><th>#</th><th>Trạng thái</th><th>Hạng mục kiểm tra</th><th>Kết quả kỳ vọng</th><th>Mô tả (Fail / Blocked)</th><th>Priority</th><th>REQ ID</th><th>TC ID liên quan</th><th>Lượt chạy</th><th>Thời gian chạy</th></tr></thead>
+        <tbody>
+          <tr data-id="10"><td class="num">10</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Chưa đăng nhập, gõ thẳng <code>https://crm.anhtester.com/admin/clients</code></td>
+            <td class="exp">Bị đưa về <code>/admin/authentication</code>, hiện biểu mẫu đăng nhập, không thoáng thấy dữ liệu khách hàng</td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-17</span></td><td class="ids"><span>CRM_LOGIN_TC_021 (a)</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 20:42</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="group">
+    <div class="group-head"><h2>Quên mật khẩu</h2><span class="range">mục 11</span></div>
+    <div class="table-wrap">
+      <table class="cl">
+        <thead><tr><th>#</th><th>Trạng thái</th><th>Hạng mục kiểm tra</th><th>Kết quả kỳ vọng</th><th>Mô tả (Fail / Blocked)</th><th>Priority</th><th>REQ ID</th><th>TC ID liên quan</th><th>Lượt chạy</th><th>Thời gian chạy</th></tr></thead>
+        <tbody>
+          <tr data-id="11"><td class="num">11</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Bấm liên kết <code>Forgot Password?</code> trên trang đăng nhập — <strong>không</strong> bấm <code>Confirm</code></td>
+            <td class="exp">Tới <code>/admin/authentication/forgot_password</code>, tiêu đề <code>Forgot Password</code>, 1 ô <code>Email Address</code>, nút xanh <code>Confirm</code></td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p2">P2</span></td><td class="ids"><span>REQ-LOGIN-23</span></td><td class="ids"><span>CRM_LOGIN_TC_027</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 20:42</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="group">
+    <div class="group-head"><h2>Đăng xuất</h2><span class="range">mục 12–14</span></div>
+    <div class="table-wrap">
+      <table class="cl">
+        <thead><tr><th>#</th><th>Trạng thái</th><th>Hạng mục kiểm tra</th><th>Kết quả kỳ vọng</th><th>Mô tả (Fail / Blocked)</th><th>Priority</th><th>REQ ID</th><th>TC ID liên quan</th><th>Lượt chạy</th><th>Thời gian chạy</th></tr></thead>
+        <tbody>
+          <tr data-id="12"><td class="num">12</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Đăng nhập Admin, bấm ảnh đại diện tròn góc trên bên phải</td>
+            <td class="exp">Menu mở: <code>My Profile</code> · <code>My Timesheets</code> · <code>Edit Profile</code> · <code>Language ▸</code> · <code>Logout</code> — <code>Logout</code> là mục cuối</td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-29</span></td><td class="ids"><span>CRM_LOGIN_TC_032</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 21:07</td></tr>
+          <tr data-id="13"><td class="num">13</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Thanh đầu trang không có bộ đếm giờ nào, bấm <code>Logout</code> trong menu ảnh đại diện</td>
+            <td class="exp">Không hộp thoại nào bật lên, về <code>/admin/authentication</code> với hai ô rỗng</td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-31</span><span>REQ-LOGIN-32</span></td><td class="ids"><span>CRM_LOGIN_TC_035</span><span>CRM_LOGIN_TC_036 (a)</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 21:07</td></tr>
+          <tr data-id="14"><td class="num">14</td><td class="st"><button type="button" class="status" data-s="pass">Pass</button></td>
+            <td class="item">Ngay sau mục 13, gõ thẳng <code>/admin/clients</code>, rồi bấm Back của trình duyệt</td>
+            <td class="exp">Cả hai lần đều về <code>/admin/authentication</code>, không hiện dữ liệu khách hàng nào</td><td class="desc"><span class="muted">—</span></td>
+            <td><span class="prio p1">P1</span></td><td class="ids"><span>REQ-LOGIN-32</span><span>REQ-LOGIN-33</span></td><td class="ids"><span>CRM_LOGIN_TC_036 (a)</span></td><td class="run"><a href="../../../executions/login/web/run_1791553365/execution_report.html"><code>run_1791553365</code></a></td><td class="when">09-10-2026 21:07</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="group">
+    <div class="group-head"><h2>Không áp dụng cho checklist này</h2></div>
+    <div class="table-wrap">
+      <table class="cl na">
+        <thead><tr><th>Component / nhóm</th><th>Lý do</th></tr></thead>
+        <tbody>
+          <tr><td>Data Table / List</td><td>Module không có bảng hay danh sách dữ liệu</td></tr>
+          <tr><td>CRUD Lifecycle</td><td>Module không tạo / sửa / xoá bản ghi nghiệp vụ nào</td></tr>
+          <tr><td>Status Flow</td><td>Module không có luồng trạng thái</td></tr>
+          <tr><td>Modal / Dialog</td><td>Hộp thoại xác nhận khi còn bộ đếm giờ (<code>CRM_LOGIN_TC_034</code>) là nhánh Vòng 2 — Smoke chỉ rà nhánh <strong>không</strong> hỏi lại (mục 13)</td></tr>
+          <tr><td>Permission / Role (đầy đủ)</td><td>Smoke chỉ xác nhận hai vai trò vào được Dashboard (mục 6–7). Tài khoản khách hàng bị từ chối (<code>TC_019</code>, <code>TC_020</code>), đang có phiên mở lại trang đăng nhập (<code>TC_023</code>) thuộc Regression</td></tr>
+          <tr><td>Non-Functional — Race condition, Session hết hạn, Network, Localization, A11y bàn phím</td><td>Vòng 2–4, ngoài phạm vi Smoke — nằm ở <code>TC_010</code>, <code>TC_026</code>/<code>051</code>, <code>TC_040</code>/<code>041</code>, <code>TC_018</code>, <code>TC_038</code></td></tr>
+          <tr><td>Validation chi tiết, CSRF, cookie Remember me, đặt lại mật khẩu</td><td>Vòng 2–3, cần DevTools hoặc gửi mail thật — để cho checklist Regression / bộ TC chi tiết</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="callout">Ba TC đã biết chắc FAIL (<code>CRM_LOGIN_TC_016</code>, <code>028</code>, <code>039</code>) không nằm trong Smoke — không có mục nào ở đây được kỳ vọng FAIL.</p>
+  </section>
+
+  <section class="group sign">
+    <div class="group-head"><h2>Ký nhận</h2></div>
+    <div class="table-wrap">
+      <table class="cl">
+        <thead><tr><th>Môi trường</th><th>Build / Version</th><th>Người thực hiện</th><th>Ngày</th><th>Kết quả</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><label class="sr" for="sig-env" hidden>Môi trường</label><input id="sig-env" type="text" placeholder="VD: crm.anhtester.com"></td>
+            <td><label for="sig-build" hidden>Build / Version</label><input id="sig-build" type="text"></td>
+            <td><label for="sig-person" hidden>Người thực hiện</label><input id="sig-person" type="text"></td>
+            <td><label for="sig-date" hidden>Ngày</label><input id="sig-date" type="text" placeholder="DD-MM-YYYY"></td>
+            <td><label for="sig-result" hidden>Kết quả</label>
+              <select id="sig-result"><option value="">—</option><option>Pass</option><option>Fail</option><option>Blocked</option></select></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>Bản HTML của <code>docs/checklists/login/web/checklist_smoke_20261009.md</code> — file <code>.md</code> là bản gốc để truy vết.</footer>
+</div>
+
+<script>
+(function () {
+  var KEY = "cl-smoke_20261009-v3";
+  var ORDER = ["todo", "pass", "fail", "block"];
+  var LABEL = { todo: "Chưa chạy", pass: "Pass", fail: "Fail", block: "Blocked" };
+  var TOTAL = 14;
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
+  }
+  function save(state) {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  var state = load();
+  if (!state.items) state.items = {};
+  if (!state.sign) state.sign = {};
+
+  var buttons = document.querySelectorAll("button.status");
+
+  function paint(btn, s) {
+    var row = btn.closest("tr");
+    btn.setAttribute("data-s", s);
+    btn.textContent = LABEL[s];
+    btn.setAttribute("aria-label", "Mục " + row.getAttribute("data-id") + ": " + LABEL[s] + ". Bấm để đổi trạng thái");
+    row.classList.remove("is-pass", "is-fail", "is-block");
+    if (s !== "todo") row.classList.add("is-" + s);
+  }
+
+  function summarize() {
+    var c = { todo: 0, pass: 0, fail: 0, block: 0 };
+    buttons.forEach(function (b) { c[b.getAttribute("data-s")]++; });
+    ["todo", "pass", "fail", "block"].forEach(function (k) {
+      document.getElementById("c-" + k).textContent = c[k];
+    });
+    ["pass", "fail", "block"].forEach(function (k) {
+      document.getElementById("b-" + k).style.width = (c[k] / TOTAL * 100) + "%";
+    });
+  }
+
+  buttons.forEach(function (btn) {
+    var id = btn.closest("tr").getAttribute("data-id");
+    var baked = btn.getAttribute("data-s");
+    btn.setAttribute("data-baked", baked);
+    paint(btn, state.items[id] || baked);
+    btn.addEventListener("click", function () {
+      var next = ORDER[(ORDER.indexOf(btn.getAttribute("data-s")) + 1) % ORDER.length];
+      paint(btn, next);
+      state.items[id] = next;
+      save(state);
+      summarize();
+    });
+  });
+  summarize();
+
+  ["sig-env", "sig-build", "sig-person", "sig-date", "sig-result"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (state.sign[id]) el.value = state.sign[id];
+    el.addEventListener("input", function () { state.sign[id] = el.value; save(state); });
+    el.addEventListener("change", function () { state.sign[id] = el.value; save(state); });
+  });
+
+  var reset = document.getElementById("btn-reset");
+  var timer = null;
+  reset.addEventListener("click", function () {
+    if (!reset.classList.contains("armed")) {
+      reset.classList.add("armed");
+      reset.textContent = "Bấm lần nữa để xác nhận";
+      timer = setTimeout(function () { reset.classList.remove("armed"); reset.textContent = "Về kết quả đã ghi"; }, 3000);
+      return;
+    }
+    clearTimeout(timer);
+    state.items = {};
+    save(state);
+    buttons.forEach(function (b) { paint(b, b.getAttribute("data-baked")); });
+    summarize();
+    reset.classList.remove("armed");
+    reset.textContent = "Về kết quả đã ghi";
+  });
+})();
+</script>

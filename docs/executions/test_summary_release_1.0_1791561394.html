@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo cáo tổng hợp Release v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Lexend:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #f2f4f7; --surface: #ffffff; --fg: #16202c; --muted: #5a6575; --line: #d8dde5;
+  --accent: #1d5c86; --accent-soft: #e2edf5; --code-bg: #edf0f4;
+  --pass: #1b7543; --pass-bg: #e0f2e7; --fail: #b3261e; --fail-bg: #fbe4e1; --block: #915600; --block-bg: #fcefd6;
+  --font-display: "Lexend", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Be Vietnam Pro", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151c; --surface: #18202a; --fg: #e3e8ee; --muted: #97a2b2; --line: #2b3542;
+    --accent: #80b9e2; --accent-soft: #1b2d3c; --code-bg: #222c38;
+    --pass: #72d39c; --pass-bg: #163225; --fail: #ff8f84; --fail-bg: #3a1c1a; --block: #f0b965; --block-bg: #382a13;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151c; --surface: #18202a; --fg: #e3e8ee; --muted: #97a2b2; --line: #2b3542;
+  --accent: #80b9e2; --accent-soft: #1b2d3c; --code-bg: #222c38;
+  --pass: #72d39c; --pass-bg: #163225; --fail: #ff8f84; --fail-bg: #3a1c1a; --block: #f0b965; --block-bg: #382a13;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.55; padding-inline: 16px; padding-block: 32px 56px; }
+.page { max-width: 1180px; margin: 0 auto; display: grid; gap: 32px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.25; }
+h1 { font-size: 1.9rem; font-weight: 700; }
+h2 { font-size: 1.2rem; font-weight: 600; }
+h3 { font-size: 1rem; font-weight: 600; }
+p { margin: 0; max-width: 95ch; }
+code { font-family: var(--font-mono); font-size: 0.86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.head { display: grid; gap: 14px; }
+.title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; }
+.title-row .sub { color: var(--muted); }
+.meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin: 0; }
+.meta div { background: var(--surface); padding: 12px 14px; min-width: 0; display: grid; gap: 2px; }
+.meta dt { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.meta dd { margin: 0; overflow-wrap: anywhere; }
+.warn-inline { color: var(--block); font-weight: 600; }
+
+.callout { border: 1px solid var(--line); border-left: 4px solid var(--accent); background: var(--surface); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 6px; }
+.callout.warn { border-left-color: var(--block); background: var(--block-bg); }
+.callout.danger { border-left-color: var(--fail); background: var(--fail-bg); }
+.callout p { max-width: none; }
+
+.verdict { background: var(--surface); border: 1px solid var(--fail); border-radius: var(--radius); overflow: hidden; display: grid; }
+.verdict .top { background: var(--fail-bg); padding: 18px 20px; display: grid; gap: 6px; border-bottom: 1px solid var(--fail); }
+.verdict .label { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--fail); letter-spacing: 0.02em; }
+.verdict .body { padding: 18px 20px; display: grid; gap: 16px; }
+ol.blockers { margin: 0; padding-left: 1.3em; display: grid; gap: 12px; max-width: 100ch; }
+ol.blockers .risk { display: block; color: var(--muted); font-size: 0.92rem; margin-top: 2px; }
+.decision { font-weight: 600; border-top: 1px solid var(--line); padding-top: 14px; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 2px; align-content: start; }
+.tile .n { font-family: var(--font-display); font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.tile .l { font-size: 0.82rem; color: var(--muted); }
+.tile.pass .n { color: var(--pass); } .tile.fail .n { color: var(--fail); } .tile.block .n { color: var(--block); }
+
+.group { display: grid; gap: 12px; min-width: 0; }
+.group > h2 { padding-bottom: 6px; border-bottom: 2px solid var(--accent-soft); }
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+table { width: 100%; border-collapse: collapse; font-size: inherit; }
+table.wide { min-width: 900px; }
+th, td { padding: 10px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--accent-soft); white-space: nowrap; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.id { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+tr.total td { font-weight: 600; background: var(--code-bg); }
+tr.is-fail td:first-child { box-shadow: inset 3px 0 0 var(--fail); }
+tr.is-pass td:first-child { box-shadow: inset 3px 0 0 var(--pass); }
+tr.is-block td:first-child { box-shadow: inset 3px 0 0 var(--block); }
+.badge { display: inline-block; font-size: 0.8rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.badge.pass { background: var(--pass-bg); color: var(--pass); border: 1px solid var(--pass); }
+.badge.fail { background: var(--fail-bg); color: var(--fail); border: 1px solid var(--fail); }
+.badge.block { background: var(--block-bg); color: var(--block); border: 1px solid var(--block); }
+.badge.neutral { background: var(--code-bg); color: var(--muted); border: 1px solid var(--line); }
+.prio { display: inline-block; font-family: var(--font-mono); font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; white-space: nowrap; font-weight: 500; }
+.prio.now { background: var(--fail); color: var(--surface); }
+.prio.soon { border: 1px solid var(--block); color: var(--block); }
+.prio.later { background: var(--code-bg); color: var(--muted); }
+.note { color: var(--muted); font-size: 0.9rem; max-width: 100ch; }
+ul.plain { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 100ch; }
+.sev { white-space: nowrap; font-weight: 600; }
+.sev.crit { color: var(--fail); } .sev.minor { color: var(--block); } .sev.triv { color: var(--muted); }
+footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 6px; }
+
+@media (max-width: 560px) { h1 { font-size: 1.5rem; } body { padding-block: 20px 40px; } .verdict .label { font-size: 1.6rem; } }
+@media print {
+  :root, :root:not([data-theme="light"]) {
+    --bg: #ffffff; --surface: #ffffff; --fg: #000000; --muted: #444b55; --line: #c9ced6;
+    --accent: #1d5c86; --accent-soft: #e2edf5; --code-bg: #eef0f3;
+    --pass: #1b7543; --pass-bg: #e0f2e7; --fail: #b3261e; --fail-bg: #fbe4e1; --block: #915600; --block-bg: #fcefd6;
+    color-scheme: light;
+  }
+  body { padding: 0; font-size: 12px; }
+  .page { max-width: none; gap: 20px; }
+  .table-wrap { overflow: visible; }
+  table.wide { min-width: 0; }
+  section, .tile, tr { break-inside: avoid; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="head">
+    <span class="eyebrow">Báo cáo tổng hợp kiểm thử · Test Completion Report</span>
+    <div class="title-row">
+      <h1>Perfex CRM · Release v1.0</h1>
+      <span class="sub">Lập ngày 09-10-2026 22:56 · gửi PM nội bộ</span>
+    </div>
+    <dl class="meta">
+      <div><dt>Phạm vi báo cáo</dt><dd>Đăng nhập (<code>LOGIN</code>) × Web · Khách hàng (<code>CUST</code>) × Web, theo phạm vi người yêu cầu khai ngày 09-10-2026. <span class="warn-inline">Plan v1.3 còn tính thêm Dự án (<code>PRJ</code>) × Web, xem mục 2.2</span></dd></div>
+      <div><dt>Build / Version</dt><dd><code>20261009</code> (theo người yêu cầu). <span class="warn-inline">Không execution report nào ghi build này</span></dd></div>
+      <div><dt>Môi trường</dt><dd>Staging (theo người yêu cầu). <span class="warn-inline">Mọi lần chạy đều ghi môi trường là bản demo dùng chung</span></dd></div>
+      <div><dt>Khoảng thời gian</dt><dd>20-08-2026 → 09-10-2026</dd></div>
+      <div><dt>Người lập</dt><dd>Anh Tester — QA Lead (agent hỗ trợ)</dd></div>
+      <div><dt>Kế hoạch đối chiếu</dt><dd>Master Test Plan <code>test_plan_release_1.0</code> v1.3 — Draft, chưa duyệt</dd></div>
+      <div><dt>Nguồn dữ liệu</dt><dd>3 execution report (2 bộ TC · 1 checklist) · 0 retest report · 6 bug report · 1 RTM · 1 báo cáo tiến độ · 1 báo cáo automation</dd></div>
+      <div><dt>Cấu trúc tài liệu</dt><dd>Biên soạn theo cấu trúc ISO/IEC/IEEE 29119-3 — Test Completion Report (mục 9)</dd></div>
+    </dl>
+    <div class="callout warn">
+      <p><strong>Báo cáo lập sớm hơn lịch.</strong> Plan hẹn báo cáo tổng hợp ngày <strong>10-12-2026</strong>, sau code freeze (19-11), hồi quy (20→25-11) và UAT (30-11→04-12). Hôm nay các mốc đó chưa diễn ra. Báo cáo này phản ánh tình trạng tại 09-10-2026, <strong>không</strong> thay cho báo cáo cuối đợt.</p>
+    </div>
+  </header>
+
+  <!-- 1 -->
+  <section class="group" aria-labelledby="s1">
+    <h2 id="s1">1. Khuyến nghị</h2>
+    <div class="verdict">
+      <div class="top">
+        <span class="label">🔴 NO-GO</span>
+        <p>Đạt <strong>2/7</strong> tiêu chí exit. Có 3 điểm chặn release, đều nêu đích danh dưới đây.</p>
+      </div>
+      <div class="body">
+        <ol class="blockers">
+          <li><strong>Bug Critical <code>BUG_login_1785678750_TC039</code> (P1) vẫn mở.</strong> Trang đăng nhập phục vụ được qua <code>http://</code>, không tự chuyển sang HTTPS. Lần retest gần nhất ngày 20-08-2026 ra NOT_FIXED. Theo RTM, ngày 19-09-2026 đo lại vẫn còn lỗi.
+            <span class="risk">Rủi ro nếu vẫn release: người dùng gõ địa chỉ không có <code>https://</code> sẽ gửi email và mật khẩu dưới dạng chưa mã hoá.</span></li>
+          <li><strong>Module Khách hàng chưa được kiểm thử.</strong> Đã có 129 TC (sinh 19-09-2026, review 24-09-2026) nhưng chưa chạy TC nào. Khách hàng là dữ liệu trung tâm, hơn 10 module khác tham chiếu tới. PO đã xác nhận module này có 2 lỗi nhưng chưa lập bug report.</li>
+          <li><strong>Không có bằng chứng kiểm thử trên build <code>20261009</code> / Staging.</strong> Lần chạy duy nhất trong ngày 09-10-2026 là checklist smoke 14 mục, ghi "Build: Không có thông tin" và chạy trên bản demo dùng chung. Hai lần chạy bộ TC Đăng nhập là ngày 20-08-2026 và 19-09-2026, đều trên bản demo.</li>
+        </ol>
+
+        <h3>Việc cần làm để gỡ NO-GO</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Việc</th><th>Gỡ điểm chặn</th></tr></thead>
+            <tbody>
+              <tr><td class="num">1</td><td>Dev sửa cấu hình máy chủ để ép HTTPS (+ HSTS), sau đó QA retest mode FULL</td><td>1</td></tr>
+              <tr><td class="num">2</td><td>Chạy bộ 129 TC Khách hàng trên build <code>20261009</code> · Staging. Lập bug cho mọi TC FAIL, gồm cả hai lỗi đã biết (<code>TC_040</code>, <code>TC_041</code>, <code>TC_047</code>)</td><td>2</td></tr>
+              <tr><td class="num">3</td><td>Chạy lại bộ 51 TC Đăng nhập trên build <code>20261009</code> · Staging. Execution report phải ghi rõ build và môi trường</td><td>3</td></tr>
+              <tr><td class="num">4</td><td>Lập lại báo cáo tổng hợp</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p><strong>Mức tin cậy của khuyến nghị: thấp.</strong> Có ba lý do. (a) Mọi kết quả đều đo trên bản demo dùng chung, không phải build đang xét. (b) Plan quy định Jira là nguồn chính cho trạng thái bug, nhưng báo cáo này chưa đối chiếu Jira. (c) Bộ tiêu chí exit chưa được duyệt.</p>
+        <p class="decision">⚠️ Quyết định release thuộc về PM/PO. Báo cáo này cung cấp căn cứ, không thay thế quyết định đó.</p>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile fail"><span class="n">2/7</span><span class="l">Tiêu chí exit đạt</span></div>
+      <div class="tile fail"><span class="n">1</span><span class="l">Bug Critical đang mở</span></div>
+      <div class="tile fail"><span class="n">0/129</span><span class="l">TC Khách hàng đã chạy</span></div>
+      <div class="tile block"><span class="n">88,2%</span><span class="l">Pass rate Đăng nhập (45/51)</span></div>
+      <div class="tile pass"><span class="n">14/14</span><span class="l">Checklist smoke 09-10-2026 PASS</span></div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="group" aria-labelledby="s2">
+    <h2 id="s2">2. Vùng CHƯA được kiểm thử</h2>
+    <div class="callout">
+      <p><strong>Đọc mục này trước mọi tỷ lệ ở các mục sau.</strong> Mọi tỷ lệ ở mục 4 chỉ tính trên phần đã chạy, và phần đó chỉ có module Đăng nhập.</p>
+    </div>
+
+    <h3>2.1 Trong phạm vi release</h3>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>Module × nền tảng</th><th>Trạng thái</th><th>Vì sao chưa test</th><th>Rủi ro</th></tr></thead>
+        <tbody>
+          <tr class="is-fail"><td><strong>Khách hàng × Web</strong></td><td><span class="badge fail">129 TC · 0 lần chạy</span></td><td>Không có execution report nào cho module này. Không file nào ghi lý do</td><td><strong>Cao.</strong> Entity trung tâm (<code>RISK-CUST-01</code>). Có 2 lỗi đã biết chưa lập bug. Thao tác xoá dùng GET, mở thẳng URL là xoá (<code>RISK-CUST-06</code>). 51 TC <code>@NeedsVerify</code> có bước chưa có evidence</td></tr>
+          <tr class="is-block"><td><strong>Đăng nhập × Web trên build <code>20261009</code> / Staging</strong></td><td><span class="badge block">Chỉ rà checklist smoke</span></td><td>Bộ 51 TC chưa chạy trên build này. 38/51 TC có kết quả từ 20-08-2026, 13 TC còn lại từ 19-09-2026</td><td><strong>Trung bình.</strong> Smoke 14/14 PASS chưa thay được regression. Không kết luận được build mới có làm vỡ chức năng nào ngoài luồng smoke hay không</td></tr>
+          <tr class="is-block"><td>Đăng nhập, phần 🔧 của 25 TC <code>@TechCheck</code> (cần DevTools)</td><td><span class="badge neutral">Chưa chạy lần nào</span></td><td>Mọi lần chạy đều bỏ phần 🔧</td><td><strong>Trung bình.</strong> Với <code>TC_008</code>, <code>TC_009</code> (cookie ghi nhớ) và <code>TC_024</code> (mã CSRF), phần 🔧 mới là kiểm chứng thật của REQ. Cả ba đang chấm PASS chỉ dựa trên phần quan sát bằng mắt</td></tr>
+          <tr><td>Đăng nhập: 4 TC PASS không có ảnh evidence</td><td><span class="badge neutral">Người dùng tự báo kết quả</span></td><td><code>TC_014</code> · <code>TC_026</code> · <code>TC_044</code> · <code>TC_051</code>: agent không được thao tác mật khẩu thật, và 2 TC do QA tự chạy</td><td>Thấp. Kết quả là PASS, nhưng không có bằng chứng để người nghiệm thu đối chiếu</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note"><strong>Nợ kiểm thử:</strong> sau khi gộp, không còn TC nào BLOCKED hay SKIPPED. Tuy vậy, cả 6 TC FAIL và toàn bộ bộ TC Đăng nhập chưa được chạy lại trên môi trường mới (plan mục 3.5 yêu cầu).</p>
+
+    <h3>2.2 Lệch phạm vi so với Master Test Plan — cần PM xác nhận</h3>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>Module × nền tảng</th><th>Plan v1.3</th><th>Người yêu cầu (09-10-2026)</th><th>Hiện trạng</th><th>Xử lý trong báo cáo</th></tr></thead>
+        <tbody>
+          <tr class="is-block"><td><strong>Dự án (<code>PRJ</code>) × Web</strong></td><td>✅ Trong phạm vi</td><td>❌ Không nêu</td><td>104 REQ · <strong>0 TC</strong> · 6 điểm mơ hồ 🔴 treo</td><td>Không tính vào tiêu chí #7, theo phạm vi người yêu cầu khai. Plan chưa được cập nhật để bỏ <code>PRJ</code>. Nếu tính <code>PRJ</code>, tiêu chí #7 còn <strong>1/3</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Muốn bỏ <code>PRJ</code> khỏi Release v1.0 thì cập nhật plan (mục 2.1, 2.2, tăng phiên bản) trước khi PM ra quyết định. Bỏ ngầm trong báo cáo là che đi một vùng trắng 104 REQ.</p>
+
+    <h3>2.3 Ngoài phạm vi (đã chốt trong plan, nhắc lại để không hiểu nhầm độ phủ)</h3>
+    <ul class="plain">
+      <li><strong>20/23 module</strong> của hệ thống chưa khảo sát requirements, gồm Liên hệ, Công việc, Hoá đơn, Thanh toán, Báo cáo và các module khác</li>
+      <li>Cổng khách hàng (khu ngoài <code>/admin</code>) · Khu Quản trị hệ thống (Setup)</li>
+      <li>Kiểm thử tải · pentest · rà WCAG đầy đủ</li>
+      <li>Kiểm chứng tầng API, CSDL, tích hợp: QA không có quyền, đội Dev xác minh. Không có bằng chứng Dev đã xác minh</li>
+    </ul>
+  </section>
+
+  <!-- 3 -->
+  <section class="group" aria-labelledby="s3">
+    <h2 id="s3">3. Đối chiếu tiêu chí exit</h2>
+    <p class="note"><strong>Bộ tiêu chí đang dùng:</strong> bảng mặc định ở mục 4.2 của Master Test Plan, Anh Tester chọn ngày 17-09-2026, "hiệu lực khi plan được duyệt". Plan chưa được duyệt nên bộ tiêu chí <strong>chưa được xác nhận chính thức</strong>. Tiêu chí không bị đổi sau khi bắt đầu thực thi.</p>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>#</th><th>Tiêu chí</th><th>Ngưỡng</th><th>Thực tế</th><th>Kết quả</th></tr></thead>
+        <tbody>
+          <tr class="is-fail"><td class="num">1</td><td>Bug <strong>Critical</strong> đang mở</td><td>0</td><td><strong>1</strong>: <code>BUG_login_1785678750_TC039</code></td><td><span class="badge fail">Không đạt</span></td></tr>
+          <tr class="is-pass"><td class="num">2</td><td>Bug <strong>Major</strong> đang mở</td><td>0 / có workaround PM chấp nhận</td><td><strong>0</strong> trong số bug đã lập. 2 lỗi Khách hàng đã được PO xác nhận nhưng chưa lập bug, chưa phân loại Severity (mục 5.3)</td><td><span class="badge pass">Đạt</span> <span class="note">chỉ tính bug đã lập</span></td></tr>
+          <tr class="is-fail"><td class="num">3</td><td>Pass rate TC <strong>Priority High</strong></td><td>≥ 95%</td><td>Đăng nhập: chỉ tính High <strong>14/18 = 77,8%</strong> · gộp Critical + High <strong>24/28 = 85,7%</strong> · Khách hàng: chưa chạy</td><td><span class="badge fail">Không đạt</span></td></tr>
+          <tr class="is-fail"><td class="num">4</td><td>Pass rate toàn bộ TC đã chạy</td><td>≥ 90%</td><td><strong>45/51 = 88,2%</strong> theo execution report · <strong>46/51 = 90,2%</strong> theo RTM (mục 4, ghi chú ¹) · chỉ có Đăng nhập</td><td><span class="badge fail">Không đạt</span></td></tr>
+          <tr class="is-pass"><td class="num">5</td><td>Tỷ lệ <strong>BLOCKED</strong></td><td>≤ 5%</td><td><strong>0/51 = 0%</strong> (chỉ Đăng nhập)</td><td><span class="badge pass">Đạt</span></td></tr>
+          <tr class="is-fail"><td class="num">6</td><td>REQ mức Critical có ≥ 1 TC <strong>PASS</strong></td><td>100%</td><td>Khách hàng: <strong>0 REQ</strong> có TC PASS (chưa chạy) · Đăng nhập: 14/14 REQ gắn TC Priority Critical có TC PASS</td><td><span class="badge fail">Không đạt</span></td></tr>
+          <tr class="is-fail"><td class="num">7</td><td>Cặp module × nền tảng trong phạm vi đã có TC <strong>và</strong> đã chạy</td><td>100%</td><td><strong>1/2 = 50%</strong>: Đăng nhập × Web ✅ · Khách hàng × Web ❌ (có TC, chưa chạy). Tính theo plan v1.3 thì <strong>1/3</strong></td><td><span class="badge fail">Không đạt</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="plain note">
+      <li><strong>#3:</strong> bộ TC dùng 4 mức Priority (Critical · High · Medium · Low). Chưa ai chốt tiêu chí này có tính cả Critical không. Cả hai cách tính đều không đạt. 4 TC High FAIL là <code>TC_016</code> · <code>TC_028</code> · <code>TC_029</code> · <code>TC_039</code>.</li>
+      <li><strong>#4:</strong> hai nguồn lệch nhau chỉ ở <code>TC_018</code> (ghi chú ¹ mục 4). Báo cáo chấm theo con số ghi trong execution report, không chọn con số đẹp hơn. Muốn chốt thì chạy lại <code>TC_018</code> theo bản TC hiện hành.</li>
+      <li><strong>#6:</strong> tài liệu requirements không có cột mức độ quan trọng của REQ, nên "REQ mức Critical" chưa có định nghĩa chính xác. Dù định nghĩa thế nào, Khách hàng có 0 TC PASS nên kết quả vẫn là không đạt. <code>REQ-LOGIN-44</code> (ép HTTPS) gắn bug Critical nhưng TC của nó là Priority High, nên không nằm trong 14 REQ trên.</li>
+      <li><strong>#5:</strong> đạt vì Đăng nhập không còn TC BLOCKED. Con số này không nói gì về Khách hàng, vì module đó chưa chạy TC nào.</li>
+    </ul>
+  </section>
+
+  <!-- 4 -->
+  <section class="group" aria-labelledby="s4">
+    <h2 id="s4">4. Kết quả kiểm thử theo module</h2>
+
+    <h3>4a. Manual — bộ TC</h3>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>Module</th><th>Nền tảng</th><th class="num">Tổng TC</th><th class="num">PASS</th><th class="num">FAIL</th><th class="num">BLOCKED</th><th class="num">SKIP</th><th class="num">Chưa chạy</th><th class="num">Pass rate</th><th>Nguồn</th></tr></thead>
+        <tbody>
+          <tr class="is-block"><td>Đăng nhập</td><td>Web</td><td class="num">51</td><td class="num">45</td><td class="num">6</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num"><strong>88,2%</strong> ¹</td><td class="id">run_1787215085 (20-08-2026)<br>run_1789759574 (19-09-2026)</td></tr>
+          <tr class="is-fail"><td>Khách hàng</td><td>Web</td><td class="num">129</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num"><strong>129</strong></td><td class="num">—</td><td>Chưa có lần chạy</td></tr>
+          <tr class="total"><td>Tổng đã chạy</td><td></td><td class="num">51 / 180</td><td class="num">45</td><td class="num">6</td><td class="num">0</td><td class="num">0</td><td class="num">129</td><td class="num">88,2%</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Mỗi TC lấy kết quả mới nhất trong mọi lần chạy bộ TC. Ví dụ: <code>TC_014</code> BLOCKED ở lần chạy 20-08 rồi PASS ở lần chạy 19-09, nên tính PASS. Pass rate = PASS / (PASS + FAIL + BLOCKED).</p>
+    <p class="note">¹ <strong>Hai nguồn lệch nhau ở <code>TC_018</code>.</strong> Execution report 20-08-2026 ghi FAIL (biến thể email 260 ký tự). Ngày 19-09-2026, biến thể đó bị bỏ khỏi TC và bug <code>TC018</code> được đóng là không phải lỗi. RTM vì vậy tính <code>TC_018</code> là PASS, thành <strong>46 PASS / 5 FAIL = 90,2%</strong>. Báo cáo giữ cả hai con số. <code>TC_018</code> theo bản TC hiện hành chưa được chạy lại.</p>
+
+    <h3>Đăng nhập × Web — theo Priority</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Priority</th><th class="num">Số TC</th><th class="num">PASS</th><th class="num">FAIL</th><th class="num">Pass rate</th><th>TC FAIL</th></tr></thead>
+        <tbody>
+          <tr class="is-pass"><td>Critical</td><td class="num">10</td><td class="num">10</td><td class="num">0</td><td class="num">100%</td><td>—</td></tr>
+          <tr class="is-fail"><td>High</td><td class="num">18</td><td class="num">14</td><td class="num">4</td><td class="num">77,8%</td><td class="id">016 · 028 · 029 · 039</td></tr>
+          <tr class="is-block"><td>Medium</td><td class="num">19</td><td class="num">18</td><td class="num">1</td><td class="num">94,7%</td><td class="id">018 ¹</td></tr>
+          <tr class="is-block"><td>Low</td><td class="num">4</td><td class="num">3</td><td class="num">1</td><td class="num">75,0%</td><td class="id">004</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note"><strong>Kết quả cũ hơn bản TC hiện hành:</strong> sau lần chạy 20-08-2026, <code>TC_011</code>, <code>TC_018</code>, <code>TC_024</code>, <code>TC_025</code> và <code>TC_039</code> đã được sửa ngày 19-09-2026. Riêng <code>TC_039</code> đã đo lại cùng ngày, các TC còn lại chưa chạy lại.</p>
+
+    <h3>4b. Kết quả rà checklist (báo riêng, không cộng vào bảng 4a)</h3>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>Checklist</th><th>Loại</th><th>Module · Nền tảng</th><th>Build</th><th class="num">Số mục</th><th class="num">PASS</th><th class="num">FAIL</th><th class="num">BLOCKED</th><th class="num">SKIP</th><th>Mục P1 FAIL</th><th>Nguồn</th></tr></thead>
+        <tbody>
+          <tr class="is-pass"><td class="id">CL-smoke_20261009</td><td>Smoke</td><td>Đăng nhập · Web</td><td><span class="warn-inline">Không có thông tin</span></td><td class="num">14<br><span class="note">10 P1 · 3 P2 · 1 P3</span></td><td class="num">14</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td>0</td><td class="id">run_1791553365<br>09-10-2026</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Đây là tín hiệu mới nhất về hệ thống (09-10-2026). Không có mục FAIL nên không có regression phát sinh trên luồng smoke. 11 TC liên quan được rà lại và đều khớp kết quả PASS cũ. Plan không có tiêu chí riêng cho checklist. Không có checklist Release-readiness nào cho mốc này.</p>
+
+    <h3>4c. Automation (báo riêng, không cộng vào 4a)</h3>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>Suite</th><th>Lượt chạy</th><th>Số test</th><th class="num">PASS</th><th class="num">FAIL</th><th class="num">Pass rate</th><th>Nguồn</th></tr></thead>
+        <tbody>
+          <tr class="is-block"><td>CRM Login — Chrome + Firefox</td><td>08-10-2026, bản demo dùng chung</td><td>20 test × 2 trình duyệt = 40 lượt</td><td class="num">35</td><td class="num">5</td><td class="num">87,5%</td><td>Repo automation <code>playwright-typescript-framework</code> — <code>reports/run_and_fix_report.md</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="plain note">
+      <li>5 lượt đỏ gom về 3 nguyên nhân. <code>TC_016</code> đỏ do bug ứng dụng, đúng kỳ vọng. <code>TC_014</code> thiếu tài khoản test có mật khẩu chứa chữ cái. <code>TC_011-d</code> đỏ trên Firefox do khác biệt giữa trình duyệt, đang chờ chọn cách sửa.</li>
+      <li>Script phủ 20/51 TC Đăng nhập (39,2%). Khách hàng chưa có script.</li>
+      <li>Script <code>TC_004</code> PASS trên chính hành vi mà bug <code>TC004</code> coi là lỗi, vì script kiểm một kỳ vọng khác với TC. Kết quả xanh này không xác nhận <code>REQ-LOGIN-04</code>.</li>
+    </ul>
+  </section>
+
+  <!-- 5 -->
+  <section class="group" aria-labelledby="s5">
+    <h2 id="s5">5. Tình hình lỗi</h2>
+    <div class="callout warn">
+      <p>Số liệu lấy từ thư mục bug của repo. Plan quy định <strong>Jira là nguồn chính</strong> cho trạng thái bug, nhưng báo cáo này <strong>chưa đối chiếu Jira</strong>. Bug đã được fix trên Jira mà chưa cập nhật repo thì sẽ không hiện ở đây.</p>
+    </div>
+
+    <h3>5.1 Thống kê</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Severity</th><th class="num">Đang mở</th><th class="num">Đã fix &amp; verify</th><th class="num">Đóng — không phải lỗi</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr class="is-fail"><td><span class="sev crit">🔴 Critical</span></td><td class="num"><strong>1</strong></td><td class="num">0</td><td class="num">0</td><td>Chặn tiêu chí #1</td></tr>
+          <tr><td><span class="sev">🟠 Major</span></td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td></td></tr>
+          <tr><td><span class="sev minor">🟡 Minor</span></td><td class="num">3</td><td class="num">0</td><td class="num">0</td><td></td></tr>
+          <tr><td><span class="sev triv">🟢 Trivial</span></td><td class="num">1</td><td class="num">0</td><td class="num">1</td><td><code>TC018</code> đóng 19-09-2026</td></tr>
+          <tr class="total"><td>Tổng</td><td class="num">5</td><td class="num">0</td><td class="num">1</td><td>Toàn bộ thuộc Đăng nhập × Web</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>5.2 Bug đang mở, xếp theo mức ảnh hưởng</h3>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>Bug ID</th><th>Severity · Priority</th><th>Tóm tắt</th><th>Workaround</th><th>Retest gần nhất</th></tr></thead>
+        <tbody>
+          <tr class="is-fail"><td class="id">BUG_login_1785678750_TC039</td><td><span class="sev crit">Critical · P1</span></td><td>Trang đăng nhập phục vụ qua HTTP, không ép sang HTTPS, không có HSTS</td><td>Người dùng tự gõ đủ <code>https://</code> (không ép buộc được)</td><td>20-08-2026 · <span class="badge fail">NOT_FIXED</span></td></tr>
+          <tr><td class="id">BUG_login_1787226514_TC016</td><td><span class="sev minor">Minor · P2</span></td><td>Ô Email không giữ lại giá trị sau khi đăng nhập sai</td><td>Gõ lại email</td><td>Chưa retest lần nào</td></tr>
+          <tr><td class="id">BUG_login_1787226516_TC028</td><td><span class="sev minor">Minor · P2</span></td><td>Bỏ trống email ở Quên mật khẩu báo "Email not found" thay vì báo trường bắt buộc</td><td>Nhập email trước khi bấm Confirm</td><td>Chưa retest lần nào</td></tr>
+          <tr><td class="id">BUG_login_1787226513_TC004</td><td><span class="sev minor">Minor · P3</span></td><td>Bấm logo không về trang chủ công khai</td><td>Không cần</td><td>Chưa retest lần nào. Bug đang mâu thuẫn với script automation (mục 4c)</td></tr>
+          <tr><td class="id">BUG_login_1787226517_TC029</td><td><span class="sev triv">Trivial · P3</span></td><td>Ô Email ở Quên mật khẩu không tự xoá sau khi gửi email không tồn tại</td><td>Không cần</td><td>Chưa retest lần nào</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Cả 5 bug được xác nhận trên bản demo, và chưa bug nào được retest trên build <code>20261009</code> hay trên môi trường mới.</p>
+
+    <h3>5.3 Lỗi đã biết nhưng chưa lập bug</h3>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>REQ</th><th>Lỗi</th><th>Ai xác nhận</th><th>TC sẽ FAIL</th><th>Severity</th></tr></thead>
+        <tbody>
+          <tr class="is-block"><td class="id">REQ-CUST-43</td><td>Ô Company nhập toàn khoảng trắng vẫn lưu được, tạo ra khách hàng không có tên. Bản ghi này hiện trống ở mọi dropdown của hơn 10 module tham chiếu</td><td>PO, 19-09-2026</td><td class="id">TC_040 · TC_047</td><td><span class="badge block">Chưa phân loại</span></td></tr>
+          <tr class="is-block"><td class="id">REQ-CUST-42</td><td>Lỗi bắt buộc nằm ở tab đang ẩn thì hệ thống không tự chuyển sang tab đó, người dùng không biết vì sao không lưu được</td><td>PO, 19-09-2026</td><td class="id">TC_041</td><td><span class="badge block">Chưa phân loại</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Hai lỗi này chưa tính vào tiêu chí #1, #2 vì chưa có bug report. Nếu được phân loại là Major trở lên, tiêu chí #2 sẽ chuyển sang không đạt.</p>
+
+    <h3>5.4 Regression phát sinh trong kỳ</h3>
+    <p><strong>0</strong>, nhưng con số này không đo được đầy đủ. Kỳ này không có retest report nào, tức là chưa có bản fix nào để sinh ra regression. Checklist smoke 09-10-2026 cũng không có mục FAIL.</p>
+  </section>
+
+  <!-- 6 -->
+  <section class="group" aria-labelledby="s6">
+    <h2 id="s6">6. Độ phủ yêu cầu</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Chỉ số</th><th class="num">Đăng nhập</th><th class="num">Khách hàng</th></tr></thead>
+        <tbody>
+          <tr><td>REQ trong phạm vi có ≥ 1 TC</td><td class="num">40/40 = 100%</td><td class="num">84/84 = 100%</td></tr>
+          <tr><td>REQ có <strong>mọi</strong> TC PASS</td><td class="num">35/40 = 87,5%</td><td class="num">0/84 (chưa chạy)</td></tr>
+          <tr><td>REQ chỉ có checklist</td><td class="num">0</td><td class="num">—</td></tr>
+          <tr><td>TC đã automate</td><td class="num">20/51 = 39,2%</td><td class="num">0/129</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="plain note">
+      <li>5 REQ Đăng nhập chưa đạt: <code>REQ-LOGIN-04</code>, <code>16</code>, <code>25</code>, <code>26</code>, <code>44</code>. Cả 5 đều có bug đang mở.</li>
+      <li>RTM Đăng nhập sinh lúc 09-10-2026 21:47, sau lần sửa TC cuối cùng (07-10-2026 20:16), nên còn mới. Thư mục tài liệu chưa được commit sau mốc git <code>7bb9477</code>, nên mốc git không khoá được nội dung.</li>
+      <li>Chưa có RTM cho Khách hàng và RTM toàn hệ thống. Số liệu Khách hàng lấy từ danh mục test case.</li>
+    </ul>
+  </section>
+
+  <!-- 7 -->
+  <section class="group" aria-labelledby="s7">
+    <h2 id="s7">7. Đề xuất hành động</h2>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>Ưu tiên</th><th>Việc</th><th>Ai làm</th></tr></thead>
+        <tbody>
+          <tr><td><span class="prio now">Trước release</span></td><td>Sửa cấu hình máy chủ: ép HTTPS + HSTS (<code>TC039</code>), rồi retest mode FULL</td><td>Dev → QA</td></tr>
+          <tr><td><span class="prio now">Trước release</span></td><td>Chạy 129 TC Khách hàng trên build <code>20261009</code> · Staging. Ưu tiên bộ Smoke (16 TC) rồi đến TC Priority Critical/High</td><td>Lan</td></tr>
+          <tr><td><span class="prio now">Trước release</span></td><td>Chạy lại 51 TC Đăng nhập trên build <code>20261009</code> · Staging, gồm cả <code>TC_018</code> bản hiện hành. Execution report bắt buộc ghi build và môi trường</td><td>Hồng</td></tr>
+          <tr><td><span class="prio now">Trước release</span></td><td>Lập bug cho mọi TC Khách hàng FAIL, gồm <code>REQ-CUST-42</code> và <code>43</code>, và phân loại Severity</td><td>Lan</td></tr>
+          <tr><td><span class="prio soon">Trước release</span></td><td>Retest 4 bug Minor/Trivial đang mở trên build mới</td><td>Hồng</td></tr>
+          <tr><td><span class="prio soon">Trước release</span></td><td>Chốt phạm vi <code>PRJ</code> (mục 2.2), duyệt plan v1.3 và xác nhận cách tính tiêu chí #3, #6</td><td>PM · Anh Tester</td></tr>
+          <tr><td><span class="prio soon">Trước release</span></td><td>Đối chiếu trạng thái 6 bug với Jira</td><td>Anh Tester</td></tr>
+          <tr><td><span class="prio soon">Trước release</span></td><td>Chốt mâu thuẫn <code>REQ-LOGIN-04</code> / <code>TC_004</code> / bug <code>TC004</code>. Nếu hành vi hiện tại là đúng thì sửa REQ và đóng bug, ngược lại thì sửa script</td><td>PO · Anh Tester</td></tr>
+          <tr><td><span class="prio later">Trước UAT</span></td><td>Chạy phần 🔧 của <code>TC_008</code>, <code>TC_009</code>, <code>TC_024</code> (DevTools). Bổ sung ảnh evidence cho 4 TC chạy tay</td><td>Hồng</td></tr>
+          <tr><td><span class="prio later">Trước UAT</span></td><td>Cấp tài khoản staff có mật khẩu chứa chữ cái, để <code>TC_014</code> chạy được cả manual lẫn automation</td><td>Đội DEV</td></tr>
+          <tr><td><span class="prio later">Sau khi chạy Khách hàng</span></td><td>Sinh RTM toàn hệ thống</td><td>Anh Tester</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="group" aria-labelledby="s8">
+    <h2 id="s8">8. Yếu tố cản trở tiến độ &amp; Bài học</h2>
+
+    <h3>8.1 Điều gì làm chậm đợt này</h3>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>Yếu tố</th><th>Mất bao lâu</th><th>Ảnh hưởng</th><th>Đã xử lý thế nào</th></tr></thead>
+        <tbody>
+          <tr><td>Không có tài khoản test có mật khẩu chứa chữ cái</td><td><strong>30 ngày</strong> (20-08 → 19-09-2026) với manual. Automation vẫn đỏ tới 08-10-2026</td><td><code>TC_014</code> BLOCKED ở lần chạy 20-08-2026</td><td>Người dùng chạy tay ngày 19-09-2026 (không có ảnh). Automation chưa xử lý</td></tr>
+          <tr><td>Tiền đề của <code>TC_034</code> phụ thuộc module Công việc (cần task có bộ đếm giờ)</td><td><strong>30 ngày</strong> (20-08 → 19-09-2026)</td><td><code>TC_034</code> BLOCKED</td><td>Agent tự tạo task test, chạy xong thì dọn</td></tr>
+          <tr><td>Agent không được nhập mật khẩu thật, phải chờ người dùng đăng nhập</td><td>Checklist 09-10-2026: <strong>~23 phút</strong> (20:43 → 21:06)</td><td>5/14 mục BLOCKED ở đợt 1</td><td>Người dùng tự đăng nhập, phiên được lưu lại cho lần sau</td></tr>
+          <tr><td>Không có môi trường test riêng. Plan cam kết sẵn sàng ngày 05-10-2026</td><td><strong>Không có dữ liệu thời lượng.</strong> Tới 09-10-2026, chưa lần chạy nào ghi môi trường riêng</td><td>Mọi kết quả vẫn đo trên bản demo dùng chung. TC phá huỷ của Khách hàng không chạy được</td><td>—</td></tr>
+          <tr><td>Plan chưa được duyệt (hạn 21-09-2026)</td><td>Quá hạn <strong>18 ngày</strong></td><td>Bộ tiêu chí exit chưa có hiệu lực chính thức. Phạm vi <code>PRJ</code> lệch mà không được ghi nhận</td><td>Chưa xử lý</td></tr>
+          <tr><td>Báo cáo tiến độ hằng tuần (thứ Sáu) không được lập</td><td>Thiếu kỳ 25-09 và 02-10-2026. Chỉ có kỳ 1 (17-09-2026)</td><td>Không có số liệu từng kỳ, nên không phát hiện sớm được việc Khách hàng chưa chạy</td><td>Chưa xử lý</td></tr>
+          <tr><td>TC bị sửa sau khi chạy mà không chạy lại</td><td>Từ 19-09-2026 tới nay (<strong>20 ngày</strong>)</td><td>Kết quả cũ không còn khớp bản TC hiện hành, dẫn tới hai con số pass rate (88,2% và 90,2%)</td><td>Chưa xử lý</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Sai lệch so với lịch và ước lượng của plan</h3>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>Mốc</th><th>Plan</th><th>Thực tế</th><th>Sai lệch</th></tr></thead>
+        <tbody>
+          <tr class="is-pass"><td>Xong TC Khách hàng</td><td>02-10-2026</td><td>Sinh 19-09, review 24-09-2026</td><td><span class="badge pass">Sớm 8 ngày</span></td></tr>
+          <tr class="is-fail"><td>Xong TC Dự án</td><td>02-10-2026</td><td>0 TC</td><td><span class="badge fail">Trễ 7 ngày, chưa bắt đầu</span></td></tr>
+          <tr class="is-fail"><td>Duyệt plan</td><td>21-09-2026</td><td>Chưa duyệt</td><td><span class="badge fail">Trễ 18 ngày</span></td></tr>
+          <tr class="is-fail"><td>Môi trường sẵn sàng · bắt đầu thực thi</td><td>05-10 · 06-10-2026</td><td>Không có bằng chứng môi trường riêng. Từ 06-10 tới nay chỉ có 1 lần chạy checklist smoke Đăng nhập</td><td><span class="badge fail">Chưa thực thi Khách hàng sau 3 ngày làm việc</span></td></tr>
+          <tr><td>Công sức thực tế so với ước lượng 19,0 người-ngày</td><td>—</td><td>Không có dữ liệu. Không file nào ghi công sức thực tế</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note"><strong>Rủi ro dự án của plan đã thành hiện thực:</strong> R1 (với Dự án) · R4 (bug Critical <code>TC039</code> vẫn mở) · R6 (chưa đối chiếu Jira) · R7 (chưa có môi trường riêng). R8 đã xử lý: <code>TC018</code> đóng là không phải lỗi. R5 giảm một phần: đã có 20 script automation cho Đăng nhập ở repo riêng.</p>
+
+    <h3>8.2 Bài học rút ra</h3>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>Bài học</th><th>Áp dụng vào đâu</th></tr></thead>
+        <tbody>
+          <tr><td>Execution report không ghi build thì không dùng được cho quyết định release. Phải coi đây là ô bắt buộc</td><td>Mẫu execution report · tiêu chí vào #9 ở mục 4.1 Master Test Plan đợt sau</td></tr>
+          <tr><td>Sửa TC sau khi chạy thì phải chạy lại TC đó ngay, nếu không báo cáo sẽ có hai con số</td><td>Mục 3.5 Retest &amp; Regression của Master Test Plan đợt sau</td></tr>
+          <tr><td>Tài khoản test đặc thù (mật khẩu chứa chữ cái) và tiền đề liên module phải chuẩn bị trước khi chạy. Hai việc này làm mất 30 ngày mỗi việc</td><td>Tiêu chí vào #3 ở mục 4.1 và mục 5.2 Dữ liệu kiểm thử của Master Test Plan đợt sau</td></tr>
+          <tr><td>Bỏ một module khỏi phạm vi phải đi qua cập nhật plan, không chỉ báo miệng lúc lập báo cáo</td><td>Mục 2.1 · 2.2 và Lịch sử thay đổi của Master Test Plan</td></tr>
+          <tr><td>Báo cáo tiến độ hằng tuần là cách duy nhất để thấy sớm một module chưa chạy</td><td>Mục 7.1 Lịch trình — gắn người chịu trách nhiệm cho từng kỳ báo cáo</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>8.3 Tài sản dùng lại được</h3>
+    <div class="table-wrap">
+      <table class="wide">
+        <thead><tr><th>Tài sản</th><th>Dùng lại cho</th></tr></thead>
+        <tbody>
+          <tr><td>Bộ TC Đăng nhập: 51 TC · 71 biến thể</td><td>Regression mọi build</td></tr>
+          <tr><td>Bộ TC Khách hàng: 129 TC · 155 biến thể, đã review</td><td>Chạy ngay cho Release v1.0</td></tr>
+          <tr><td>Checklist smoke Đăng nhập: 14 mục, ~15 phút</td><td>Rà nhanh mỗi build mới</td></tr>
+          <tr><td>20 script automation Đăng nhập (Chrome + Firefox)</td><td>Bộ smoke tự động. Còn thiếu 4 TC Smoke: <code>021</code>, <code>032</code>, <code>035</code>, <code>036</code></td></tr>
+          <tr><td>RTM Đăng nhập</td><td>Mẫu cho RTM Khách hàng và RTM toàn hệ thống</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="group" aria-labelledby="s9">
+    <h2 id="s9">9. Phụ lục — Ánh xạ chuẩn tài liệu</h2>
+    <p class="note">Tài liệu này biên soạn theo cấu trúc ISO/IEC/IEEE 29119-3 — Test Completion Report. Bảng dưới để người duyệt/nghiệm thu đối chiếu; không phải tuyên bố đã được đánh giá tuân thủ.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mục</th><th>ISO/IEC/IEEE 29119-3 — Test Completion Report</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td>Test completion evaluation (kết luận)</td></tr>
+          <tr><td class="num">2</td><td>Deviations from planned testing · Residual risks</td></tr>
+          <tr><td class="num">3</td><td>Test completion evaluation</td></tr>
+          <tr><td class="num">4</td><td>Testing performed · Test measures</td></tr>
+          <tr><td class="num">5</td><td>Test measures (defect metrics) · Residual risks</td></tr>
+          <tr><td class="num">6</td><td>Test measures (coverage)</td></tr>
+          <tr><td class="num">7</td><td>Recommendations</td></tr>
+          <tr><td class="num">8</td><td>Factors blocking progress · Lessons learned · Reusable test assets</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <span>Bản gốc trong repo: <code>docs/executions/test_summary_release_1.0_1791561394.md</code>. Execution report, bug report và RTM được nhắc tới đều nằm trong thư mục <code>docs/</code> của repo kiểm thử.</span>
+    <span>⚠️ Quyết định release thuộc về PM/PO. Báo cáo này cung cấp căn cứ, không thay thế quyết định đó.</span>
+  </footer>
+
+</div>
+</body>
+</html>

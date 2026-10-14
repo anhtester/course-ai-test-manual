@@ -1,0 +1,12 @@
+/discover-system
+
+# CONTEXT
+- URL hệ thống (web): [URL_HE_THONG — để trống nếu không có web]
+- App mobile: [Android / iOS / cả hai] · [đường dẫn .apk/.ipa HOẶC package / bundle id] · thiết bị: [tên — để trống để agent liệt kê] — để trống nếu không có app
+- Được xoá dữ liệu app / cài lại để xem màn hình lần đầu không: [Có / Không]
+- Tài liệu API: [URL Swagger UI / Scalar / Redoc · file OpenAPI / Postman · file .docx mô tả API — để trống nếu không có]
+- Tài khoản: [EMAIL] / [PASSWORD]
+- Tài khoản role khác (nếu có): [ROLE] → [EMAIL] / [PASSWORD]
+- Tài liệu sẵn có (nếu có): [DUONG_DAN_FILE]
+- Môi trường dùng chung: [CO / KHONG]
+- QA được phép gọi API trực tiếp không: [CO / KHONG]

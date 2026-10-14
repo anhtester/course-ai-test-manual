@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Execution Report Viewer — Anh Tester</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234DBD44'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --brand:#4DBD44; --brand-600:#3EA036; --brand-700:#2F7A29; --brand-50:#F0F9EF; --brand-100:#DCF0DA;
+  --pass:#16a34a; --fail:#dc2626; --blocked:#d97706; --skip:#64748b; --partial:#7c3aed;
+  --bg:#f6f7f9; --card:#fff; --line:#e4e7ec; --text:#111827; --muted:#6b7280;
+}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text)}
+button{font:inherit;cursor:pointer}
+h1,h2,h3{margin:0}
+code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:.92em;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+
+/* layout */
+header{background:#fff;border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
+.logo{width:30px;height:30px;border-radius:7px;background:var(--brand);display:grid;place-items:center;flex:none}
+.logo svg{width:19px;height:19px}
+.title{font-size:16px;font-weight:700}
+.subtitle{font-size:12px;color:var(--muted)}
+.spacer{flex:1}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 13px;font-weight:600;color:var(--text)}
+.btn:hover{background:#f9fafb}
+.btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-600)}
+.btn-sm{padding:4px 9px;font-size:12px;font-weight:500}
+
+main{display:flex;align-items:flex-start;gap:16px;padding:16px 20px;max-width:1800px;margin:0 auto}
+aside{width:250px;flex:none;position:sticky;top:72px;min-width:0}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0;overflow:hidden}
+.panel + .panel{margin-top:12px}
+.panel h3{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px}
+section.content{flex:1;min-width:0}
+
+/* drop zone */
+#drop{border:2px dashed var(--brand);border-radius:12px;background:var(--brand-50);padding:44px 20px;text-align:center;color:var(--brand-700);cursor:pointer}
+#drop.over{background:var(--brand-100)}
+#drop b{display:block;font-size:16px;margin-bottom:6px}
+#drop small{color:var(--muted);display:block;margin-top:10px;line-height:1.7}
+
+/* file list */
+.file{display:flex;align-items:center;gap:6px;padding:6px 7px;border-radius:7px;cursor:pointer;font-size:13px}
+.file:hover{background:#f3f4f6}
+.file.active{background:var(--brand-50);color:var(--brand-700);font-weight:600}
+.file .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file .rm{border:0;background:none;color:var(--muted);padding:0 3px;font-size:14px;line-height:1}
+.file .rm:hover{color:var(--fail)}
+.tag{font-size:10px;padding:1px 5px;border-radius:4px;background:#eef2ff;color:#4338ca;flex:none}
+.tag.retest{background:#fef3c7;color:#92400e}
+.tag.checklist{background:#ffedd5;color:#9a3412}
+.sub{margin-top:16px}
+.sub h4{font-size:13px;margin:0 0 7px}
+.sub .hint{font-size:12px;color:var(--muted);font-weight:400}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.stat .n{font-size:23px;font-weight:700;line-height:1.2}
+.stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.stat.pass .n{color:var(--pass)} .stat.fail .n{color:var(--fail)}
+.stat.blocked .n{color:var(--blocked)} .stat.skip .n{color:var(--skip)}
+.stat.rate .n{color:var(--brand-700)}
+
+/* alerts */
+.alert{border-radius:10px;padding:11px 14px;margin-bottom:10px;font-size:13px;border:1px solid}
+.alert > b{display:block;margin-bottom:2px}
+.alert.danger{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.alert.warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.alert.info{background:#f0f9ff;border-color:#bae6fd;color:#075985}
+.alert ul{margin:5px 0 0;padding-left:19px}
+
+/* toolbar */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+input[type=search],select{border:1px solid var(--line);border-radius:8px;padding:7px 11px;font:inherit;background:#fff;color:var(--text)}
+input[type=search]{flex:1;min-width:200px}
+input[type=search]:focus,select:focus{outline:2px solid var(--brand-100);border-color:var(--brand)}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 12px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.chip.on{background:var(--brand-50);border-color:var(--brand);color:var(--brand-700)}
+
+/* tabs */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.tab{border:0;background:none;padding:8px 14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--brand-700);border-bottom-color:var(--brand)}
+
+/* table */
+.tablewrap{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#fafbfc;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);cursor:pointer;white-space:nowrap;position:sticky;top:0}
+th:hover{color:var(--text)}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#fafbfc}
+tbody tr.sel{background:var(--brand-50)}
+td.id{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;white-space:nowrap}
+.st{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.st.PASS{background:#dcfce7;color:#166534} .st.FAIL{background:#fee2e2;color:#991b1b}
+.st.BLOCKED{background:#fef3c7;color:#92400e} .st.SKIPPED{background:#f1f5f9;color:#475569}
+.st.FIXED{background:#dcfce7;color:#166534} .st.NOT_FIXED{background:#fee2e2;color:#991b1b}
+.st.PARTIAL{background:#ede9fe;color:#5b21b6} .st.CANNOT_VERIFY{background:#fef3c7;color:#92400e}
+.st.NEW{background:#fee2e2;color:#991b1b} .st.RECUR{background:#fef3c7;color:#92400e}
+.st.FIXEDTREND{background:#dcfce7;color:#166534} .st.TOBLOCKED{background:#fef3c7;color:#92400e}
+.st.UNBLOCKED{background:#e0f2fe;color:#075985}
+.hist{font-size:11px;color:var(--muted);margin-top:3px;white-space:nowrap}
+.empty{padding:34px;text-align:center;color:var(--muted)}
+
+/* detail */
+#detail{position:fixed;right:0;top:0;bottom:0;width:min(560px,94vw);background:#fff;border-left:1px solid var(--line);box-shadow:-8px 0 26px rgba(0,0,0,.09);padding:18px 20px;overflow:auto;z-index:40;display:none}
+#detail.open{display:block}
+#detail h2{font-size:15px;margin-bottom:3px}
+#detail .close{position:absolute;right:14px;top:14px;border:0;background:none;font-size:21px;color:var(--muted);line-height:1}
+.kv{margin-top:14px}
+.kv div{display:grid;grid-template-columns:132px 1fr;gap:10px;padding:7px 0;border-bottom:1px solid #f1f2f4;font-size:13px}
+.kv .k{color:var(--muted);font-weight:600;overflow-wrap:anywhere}
+.kv .v{white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;min-width:0}
+
+/* thông tin lần chạy — nhãn trên, giá trị dưới để chuỗi dài (URL, commit hash) không tràn cột */
+#meta{font-size:12.5px;min-width:0}
+#meta .row{padding:5px 0;border-bottom:1px solid #f1f2f4}
+#meta .row:last-child{border-bottom:0}
+#meta .mk{display:block;color:var(--muted);font-size:11px;line-height:1.35;margin-bottom:1px}
+#meta .mv{display:block;line-height:1.45;overflow-wrap:anywhere;word-break:break-word;hyphens:auto}
+.file .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* lightbox xem ảnh evidence ngay giữa màn hình */
+.ev-chip{display:inline-flex;align-items:center;gap:5px;max-width:100%;margin:2px 5px 2px 0;padding:3px 8px;
+  border:1px solid var(--line);border-radius:7px;background:#fff;font-size:12px;cursor:pointer;
+  overflow-wrap:anywhere;text-align:left;line-height:1.35;font-family:inherit;color:var(--brand-700)}
+.ev-chip:hover{background:var(--brand-50);border-color:var(--brand)}
+.ev-chip.miss{cursor:not-allowed;color:var(--muted);border-style:dashed}
+.ev-chip.miss:hover{background:#fff;border-color:var(--line)}
+.ev-hint{display:block;margin-top:6px;font-size:11.5px;color:var(--muted);line-height:1.5}
+#lightbox{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
+  background:rgba(16,19,24,.84);padding:28px}
+#lightbox.open{display:flex}
+#lightbox figure{max-width:min(1400px,94vw);max-height:92vh;display:flex;flex-direction:column;gap:10px;margin:0}
+#lightbox img{max-width:100%;max-height:84vh;object-fit:contain;border-radius:8px;background:#fff;
+  box-shadow:0 18px 50px rgba(0,0,0,.4)}
+#lightbox figcaption{color:#e8eaed;font-size:12.5px;text-align:center;overflow-wrap:anywhere}
+#lbClose{position:absolute;right:20px;top:16px;border:0;background:rgba(255,255,255,.14);color:#fff;
+  width:34px;height:34px;border-radius:50%;font-size:21px;line-height:1;cursor:pointer}
+#lbClose:hover{background:rgba(255,255,255,.26)}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><svg viewBox="0 0 32 32"><path d="M9 16.5l4.5 4.5L23 11.5" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <div>
+    <div class="title">Execution Report Viewer</div>
+    <div class="subtitle">Xem &amp; gộp kết quả chạy manual — <code>execution_report.md</code> · <code>retest_report.md</code></div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="btnCsv">↓ CSV</button>
+  <button class="btn" id="btnXlsx">↓ Excel</button>
+  <button class="btn" id="btnAdd">+ Import file .md</button>
+  <button class="btn btn-primary" id="btnAddFolder">+ Import thư mục</button>
+  <button class="btn" id="btnReset" style="display:none">Xoá tất cả</button>
+  <input type="file" id="file" accept=".md,.markdown,.png,.jpg,.jpeg,.gif,.webp,.svg" multiple hidden>
+  <input type="file" id="folder" webkitdirectory mozdirectory directory multiple hidden>
+</header>
+
+<main>
+  <aside>
+    <div class="panel">
+      <h3>Báo cáo đã nạp</h3>
+      <div id="files"></div>
+    </div>
+    <div class="panel" id="metaPanel" style="display:none">
+      <h3>Thông tin lần chạy</h3>
+      <div id="meta" style="font-size:12.5px"></div>
+    </div>
+  </aside>
+
+  <section class="content">
+    <div id="drop">
+      <b>Kéo thả file/thư mục report vào đây</b>
+      Hoặc bấm <strong>+ Import thư mục</strong> / <strong>+ Import file .md</strong> ở góc trên — 2 nút đó vẫn còn sau khi đã nạp dữ liệu, bấm thêm được bất cứ lúc nào
+      <small>
+        Nhận <code>docs/executions/&lt;module&gt;/run_*/execution_report.md</code> và <code>retest_*/retest_report.md</code><br>
+        Nạp nhiều file cùng lúc để gộp số liệu và so sánh giữa các lần chạy — muốn so sánh nhiều lần chạy thì nạp nhiều thư mục <code>run_*</code>, mỗi thư mục 1 lần chạy.<br>
+        <b>Kéo thả</b> thì chọn được nhiều thư mục cùng lúc (Ctrl+chọn trong Explorer rồi kéo cả cụm vào); <b>bấm + Import thư mục</b> thì hộp thoại hệ điều hành chỉ cho chọn <b>1 thư mục mỗi lần</b> — muốn nạp thêm thư mục <code>run_*</code> khác thì bấm nút đó lại, dữ liệu cộng dồn chứ không ghi đè. Nạp nguyên thư mục <code>run_*</code> là có luôn cả report lẫn ảnh evidence — bấm vào ảnh trong ô chi tiết là hiện ngay giữa màn hình.<br>
+        Toàn bộ xử lý chạy trong trình duyệt — không gửi dữ liệu đi đâu.
+      </small>
+    </div>
+
+    <div id="app" style="display:none">
+      <div id="alerts"></div>
+      <div class="stats" id="stats"></div>
+
+      <div class="tabs">
+        <button class="tab on" data-tab="tc">Kết quả TC</button>
+        <button class="tab" data-tab="trend">So sánh các lần chạy</button>
+        <button class="tab" data-tab="bug">Verify bug (retest)</button>
+      </div>
+
+      <div id="tab-tc">
+        <div class="toolbar">
+          <input type="search" id="q" placeholder="Tìm theo TC ID, kịch bản, ghi chú, nguyên nhân chặn…">
+          <select id="fModule"><option value="">Mọi module</option></select>
+          <span id="chips"></span>
+        </div>
+        <div class="tablewrap">
+          <table id="tbl">
+            <thead><tr>
+              <th data-s="id">TC ID</th><th data-s="scenario">Kịch bản</th><th data-s="status">Kết quả</th>
+              <th data-s="module">Module</th><th data-s="runId">Lần chạy</th><th data-s="note">Ghi chú</th>
+            </tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+          <div class="empty" id="noRows" style="display:none">Không có TC nào khớp bộ lọc.</div>
+        </div>
+      </div>
+
+      <div id="tab-trend" style="display:none">
+        <div class="alert warn" style="background:#f8fafc;border-color:var(--line);color:var(--muted)">
+          So sánh <b>cùng TC ID</b> giữa các lần chạy của cùng một module, sắp theo Run ID tăng dần.
+          Chỉ hợp lệ khi các lần chạy dùng <b>cùng nguồn TC</b> — nguồn đã đổi thì đừng kết luận "chất lượng giảm" từ số thô.
+        </div>
+        <div class="tablewrap">
+          <table><thead><tr><th>Nhóm</th><th>TC ID</th><th>Module</th><th>Diễn biến</th></tr></thead>
+          <tbody id="trendRows"></tbody></table>
+          <div class="empty" id="noTrend" style="display:none">Cần ít nhất 2 lần chạy của cùng một module để so sánh.</div>
+        </div>
+      </div>
+
+      <div id="tab-bug" style="display:none">
+        <div class="tablewrap">
+          <table><thead><tr><th>Bug</th><th>Kết quả retest</th><th>Module</th><th>Build</th><th>Lần retest</th></tr></thead>
+          <tbody id="bugRows"></tbody></table>
+          <div class="empty" id="noBug" style="display:none">Chưa nạp file <code>retest_report.md</code> nào.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<div id="detail">
+  <button class="close" id="btnClose">×</button>
+  <h2 id="dTitle"></h2>
+  <div class="subtitle" id="dSub"></div>
+  <div class="kv" id="dKv"></div>
+</div>
+
+<div id="lightbox">
+  <button id="lbClose" title="Đóng (Esc)">×</button>
+  <figure>
+    <img id="lbImg" alt="">
+    <figcaption id="lbCap"></figcaption>
+  </figure>
+</div>
+
+<footer>Anh Tester · claude-testing-skills — dữ liệu lưu trong localStorage của trình duyệt này</footer>
+
+<script>
+/* ============================ PARSER ============================ */
+const STATUS_MAP = [
+  [/CANNOT[_ ]?VERIFY|KHÔNG VERIFY|KHONG VERIFY/i, 'CANNOT_VERIFY'],
+  [/NOT[_ ]?FIXED|CHƯA FIX|CHUA FIX/i, 'NOT_FIXED'],
+  [/PARTIAL|MỘT PHẦN/i, 'PARTIAL'],
+  [/FIXED|ĐÃ FIX/i, 'FIXED'],
+  [/BLOCK/i, 'BLOCKED'],
+  [/SKIP/i, 'SKIPPED'],
+  [/FAIL/i, 'FAIL'],
+  [/PASS/i, 'PASS'],
+];
+function normStatus(raw){
+  const t = String(raw||'').replace(/[^\p{L}\p{N}_ ]/gu,' ').trim();
+  for (const [re,v] of STATUS_MAP) if (re.test(t)) return v;
+  return '';
+}
+const clean = s => String(s||'').replace(/\\\|/g,'|').replace(/<br\s*\/?>/gi,'\n').trim();
+// Ô placeholder trong report ("—", "-", "–", "N/A") là "không có dữ liệu", không phải giá trị.
+// Trả về '' để chúng không lọt vào tìm kiếm, CSV, hay bị nhận nhầm thành TC ID.
+const PLACEHOLDER = /^(?:[—–\-]+|n\/a|na)$/i;
+function stripMd(s){
+  const v = clean(s).replace(/!?\[([^\]]*)\]\(([^)]*)\)/g,(m,a,b)=>a||b).replace(/[`*]/g,'').trim();
+  return PLACEHOLDER.test(v) ? '' : v;
+}
+const splitRow = r => r.trim().replace(/^\|/,'').replace(/\|$/,'').split(/(?<!\\)\|/).map(clean);
+const TCID_RE = /\b([A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*_TC_\d+)\b/;
+// Mã mục checklist: `CL-<phần tên file sau checklist_>-<số mục>` — VD CL-smoke_20261009-03, CL-post-hotfix_CRM-812-05.
+// Phần giữa có thể chứa `-`, nên bám vào cụm số CUỐI cùng trước khoảng trắng.
+const CLID_RE = /\b(CL-\S+-\d{2,})(?=\s|$)/;
+const isChecklistId = id => /^CL-\S+-\d{2,}$/.test(String(id||''));
+
+function parseTables(lines){
+  const out=[]; let i=0, heading='';
+  while(i<lines.length){
+    const L=lines[i];
+    const h=L.match(/^(#{2,4})\s+(.*)$/);
+    if(h){ heading=h[2].trim(); i++; continue; }
+    if(/^\s*\|/.test(L)){
+      const blk=[]; while(i<lines.length && /^\s*\|/.test(lines[i])) blk.push(lines[i++]);
+      if(blk.length>=2 && /^[\s|:-]+$/.test(blk[1])){
+        const header=splitRow(blk[0]);
+        const rows=blk.slice(2).filter(r=>!/^[\s|:-]+$/.test(r)).map(splitRow).filter(r=>r.some(c=>c!==''));
+        out.push({heading,header,rows});
+      }
+      continue;
+    }
+    i++;
+  }
+  return out;
+}
+const colIdx=(header,re)=>header.findIndex(h=>re.test(h));
+const isKV=t=>t.header.length===2 && (t.header.every(h=>h==='') || /thông tin|thuộc tính/i.test(t.header[0]));
+function kvOf(t){ const o={}; for(const r of t.rows) if(r[0]) o[r[0].replace(/[*`]/g,'')]=stripMd(r[1]); return o; }
+
+const isRtm=(title,fileName)=>/ma trận truy vết|traceability|\bRTM\b/i.test(title)||/traceab|rtm/i.test(fileName);
+function parseReport(text, fileName){
+  const lines=text.split(/\r?\n/);
+  const titleLine=(lines.find(l=>/^#\s+/.test(l))||'').replace(/^#\s+/,'').trim();
+  const isRetest=/retest/i.test(titleLine)||/retest/i.test(fileName);
+  const tables=parseTables(lines);
+  // RTM có viewer riêng (scripts/traceability-viewer) — trả null để addFiles báo người dùng
+  if(isRtm(titleLine,fileName)) return null;
+
+  // meta = key-value table trước mục "## 1"
+  let meta={};
+  for(const t of tables){ if(isKV(t) && !t.heading){ meta={...kvOf(t),...meta}; } }
+  if(!Object.keys(meta).length){ const t=tables.find(isKV); if(t) meta=kvOf(t); }
+
+  const module = stripMd((titleLine.split(/—|--/)[1]||'').split('·')[0]) || meta['Module'] || fileName.replace(/\.md$/,'');
+  // Lần chạy checklist không phải lần chạy bộ TC — cộng chung là tổng và pass rate vô nghĩa (xem cảnh báo ở render()).
+  const srcTxt = meta['Loại nguồn']||'';
+  const source = /checklist/i.test(srcTxt) || /docs\/checklists\//i.test(meta['Nguồn TC']||'') ? 'checklist' : 'tc';
+  const runId  = meta['Run ID']||meta['Retest ID']||meta['Run']||fileName.replace(/\.md$/,'');
+  const build  = meta['Build / Version']||meta['Build']||meta['Build lúc log bug → Build retest']||'';
+
+  const tcs=[]; const byId={};
+  const add=(id,o)=>{ if(!id) return; if(byId[id]) Object.assign(byId[id],Object.fromEntries(Object.entries(o).filter(([,v])=>v!=='' && v!=null)));
+                      else { byId[id]={id,module,runId,build,file:fileName,isRetest,scenario:'',status:'',note:'',...o}; tcs.push(byId[id]); } };
+
+  for(const t of tables){
+    const ci=colIdx(t.header,/^TC ID$/i);
+    if(ci<0) continue;
+    const cs=colIdx(t.header,/kết quả|ket qua|trạng thái/i);
+    const cn=colIdx(t.header,/nguyên nhân|nguyen nhan/i);
+    const cd=colIdx(t.header,/kịch bản|scenario|test title|mô tả|hạng mục/i);
+    // Checklist Release-readiness trải nhiều module: cột Module của từng dòng thắng module lấy từ tiêu đề
+    const cmod=colIdx(t.header,/^module$/i);
+    const cnote=colIdx(t.header,/ghi chú|ghi chu/i);
+    const cstep=colIdx(t.header,/bước fail|buoc fail/i);
+    const cneed=colIdx(t.header,/cần gì|can gi/i);
+    for(const r of t.rows){
+      const id=stripMd(r[ci]); if(!id||/^-+$/.test(id)) continue;
+      const o={};
+      if(cd>=0) o.scenario=stripMd(r[cd]);
+      if(cmod>=0 && stripMd(r[cmod])) o.module=stripMd(r[cmod]);
+      if(cs>=0) o.status=normStatus(r[cs]);
+      if(cn>=0){ o.blockReason=stripMd(r[cn]); if(!o.status) o.status='BLOCKED'; }
+      if(cnote>=0) o.note=stripMd(r[cnote]);
+      if(cstep>=0) o.failStep=stripMd(r[cstep]);
+      if(cneed>=0) o.needToRun=stripMd(r[cneed]);
+      if(/regression/i.test(t.heading)) o.isRegression=true;
+      add(id,o);
+    }
+  }
+
+  // Chi tiết FAIL / REG: "### FAIL #1 — <TCID> · <scenario>" + bảng key-value ngay sau
+  for(const t of tables){
+    if(!isKV(t)||!t.heading) continue;
+    const m=t.heading.match(TCID_RE)||t.heading.match(CLID_RE); if(!m) continue;
+    const kv=kvOf(t);
+    add(m[1],{
+      scenario:(t.heading.split('·')[1]||'').trim(),
+      reqId:kv['REQ ID']||'', priority:kv['Priority']||'',
+      expected:kv['Expected']||kv['**Expected**']||'', actual:kv['Actual']||kv['**Actual**']||kv['Actual lần này']||'',
+      evidence:kv['Evidence']||'', reproducible:kv['Tái hiện được?']||'',
+      suspect:kv['Nghi ngờ nguyên nhân']||'', newBug:kv['Bug mới']||'',
+      failStep:kv['Bước fail']||''
+    });
+  }
+
+  // Verify bug (retest): bảng key-value có khoá "Bug" + "Kết quả"
+  const bugs=[];
+  for(const t of tables){
+    if(!isKV(t)) continue;
+    const kv=kvOf(t);
+    const bugKey=kv['Bug']||kv['Bug retest']||'';
+    if(!bugKey||!(kv['Kết quả']||kv['**Kết quả**'])) continue;
+    bugs.push({bug:bugKey, status:normStatus(kv['Kết quả']||kv['**Kết quả**']), module, runId, build, file:fileName,
+      severity:kv['Severity gốc']||'', expected:kv['Expected (theo bug gốc)']||kv['Expected']||'',
+      actual:kv['Actual lần này']||kv['Actual']||'', repeat:kv['Số lần lặp']||'',
+      tcReq:kv['TC / REQ liên quan']||'', evidence:kv['Evidence']||''});
+  }
+
+  // Dữ liệu chưa dọn
+  let dirty=0;
+  for(const t of tables){
+    const c=colIdx(t.header,/đã xoá|da xoa/i); if(c<0) continue;
+    // Ô "—" (dòng "Không tạo bản ghi nào") là không có dữ liệu để dọn, không phải "chưa xoá".
+    for(const r of t.rows) if(stripMd(r[c]) && !/✅|yes|có|x$/i.test(r[c])) dirty++;
+  }
+
+  const src = source==='tc' && tcs.length && tcs.every(t=>isChecklistId(t.id)) ? 'checklist' : source;
+  return {kind:isRetest?'retest':'run',source:src,fileName,title:titleLine,module,runId,build,isRetest,meta,tcs,bugs,dirty};
+}
+
+/* ============================ STATE ============================ */
+let DOCS=[]; let activeFile=''; let tab='tc';
+let sortKey='id', sortDir=1; const offStatus=new Set();
+const ALL_ST=['PASS','FAIL','BLOCKED','SKIPPED'];
+const $=s=>document.querySelector(s);
+
+function save(){ try{ localStorage.setItem('execViewer', JSON.stringify(DOCS)); }catch(e){} }
+function load(){ try{ const r=localStorage.getItem('execViewer'); if(r) DOCS=JSON.parse(r).filter(d=>d.kind!=='rtm'); }catch(e){} }
+
+/* ---- Ảnh evidence ----------------------------------------------------
+   Trình duyệt không đọc được đường dẫn tương đối trong file .md khi mở bằng
+   file://, nên ảnh phải do người dùng nạp vào. Ta giữ chúng dưới dạng
+   objectURL, tra theo TÊN FILE (không kèm thư mục) để khớp mọi kiểu đường dẫn
+   ghi trong report. Không lưu vào localStorage được — nạp lại trang phải kéo lại. */
+const IMG_RE=/\.(png|jpe?g|gif|webp|svg)$/i;
+const IMAGES=new Map();          // basename (chữ thường) -> objectURL
+const baseName=p=>String(p).split(/[\\/]/).pop().trim();
+
+function addImages(files){
+  let n=0;
+  for(const f of files){
+    if(!IMG_RE.test(f.name)) continue;
+    const k=f.name.toLowerCase();
+    if(IMAGES.has(k)) URL.revokeObjectURL(IMAGES.get(k));
+    IMAGES.set(k, URL.createObjectURL(f)); n++;
+  }
+  return n;
+}
+
+// Kéo thả cả thư mục: dataTransfer.files rỗng với folder, phải duyệt qua entry API.
+function readEntry(entry, out){
+  return new Promise(res=>{
+    if(entry.isFile) return entry.file(f=>{ out.push(f); res(); }, res);
+    if(entry.isDirectory){
+      const rd=entry.createReader(); const all=[];
+      const step=()=>rd.readEntries(batch=>{
+        if(!batch.length) return Promise.all(all.map(e=>readEntry(e,out))).then(res);
+        all.push(...batch); step();
+      }, res);
+      return step();
+    }
+    res();
+  });
+}
+async function filesFromDrop(dt){
+  const items=[...(dt.items||[])].filter(i=>i.kind==='file');
+  const entries=items.map(i=>i.webkitGetAsEntry?.()).filter(Boolean);
+  if(!entries.length) return [...(dt.files||[])];
+  const out=[]; await Promise.all(entries.map(e=>readEntry(e,out)));
+  return out.length?out:[...(dt.files||[])];
+}
+
+function addFiles(fileList){
+  const arr=[...fileList];
+  const nImg=addImages(arr);
+  let nRtm=0;
+  const jobs=arr.filter(f=>/\.(md|markdown)$/i.test(f.name)).map(f=>
+    f.text().then(t=>{ const d=parseReport(t,f.name); if(!d){ nRtm++; return; }
+      DOCS=DOCS.filter(x=>x.fileName!==d.fileName||x.runId!==d.runId); DOCS.push(d); }));
+  Promise.all(jobs).then(()=>{ save(); render();
+    if(nRtm) toast(`Bỏ qua ${nRtm} file ma trận truy vết — mở bằng scripts/traceability-viewer/bundle.html`);
+    else if(nImg && !jobs.length) toast(`Đã nạp ${nImg} ảnh evidence`); });
+}
+function toast(msg){
+  const el=document.createElement('div');
+  el.textContent=msg;
+  el.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#101318;color:#fff;'+
+    'padding:9px 16px;border-radius:8px;font-size:13px;z-index:70;box-shadow:0 8px 24px rgba(0,0,0,.3)';
+  document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
+}
+
+/* Biến ô Evidence thành chip bấm được. Nhận hai dạng, với luật khác nhau:
+     1. Link Markdown `![](x.png)` / `[](x.png)` — luôn thành chip. Chưa nạp ảnh thì hiện chip
+        "chưa nạp" kèm hướng dẫn, vì tác giả đã khai rõ đây là evidence.
+     2. Đường dẫn trần `evidence/TC_004_x.png` — CHỈ thành chip khi ảnh đã được nạp.
+   Dạng 2 là format mà `execution_report.md` thật sự dùng (cột Evidence ghi đường dẫn tương đối,
+   không bọc link), nên chỉ nhận dạng 1 thì nạp đúng thư mục evidence/ vẫn không xem được ảnh nào.
+   Điều kiện "đã nạp" giữ nguyên mục đích ban đầu của việc siết chỉ nhận Markdown: tên file bị
+   nhắc trong văn xuôi (ảnh cũ đã mất) không sinh chip "chưa nạp" gây hiểu nhầm. */
+function evidenceHTML(raw){
+  const txt=String(raw||''); const found=[];
+  let rest=txt.replace(/!?\[[^\]]*\]\(([^)]+)\)/gi,
+    (m,a)=>{ const p=(a||'').trim(); if(p && IMG_RE.test(p)) found.push(p); return ' '; });
+  // Đường dẫn trần: tách theo dấu phẩy/chấm phẩy/xuống dòng/khoảng trắng, giữ lại cái đã nạp
+  for(const tok of rest.split(/[\s,;|]+/)){
+    const t=tok.trim().replace(/^[('"<]+|[)'">.,;]+$/g,'');
+    if(t && IMG_RE.test(t) && IMAGES.has(baseName(t).toLowerCase())) found.push(t);
+  }
+  if(!found.length) return `<span class="v">${esc(txt)}</span>`;
+  const uniq=[...new Set(found)];
+  const chips=uniq.map(p=>{
+    const bn=baseName(p), has=IMAGES.has(bn.toLowerCase());
+    return has
+      ? `<button type="button" class="ev-chip" data-img="${esc(bn)}" title="Bấm để xem ảnh">🖼 ${esc(bn)}</button>`
+      : `<span class="ev-chip miss" title="Chưa nạp ảnh này vào viewer">🖼 ${esc(bn)}</span>`;
+  }).join('');
+  const missing=uniq.filter(p=>!IMAGES.has(baseName(p).toLowerCase())).length;
+  const hint=missing
+    ? `<span class="ev-hint">Kéo thả thư mục <code>evidence/</code> (hoặc chính các file ảnh) vào trang để xem được ${missing} ảnh còn thiếu.</span>`
+    : '';
+  return `<span class="v">${chips}${hint}</span>`;
+}
+
+function openLightbox(bn){
+  const url=IMAGES.get(String(bn).toLowerCase()); if(!url) return;
+  $('#lbImg').src=url; $('#lbCap').textContent=bn;
+  $('#lightbox').classList.add('open');
+}
+function closeLightbox(){ $('#lightbox').classList.remove('open'); $('#lbImg').removeAttribute('src'); }
+
+/* ============================ DERIVED ============================ */
+const runNum=r=>{ const m=String(r).match(/(\d{6,})/); return m?+m[1]:0; };
+function visibleDocs(){ return activeFile? DOCS.filter(d=>d.fileName+'|'+d.runId===activeFile) : DOCS; }
+// Cũ → mới theo số trong Run ID. Report không có số thì giữ thứ tự nạp (sort ổn định).
+const byRunOrder = list => [...list].sort((a,b)=>runNum(a.runId)-runNum(b.runId));
+const platformOf = d => String(d.meta?.['Nền tảng']||'').toLowerCase();
+
+/* Gộp nhiều lần chạy: MỖI TC MỘT DÒNG, lấy kết quả của lần chạy MỚI NHẤT có chạy TC đó.
+   Lần chạy lại thường chỉ chứa vài TC (VD chỉ chạy lại TC BLOCKED) — cộng dồn thô thì TC đó
+   hiện 2 dòng, 2 trạng thái, và tổng dư đúng bằng số TC chạy lại. Kết quả cũ không mất:
+   nằm trong `history` (hiện ở cột Kết quả, panel chi tiết và file export).
+   Khoá gộp = module + nền tảng + TC ID: cùng TC ID ở hai module/nền tảng khác nhau là hai TC. */
+function latestTcs(docs){
+  const byKey=new Map();
+  for(const d of byRunOrder(docs)){
+    const plat=platformOf(d);
+    for(const t of d.tcs){
+      const k=t.module+'|'+plat+'|'+t.id;
+      const prev=byKey.get(k);
+      const history=[...(prev?prev.history:[]), {run:t.runId, st:t.status||''}];
+      byKey.set(k, {...t, history});
+    }
+  }
+  return [...byKey.values()];
+}
+const historyText = t => (t.history||[]).length>1 ? t.history.map(h=>`${h.st||'—'} (${h.run})`).join(' → ') : '';
+function allTcs(){ return latestTcs(visibleDocs()); }
+
+function filtered(list=allTcs()){
+  const q=$('#q').value.trim().toLowerCase();
+  const mod=$('#fModule').value;
+  return list.filter(t=>{
+    if(t.status && offStatus.has(t.status)) return false;
+    if(mod && t.module!==mod) return false;
+    if(!q) return true;
+    return [t.id,t.scenario,t.note,t.blockReason,t.expected,t.actual,t.reqId,t.needToRun]
+      .some(v=>String(v||'').toLowerCase().includes(q));
+  }).sort(rowCmp(sortKey, sortDir));
+}
+
+/* Sort: cột Kết quả có thứ bậc nên phải so theo BẢNG BẬC — sort theo chữ cái cho ra
+   BLOCKED trước FAIL trước PASS, thứ tự không phản ánh việc cần xử lý.
+   Thứ tự dùng ở đây là "cần chú ý trước": FAIL → BLOCKED → SKIPPED → PASS. Khác thứ tự
+   ALL_ST của dãy chip (chip là để LỌC, sort là để xếp việc cần làm lên đầu).
+   Cột id / run dùng so sánh numeric nên TC_002 < TC_010 và run_2 < run_10 (thay cho
+   nhánh đặc biệt cũ, nhánh đó bỏ qua ID có hậu tố như TC_018-a). */
+const STATUS_RANK={FAIL:0,BLOCKED:1,SKIPPED:2,PASS:3};
+const RANKS={status:STATUS_RANK};
+/* Sort phải bám giá trị ĐANG HIỂN THỊ trong ô, không bám thuộc tính thô. Cột "Ghi chú" hiện
+   `note || blockReason`, nên TC bị BLOCKED (note rỗng, lý do chặn nằm ở blockReason) từng bị
+   coi là ô rỗng và tụt xuống cuối ở cả hai chiều dù ô hiện rõ chữ. */
+const SORT_VALUE={ note: t => t.note || t.blockReason || '' };
+const sortVal=(t,key)=> SORT_VALUE[key] ? SORT_VALUE[key](t) : t[key];
+
+function rowCmp(key, dir){
+  const rank=RANKS[key];
+  return (x,y)=>{
+    const a=String(sortVal(x,key)??'').trim(), b=String(sortVal(y,key)??'').trim();
+    // Ô rỗng luôn xuống cuối, bất kể chiều sort — TC không có ghi chú không được chen lên đầu
+    if(!a!==!b) return a?-1:1;
+    const main = rank
+      ? (rank[a]??99)-(rank[b]??99)
+      : a.localeCompare(b,'vi',{numeric:true,sensitivity:'base'});
+    // dir CHỈ áp lên phép so sánh chính. Áp cả lên tie-break thì các dòng cùng giá trị sẽ
+    // đảo ngược theo hướng sort, trông như sort sai.
+    return dir*main || String(x.id||'').localeCompare(String(y.id||''),'vi',{numeric:true});
+  };
+}
+function trendRows(){
+  const out=[]; const byMod={};
+  for(const d of DOCS){ const k=d.module+'|'+platformOf(d); (byMod[k]=byMod[k]||[]).push(d); }
+  for(const docs of Object.values(byMod)){
+    if(docs.length<2) continue;
+    const mod=docs[0].module;
+    const ordered=byRunOrder(docs);
+    const ids=new Set(ordered.flatMap(d=>d.tcs.map(t=>t.id)));
+    for(const id of ids){
+      const seq=ordered.map(d=>({run:d.runId,st:(d.tcs.find(t=>t.id===id)||{}).status||''})).filter(x=>x.st);
+      if(seq.length<2) continue;
+      const prev=seq[seq.length-2].st, last=seq[seq.length-1].st;
+      let grp='';
+      // BLOCKED → FAIL cũng là "mới fail": lần trước chưa kiểm được, lần này mới lộ lỗi.
+      if((prev==='PASS'||prev==='BLOCKED')&&last==='FAIL') grp='NEW';
+      else if(prev==='FAIL'&&last==='FAIL') grp='RECUR';
+      else if(prev==='FAIL'&&last==='PASS') grp='FIXEDTREND';
+      else if(prev==='BLOCKED'&&last==='PASS') grp='UNBLOCKED';
+      else if(prev!=='BLOCKED'&&last==='BLOCKED') grp='TOBLOCKED';
+      if(grp) out.push({grp,id,module:mod,seq});
+    }
+  }
+  const rank={NEW:0,RECUR:1,TOBLOCKED:2,FIXEDTREND:3,UNBLOCKED:4};
+  return out.sort((a,b)=>rank[a.grp]-rank[b.grp]||a.id.localeCompare(b.id,'vi',{numeric:true}));
+}
+
+/* ============================ RENDER ============================ */
+const GRP_LABEL={NEW:'🆕 Mới fail',RECUR:'🔁 Fail liên tục',FIXEDTREND:'✅ Vừa được fix',TOBLOCKED:'⚠️ Chuyển sang BLOCKED',UNBLOCKED:'🔓 Hết BLOCKED'};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function render(){
+  const has=DOCS.length>0;
+  $('#drop').style.display=has?'none':'block';
+  $('#app').style.display=has?'block':'none';
+  $('#btnReset').style.display=has?'':'none';
+  if(!has){ $('#files').innerHTML='<div style="color:var(--muted);font-size:12.5px">Chưa có file nào</div>'; $('#metaPanel').style.display='none'; return; }
+
+  // sidebar
+  $('#files').innerHTML=
+    `<div class="file ${activeFile===''?'active':''}" data-f=""><span class="nm">Tất cả (${DOCS.length})</span></div>`+
+    DOCS.map(d=>{const k=d.fileName+'|'+d.runId; const kind=d.kind==='run'&&d.source==='checklist'?'checklist':(d.kind||'run');
+      return `<div class="file ${activeFile===k?'active':''}" data-f="${esc(k)}">
+      <span class="tag ${kind==='run'?'':kind}">${kind.toUpperCase()}</span>
+      <span class="nm" title="${esc(d.fileName)} — ${esc(d.runId)}">${esc(d.module)}</span>
+      <button class="rm" data-rm="${esc(k)}" title="Gỡ file">×</button></div>`}).join('');
+
+  const vis=visibleDocs();
+  if(vis.length===1 && Object.keys(vis[0].meta||{}).length){
+    $('#metaPanel').style.display='block';
+    $('#meta').innerHTML=Object.entries(vis[0].meta).slice(0,10)
+      .map(([k,v])=>`<div class="row"><span class="mk">${esc(k)}</span><span class="mv">${esc(v)}</span></div>`).join('');
+  } else $('#metaPanel').style.display='none';
+
+  // module filter
+  const mods=[...new Set(allTcs().map(t=>t.module))].sort();
+  const cur=$('#fModule').value;
+  $('#fModule').innerHTML='<option value="">Mọi module</option>'+mods.map(m=>`<option ${cur===m?'selected':''}>${esc(m)}</option>`).join('');
+
+  // stats — tính trên toàn bộ TC đang hiển thị theo file, KHÔNG theo bộ lọc trạng thái
+  const base=allTcs();
+  const c=s=>base.filter(t=>t.status===s).length;
+  const pass=c('PASS'),fail=c('FAIL'),blk=c('BLOCKED'),skip=c('SKIPPED');
+  const denom=pass+fail+blk;
+  const rate=denom?(pass/denom*100).toFixed(1)+'%':'—';
+  $('#stats').innerHTML=[
+    ['pass','✅ PASS',pass],['fail','❌ FAIL',fail],['blocked','⚠️ BLOCKED',blk],
+    ['skip','⏭️ SKIPPED',skip],['','Tổng TC',base.length],['rate','Pass rate',rate]
+  ].map(([cl,l,n])=>`<div class="stat ${cl}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+
+  // alerts
+  const al=[];
+  // Cùng một module nạp nhiều lần chạy → số liệu đã được gộp theo kết quả MỚI NHẤT của từng TC.
+  // Vẫn phải nói ra: người đọc cần biết con số không phải của riêng một lần chạy nào.
+  const dup=Object.values(vis.reduce((a,d)=>{const k=d.module+'|'+platformOf(d);
+    (a[k]=a[k]||{m:d.module,p:platformOf(d),n:0}).n++; return a},{})).filter(x=>x.n>1);
+  if(dup.length){
+    const changed=base.filter(t=>(t.history||[]).length>1);
+    al.push(['info','Đang gộp nhiều lần chạy của cùng module — mỗi TC lấy kết quả của lần chạy mới nhất',
+      dup.map(x=>`<b>${esc(x.m)}</b>${x.p?' ('+esc(x.p)+')':''}: ${x.n} lần chạy`).join(' · ')+
+      `. ${changed.length} TC được chạy nhiều lần — kết quả cũ hiện mờ ngay dưới trạng thái. `+
+      'Chọn <b>một</b> lần chạy ở thanh bên để xem số của riêng lần đó, hoặc sang tab <b>So sánh các lần chạy</b>.']);
+  }
+  const srcs=new Set(vis.filter(d=>!d.isRetest).map(d=>d.source||'tc'));
+  if(srcs.has('tc') && srcs.has('checklist'))
+    al.push(['warn','Đang trộn lần chạy bộ TC với lần chạy checklist — Tổng TC và pass rate đang cộng hai loại đơn vị khác nhau',
+      'Mục checklist (mã <code>CL-…</code>) là đơn vị rà nhanh, không phải test case. Báo cáo tổng hợp tách hai loại thành hai bảng — '+
+      'chọn <b>một</b> lần chạy ở thanh bên (nhãn <b>CHECKLIST</b> / <b>RUN</b>) để xem số đúng của từng loại.']);
+  const blkRate=base.length? blk/base.length*100 : 0;
+  if(blkRate>20) al.push(['danger','Tỷ lệ BLOCKED '+blkRate.toFixed(1)+'% — không kết luận chất lượng từ lần chạy này',
+    'BLOCKED nghĩa là <b>chưa test được</b>, không phải đạt. Trên 20% thì lần chạy thiếu dữ liệu để kết luận: dựng lại môi trường rồi chạy lại.']);
+  else if(blkRate>5) al.push(['warn','Tỷ lệ BLOCKED '+blkRate.toFixed(1)+'%','Nêu rõ nguyên nhân chặn khi báo cáo — phần này chưa được kiểm chứng.']);
+  if(skip>0) al.push(['warn',skip+' TC bị SKIPPED — nợ kiểm thử',
+    'TC skip do thao tác phá huỷ trên môi trường dùng chung <b>vẫn chưa được kiểm</b>. Cần chạy tay có giám sát trên môi trường riêng.']);
+  const dirty=vis.reduce((s,d)=>s+d.dirty,0);
+  if(dirty>0) al.push(['warn',dirty+' dòng dữ liệu test chưa dọn','Môi trường còn dữ liệu thừa — lần chạy sau có thể fail vì lý do không liên quan đến ứng dụng.']);
+  $('#alerts').innerHTML=al.map(([k,t,d])=>`<div class="alert ${k}"><b>${t}</b><span>${d}</span></div>`).join('');
+
+  // chips
+  $('#chips').innerHTML=ALL_ST.map(s=>`<button class="chip ${offStatus.has(s)?'':'on'}" data-st="${s}">${s}</button>`).join(' ');
+
+  // rows
+  const rows=filtered();
+  $('#rows').innerHTML=rows.map((t,i)=>`<tr data-i="${i}">
+    <td class="id">${esc(t.id)}</td><td>${esc(t.scenario||'—')}</td>
+    <td>${t.status?`<span class="st ${t.status}">${t.status}</span>`:'—'}${(t.history||[]).length>1
+      ?`<div class="hist" title="${esc(historyText(t))}">trước: ${t.history.slice(0,-1).map(h=>esc(h.st||'—')).join(' → ')}</div>`:''}</td>
+    <td>${esc(t.module)}</td><td class="id">${esc(t.runId)}</td>
+    <td>${esc(t.note||t.blockReason||'—')}</td></tr>`).join('');
+  $('#noRows').style.display=rows.length?'none':'block';
+  window.__rows=rows;
+
+  // trend
+  const tr=trendRows();
+  $('#trendRows').innerHTML=tr.map(r=>`<tr><td><span class="st ${r.grp}">${GRP_LABEL[r.grp]}</span></td>
+    <td class="id">${esc(r.id)}</td><td>${esc(r.module)}</td>
+    <td>${r.seq.map(s=>`<span class="st ${s.st}" style="margin-right:4px">${s.st}</span>`).join('→ ')}</td></tr>`).join('');
+  $('#noTrend').style.display=tr.length?'none':'block';
+  window.__trend=tr;
+
+  // bugs
+  const bugs=vis.flatMap(d=>d.bugs);
+  $('#bugRows').innerHTML=bugs.map((b,i)=>`<tr data-b="${i}"><td class="id">${esc(b.bug)}</td>
+    <td>${b.status?`<span class="st ${b.status}">${b.status}</span>`:'—'}</td>
+    <td>${esc(b.module)}</td><td>${esc(b.build||'—')}</td><td class="id">${esc(b.runId)}</td></tr>`).join('');
+  $('#noBug').style.display=bugs.length?'none':'block';
+  window.__bugs=bugs;
+
+}
+
+function openDetail(o,title,sub,fields){
+  $('#dTitle').textContent=title; $('#dSub').textContent=sub;
+  $('#dKv').innerHTML=fields.filter(([,k])=>o[k]).map(([l,k])=>
+    `<div><span class="k">${l}</span>${k==='evidence'?evidenceHTML(o[k]):`<span class="v">${esc(o[k])}</span>`}</div>`
+  ).join('')||'<div style="color:var(--muted)">Report không ghi thêm chi tiết cho mục này.</div>';
+  $('#detail').classList.add('open');
+}
+const TC_FIELDS=[['Kết quả','status'],['Lịch sử các lần chạy','historyStr'],['Module','module'],['Lần chạy','runId'],['Build','build'],['REQ ID','reqId'],
+  ['Priority','priority'],['Bước fail','failStep'],['Expected','expected'],['Actual','actual'],
+  ['Nguyên nhân chặn','blockReason'],['Cần gì để chạy','needToRun'],['Tái hiện được?','reproducible'],
+  ['Nghi ngờ nguyên nhân','suspect'],['Bug mới','newBug'],['Evidence','evidence'],['Ghi chú','note'],['File nguồn','file']];
+const BUG_FIELDS=[['Kết quả','status'],['Severity gốc','severity'],['TC / REQ','tcReq'],['Expected','expected'],
+  ['Actual','actual'],['Số lần lặp','repeat'],['Build','build'],['Evidence','evidence'],['File nguồn','file']];
+
+/* ============================ EXPORT ============================
+   CSV và Excel dùng CHUNG định nghĩa sheet (exportPlan) để hai định dạng
+   không bao giờ lệch cột nhau.                                          */
+function ts(){ const p=n=>String(n).padStart(2,'0'); const d=new Date();
+  return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`; }
+function downloadBlob(name, blob){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+
+// Mỗi sheet tự khai cột + độ rộng + cột trạng thái (để tô màu trong Excel)
+function exportPlan(){
+  /* Nút export phải xuất ĐÚNG bảng đang xem. Trước đây chỉ một tab được xử lý riêng,
+     nên đứng ở tab "So sánh các lần chạy" hay "Verify bug (retest)" bấm Excel lại ra bảng
+     Kết quả TC — người dùng không có cách nào biết mình vừa tải sai bảng. */
+  if(tab==='trend'){
+    const rows=(window.__trend||[]).map(r=>[GRP_LABEL[r.grp]||r.grp, r.id, r.module,
+      r.seq.map(x=>x.st).join(' → '), r.seq.map(x=>x.run).join(' → ')]);
+    return {base:'so_sanh_cac_lan_chay', sheets:[{name:'Diễn biến', widths:[22,22,20,30,40],
+      head:['Nhóm','TC ID','Module','Diễn biến kết quả','Các lần chạy'], rows}]};
+  }
+  if(tab==='bug'){
+    const rows=(window.__bugs||[]).map(b=>[b.bug, b.status, b.module, b.build, b.runId,
+      b.severity, b.tcReq, b.repeat, b.expected, b.actual, b.file].map(v=>String(v??'')));
+    return {base:'verify_bug_retest', sheets:[{name:'Verify bug', statusCol:1,
+      widths:[26,16,18,14,20,14,24,11,40,40,26],
+      head:['Bug','Kết quả retest','Module','Build','Lần retest','Severity gốc','TC / REQ liên quan',
+            'Số lần lặp','Expected','Actual','File nguồn'], rows}]};
+  }
+  const head=['TC ID','Kịch bản','Kết quả','Lịch sử các lần chạy','Module','Lần chạy','Build','REQ ID','Priority','Bước fail','Expected','Actual','Nguyên nhân chặn','Ghi chú','File nguồn'];
+  const keys=['id','scenario','status','historyStr','module','runId','build','reqId','priority','failStep','expected','actual','blockReason','note','file'];
+  const widths=[22,34,13,36,18,20,12,16,10,11,40,40,32,30,26];
+  const toRow=t=>keys.map(k=>String((k==='historyStr'?historyText(t):t[k])??''));
+  // Sheet Tổng hợp = mỗi TC một dòng, kết quả mới nhất (đúng bảng đang xem).
+  // Sheet từng lần chạy = kết quả NGUYÊN BẢN của lần đó, không gộp — để đối chiếu với report gốc.
+  const sheets=[{name:'Tổng hợp',statusCol:2,widths,head,rows:filtered().map(toRow)}];
+  const docs=byRunOrder(visibleDocs());
+  if(docs.length>1) for(const d of docs)
+    sheets.push({name:d.runId,statusCol:2,widths,head,rows:filtered(d.tcs).map(toRow)});
+  return {base:'execution_report', sheets};
+}
+
+// ---- CSV: chỉ sheet đầu (Tổng hợp); BOM UTF-8 để Excel Windows đọc đúng tiếng Việt
+function toCsv(){
+  const p=exportPlan(), s=p.sheets[0], q=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+  const body=[s.head,...s.rows].map(r=>r.map(q).join(',')).join('\r\n');
+  downloadBlob(`${p.base}_${ts()}.csv`, new Blob(['﻿'+body],{type:'text/csv;charset=utf-8'}));
+}
+
+/* ---- XLSX: dựng thủ công bằng zip + Office Open XML.
+   Không dùng SheetJS vì thư viện ~900 KB sẽ làm phình bundle.html vốn phải mở offline được.
+   Zip ghi ở chế độ STORE (không nén) — file to hơn bình thường nhưng code ngắn và đủ dùng. */
+const CRC_TABLE=(()=>{const t=new Uint32Array(256);
+  for(let i=0;i<256;i++){let c=i;for(let k=0;k<8;k++)c=c&1?0xedb88320^(c>>>1):c>>>1;t[i]=c>>>0}return t})();
+function crc32(b){let c=0xffffffff;for(let i=0;i<b.length;i++)c=CRC_TABLE[(c^b[i])&0xff]^(c>>>8);return (c^0xffffffff)>>>0}
+function zipStore(files){
+  const enc=new TextEncoder();
+  const e=files.map(f=>{const data=enc.encode(f.content);return {data,crc:crc32(data)}});
+  const nm=files.map(f=>enc.encode(f.name));
+  const localSize=e.reduce((s,x,i)=>s+30+nm[i].length+x.data.length,0);
+  const centralSize=e.reduce((s,_,i)=>s+46+nm[i].length,0);
+  const buf=new ArrayBuffer(localSize+centralSize+22), v=new DataView(buf), out=new Uint8Array(buf);
+  let off=0; const offs=[];
+  e.forEach((x,i)=>{ offs.push(off);
+    v.setUint32(off,0x04034b50,true); v.setUint16(off+4,20,true); v.setUint16(off+6,0x0800,true);
+    v.setUint16(off+8,0,true); v.setUint16(off+10,0,true); v.setUint16(off+12,0x2821,true);
+    v.setUint32(off+14,x.crc,true); v.setUint32(off+18,x.data.length,true); v.setUint32(off+22,x.data.length,true);
+    v.setUint16(off+26,nm[i].length,true); v.setUint16(off+28,0,true); off+=30;
+    out.set(nm[i],off); off+=nm[i].length; out.set(x.data,off); off+=x.data.length; });
+  const cStart=off;
+  e.forEach((x,i)=>{
+    v.setUint32(off,0x02014b50,true); v.setUint16(off+4,20,true); v.setUint16(off+6,20,true);
+    v.setUint16(off+8,0x0800,true); v.setUint16(off+10,0,true); v.setUint16(off+12,0,true);
+    v.setUint16(off+14,0x2821,true); v.setUint32(off+16,x.crc,true);
+    v.setUint32(off+20,x.data.length,true); v.setUint32(off+24,x.data.length,true);
+    v.setUint16(off+28,nm[i].length,true); v.setUint16(off+30,0,true); v.setUint16(off+32,0,true);
+    v.setUint16(off+34,0,true); v.setUint16(off+36,0,true); v.setUint32(off+38,0,true);
+    v.setUint32(off+42,offs[i],true); off+=46; out.set(nm[i],off); off+=nm[i].length; });
+  v.setUint32(off,0x06054b50,true); v.setUint16(off+8,e.length,true); v.setUint16(off+10,e.length,true);
+  v.setUint32(off+12,centralSize,true); v.setUint32(off+16,cStart,true);
+  return new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+// XML 1.0 chỉ cho phép tab/LF/CR và ký tự ≥ 0x20. Sót ký tự điều khiển là Excel báo file hỏng.
+function xmlEsc(s){ let o=''; for(const ch of String(s??'')){ const c=ch.codePointAt(0);
+    if(c===9||c===10||c===13||c>=32) o+=ch; }
+  return o.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function colLetter(i){ let n=i+1,s=''; while(n>0){ const r=(n-1)%26; s=String.fromCharCode(65+r)+s; n=Math.floor((n-1)/26);} return s; }
+
+// style 3..7 = ô trạng thái được tô màu, khớp màu trên giao diện web
+const XLSX_STATUS={PASS:3,FIXED:3,'Đã automate':3, FAIL:4,NOT_FIXED:4,'Chưa có TC':4,
+  BLOCKED:5,CANNOT_VERIFY:5,'Mới có TC thủ công':5, SKIPPED:6, PARTIAL:7,'Automate một phần':7};
+const STYLES_XML=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="7"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF166534"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF991B1B"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF92400E"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF475569"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FF5B21B6"/><name val="Calibri"/></font></fonts><fills count="8"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2F7A29"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDCFCE7"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFEE2E2"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFEF3C7"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF1F5F9"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFEDE9FE"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="8"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="3" fillId="4" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="4" fillId="5" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="5" fillId="6" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf><xf numFmtId="0" fontId="6" fillId="7" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" horizontal="center" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+
+function sheetXml(sh){
+  const all=[sh.head,...sh.rows], last=colLetter(sh.head.length-1);
+  const body=all.map((cells,r)=>{
+    const n=r+1;
+    const td=cells.map((val,c)=>{
+      const v=String(val??'');
+      let s = r===0 ? 1 : 2;
+      if(r>0 && c===sh.statusCol && XLSX_STATUS[v]!==undefined) s=XLSX_STATUS[v];
+      return v==='' ? `<c r="${colLetter(c)}${n}" s="${s}"/>`
+        : `<c r="${colLetter(c)}${n}" s="${s}" t="inlineStr"><is><t xml:space="preserve">${xmlEsc(v)}</t></is></c>`;
+    }).join('');
+    return `<row r="${n}"${r===0?' ht="22" customHeight="1"':''}>${td}</row>`;
+  }).join('');
+  const cols=(sh.widths||sh.head.map(()=>24)).map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"/><cols>${cols}</cols><sheetData>${body}</sheetData><autoFilter ref="A1:${last}${all.length}"/></worksheet>`;
+}
+// Tên sheet Excel: tối đa 31 ký tự, không chứa : \ / ? * [ ]
+function sheetName(raw, taken){
+  let n=String(raw||'Sheet').replace(/[:\\/?*[\]]/g,'-').trim()||'Sheet';
+  if(n.length>31) n=n.slice(0,30).trim()+'…';
+  let c=n, i=2; while(taken.has(c.toLowerCase())){ const sfx=` (${i++})`; c=n.slice(0,31-sfx.length)+sfx; }
+  taken.add(c.toLowerCase()); return c;
+}
+function toXlsx(){
+  const p=exportPlan(), taken=new Set();
+  const sheets=p.sheets.map(s=>({...s, name:sheetName(s.name,taken)}));
+  const ov=sheets.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('');
+  const files=[
+    {name:'[Content_Types].xml',content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${ov}</Types>`},
+    {name:'_rels/.rels',content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`},
+    {name:'xl/workbook.xml',content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets.map((s,i)=>`<sheet name="${xmlEsc(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`},
+    {name:'xl/_rels/workbook.xml.rels',content:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`},
+    {name:'xl/styles.xml',content:STYLES_XML},
+    ...sheets.map((s,i)=>({name:`xl/worksheets/sheet${i+1}.xml`,content:sheetXml(s)}))
+  ];
+  downloadBlob(`${p.base}_${ts()}.xlsx`, zipStore(files));
+}
+
+/* ============================ EVENTS ============================ */
+$('#btnReset').onclick=()=>{
+  DOCS=[]; activeFile=''; tab='tc'; sortKey='id'; sortDir=1; offStatus.clear();
+  for(const url of IMAGES.values()) URL.revokeObjectURL(url);
+  IMAGES.clear();
+  $('#q').value='';
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.tab==='tc'));
+  ['tc','trend','bug'].forEach(t=>$('#tab-'+t).style.display=(t==='tc')?'block':'none');
+  try{ localStorage.removeItem('execViewer'); }catch(e){}
+  $('#detail').classList.remove('open');
+  render();
+};
+$('#btnAdd').onclick=()=>$('#file').click();
+$('#btnAddFolder').onclick=()=>$('#folder').click();
+$('#file').onchange=e=>{ addFiles(e.target.files); e.target.value=''; };
+$('#folder').onchange=e=>{ addFiles(e.target.files); e.target.value=''; };
+$('#drop').onclick=()=>$('#folder').click();
+$('#btnCsv').onclick=toCsv; $('#btnXlsx').onclick=toXlsx;
+$('#btnClose').onclick=()=>$('#detail').classList.remove('open');
+$('#q').oninput=render; $('#fModule').onchange=render;
+
+const dz=$('#drop');
+['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over')}));
+document.addEventListener('drop',async e=>{
+  if(!e.dataTransfer) return;
+  const files=await filesFromDrop(e.dataTransfer);
+  if(files.length) addFiles(files);
+});
+
+$('#files').onclick=e=>{
+  const rm=e.target.closest('[data-rm]');
+  if(rm){ const k=rm.dataset.rm; DOCS=DOCS.filter(d=>d.fileName+'|'+d.runId!==k); if(activeFile===k) activeFile=''; save(); render(); return; }
+  const f=e.target.closest('[data-f]'); if(f){ activeFile=f.dataset.f; render(); }
+};
+$('#chips').onclick=e=>{ const b=e.target.closest('[data-st]'); if(!b) return;
+  const s=b.dataset.st; offStatus.has(s)?offStatus.delete(s):offStatus.add(s); render(); };
+document.querySelector('#tbl thead').onclick=e=>{ const th=e.target.closest('[data-s]'); if(!th) return;
+  const k=th.dataset.s; sortDir=(k===sortKey)?-sortDir:1; sortKey=k; render(); };
+$('#rows').onclick=e=>{ const tr=e.target.closest('[data-i]'); if(!tr) return;
+  document.querySelectorAll('#rows tr').forEach(x=>x.classList.remove('sel')); tr.classList.add('sel');
+  const t=window.__rows[+tr.dataset.i]; openDetail({...t,historyStr:historyText(t)},t.id,t.scenario||'',TC_FIELDS); };
+$('#bugRows').onclick=e=>{ const tr=e.target.closest('[data-b]'); if(!tr) return;
+  const b=window.__bugs[+tr.dataset.b]; openDetail(b,b.bug,'Kết quả retest',BUG_FIELDS); };
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
+  tab=b.dataset.tab; document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
+  ['tc','trend','bug'].forEach(t=>$('#tab-'+t).style.display=(t===tab)?'block':'none'); });
+// Esc: đóng lightbox trước, chưa mở lightbox thì mới đóng drawer chi tiết.
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  if($('#lightbox').classList.contains('open')) return closeLightbox();
+  $('#detail').classList.remove('open');
+});
+$('#lbClose').onclick=closeLightbox;
+$('#lightbox').addEventListener('click',e=>{ if(e.target.id==='lightbox') closeLightbox(); });
+$('#dKv').addEventListener('click',e=>{
+  const c=e.target.closest('.ev-chip[data-img]'); if(c) openLightbox(c.dataset.img);
+});
+
+load(); render();
+</script>
+</body>
+</html>

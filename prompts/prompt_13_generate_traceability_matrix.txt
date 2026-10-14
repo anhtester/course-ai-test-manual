@@ -1,0 +1,30 @@
+/generate-traceability-matrix
+
+# CONTEXT
+- Phạm vi: [Toàn dự án / Module cụ thể: ...]
+- Mục đích: [Báo cáo coverage trước release / Audit bộ test cũ / Đối soát sau khi sinh TC]
+
+# NGUỒN DỮ LIỆU (cần ít nhất 2 trong 3 nguồn)
+
+## 1. Requirements
+[Chọn 1:]
+- File path: [path/to/requirements.md]
+- Jira: [Project key / danh sách ticket]
+- Dán trực tiếp:
+```
+[DÁN REQUIREMENTS / USER STORIES]
+```
+
+## 2. Manual Test Cases
+- File TC: [path/to/testcases.md hoặc .xlsx/.csv]
+
+## 3. Automation Scripts
+- Thư mục test: [VD: tests/ hoặc src/test/java/]
+
+# ĐỊNH DẠNG ID (nếu có quy ước riêng)
+- Requirement ID: [VD: REQ-xxx / US-xxx / để trống nếu chưa có]
+- Test Case ID: [VD: TC_xxx]
+- Cách map automation ↔ TC: [VD: TC ID nằm trong tên test / annotation / chưa có]
+
+# TÙY CHỌN
+- Xuất thêm file CSV để import Excel: [Có / Không]

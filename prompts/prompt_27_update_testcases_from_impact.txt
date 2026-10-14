@@ -1,0 +1,38 @@
+/update-testcases-from-impact
+
+# CONTEXT
+- Mode: [PLAN (chỉ lập kế hoạch) / APPLY (sửa TC + ghi Nhật ký)]
+- Ticket gây thay đổi: [VD: TICKET-123]
+
+# DELTA — REQUIREMENT ĐÃ ĐỔI
+[Chọn 1 trong 2 cách:]
+
+## Cách 1: Impact Report (từ /update-requirements-from-ticket)
+- File path: [VD: docs/requirements/project/impact/impact_TICKET-123.md]
+- Hoặc dán bảng "Test case cần xử lý" vào đây:
+```
+[DÁN BẢNG IMPACT REPORT]
+```
+
+## Cách 2: Tự liệt kê REQ đã đổi
+| REQ ID | Đổi cái gì |
+|---|---|
+| [REQ-PRJ-42] | [Deadline đổi từ tuỳ chọn sang bắt buộc] |
+| [REQ-PRJ-58] | [Chức năng Copy Project đã bị gỡ] |
+
+# NGUỒN ĐỐI CHIẾU
+- Tài liệu requirements hiện hành: [VD: docs/requirements/project/REQUIREMENTS_PROJECT_SUMMARY.md — agent tự theo Bản đồ tài liệu sang file nền tảng]
+- File test cases hiện hành: [VD: docs/testcases/project/TEST_CASES_PROJECT_SUMMARY.md — agent tự theo Bản đồ tài liệu sang file nền tảng]
+- Evidence của module (bắt buộc mở nếu thay đổi đụng bố cục/nhãn/thứ tự field): [VD: docs/requirements/project/web/evidence/ / "Không có"]
+- RTM (nếu có — map REQ→TC nhanh và chắc hơn): [VD: docs/traceability/traceability_matrix.md / "Không có"]
+
+# TÙY CHỌN
+- Giới hạn phạm vi: [VD: "Chỉ REQ-PRJ-42" / để trống = toàn bộ REQ trong delta]
+- Có bổ sung TC negative/boundary mới trong phạm vi REQ đã đổi không: [Có (khuyến nghị) / Không]
+
+# NHẮC AGENT
+- Sửa TẠI CHỖ trong file nền tảng (<nền-tảng>/test_cases_<module>_<nền-tảng>.md hoặc parts/) — KHÔNG sinh file _improved / _v2
+- Ghi mốc git (hash commit) của file TRƯỚC khi sửa — KHÔNG tạo thư mục archive/; file có thay đổi chưa commit thì dừng, nhắc commit trước
+- GIỮ NGUYÊN mọi TC ID. TC mới cấp số tiếp dải hiện có
+- TC của chức năng bị gỡ: gắn tag @Deprecated + tiền tố "🗑️ Deprecated (<TICKET-ID>, <ngày>) —" ở Test Scenario, KHÔNG xoá dòng
+- Mode APPLY: ghi Delta TC List ra docs/testcases/<module>/impact/delta_tc_<TICKET-ID>.md (có cột Nền tảng) — đầu vào của /update-automation-from-impact (prompt_19)

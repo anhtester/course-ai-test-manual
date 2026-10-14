@@ -1,0 +1,33 @@
+/execute-test-cases
+
+# CONTEXT
+- Module: [Tên module cần chạy test]
+- URL môi trường: [VD: https://crm.anhtester.com]
+- Build / Version: [VD: 2.4.1 — để trống nếu không rõ]
+- Môi trường dùng chung? [Có / Không] — Có thì agent tự SKIP các TC thao tác phá huỷ
+
+# NGUỒN TEST CASES
+- File TC hoặc checklist: [VD: docs/testcases/customers/web/test_cases_customers_web.md · docs/testcases/customers/web/parts/part_01_web_danh_sach.md · docs/checklists/customers/web/checklist_smoke_20260923.md · docs/checklists/_release/web/checklist_release_release_2.0.md]
+
+# PHẠM VI CHẠY (bắt buộc chọn 1)
+[Chọn 1 trong các cách sau, xoá các dòng còn lại:]
+- Toàn bộ file
+- Theo tag: [VD: @Smoke / @CriticalPath / @Regression]
+- Theo TC ID: [VD: CRM_CUST_TC_001 → CRM_CUST_TC_015]
+- Theo nhóm chức năng: [VD: Nhóm 1.2 — Tìm kiếm]
+
+# TÀI KHOẢN ĐĂNG NHẬP
+- Username: [VD: admin@example.com]
+- Password: [VD: 123456]
+- Role: [VD: Administrator]
+
+# TÙY CHỌN
+- Giới hạn thời gian chạy: [VD: 60 phút — để trống = chạy hết phạm vi đã chọn]
+- Dữ liệu tiền đề đã có sẵn: [VD: khách hàng Auto_Customer_1785700456 đã tồn tại — để trống nếu agent tự tạo]
+- Sinh bug report ngay cho TC FAIL? [Có / Không — mặc định Không, chỉ ghi vào execution report]
+
+# GHI CHÚ
+- Agent chạy headed mode (viewport theo `--viewport-size` lúc launch, không resize), ghi kết quả sau mỗi TC
+- Gặp FAIL: chụp screenshot, ghi Actual vs Expected rồi chạy tiếp (không dừng cả buổi)
+- Cuối buổi agent dọn sạch dữ liệu đã tạo và báo cáo đối chiếu số liệu trước/sau
+- TC @Deprecated tự bị loại khỏi phạm vi; TC gộp chạy từng biến thể, FAIL ghi mã biến thể (VD CRM_CUST_TC_012-c)

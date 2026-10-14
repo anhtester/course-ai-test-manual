@@ -1,0 +1,17 @@
+/generate-master-test-plan
+
+# CÁCH 1 — ĐIỀN PHIẾU (khuyến nghị)
+1. Mở plans/master-test-plan/test_plan.config.yaml và điền phần sau dấu hai chấm
+   Chỉ nhóm Mốc và Phạm vi là bắt buộc — chú thích cạnh mỗi ô ghi giá trị hợp lệ
+2. Chưa có thông tin → để trống. Agent ghi ❓ vào plan, KHÔNG bịa
+   Đã quyết định là không → ghi "không"
+   Ngày ghi NGÀY-THÁNG-NĂM, VD 17-09-2026
+3. Gửi đúng dòng lệnh ở trên — agent tự đọc phiếu
+
+# CÁCH 2 — KHÔNG ĐIỀN PHIẾU
+Gửi lệnh kèm tên mốc, agent sẽ hỏi một lượt theo đúng các nhóm của phiếu rồi tự ghi vào test_plan.config.yaml:
+- Mốc: [VD: Release 2.0]
+
+# GHI CHÚ
+- Agent tự đọc docs/ cho phần suy ra được (module, nền tảng, độ phủ, môi trường đã khảo sát, vùng đã loại) — không cần khai lại
+- URL và tài khoản để ở .env, KHÔNG ghi vào phiếu
